@@ -1,0 +1,3 @@
+# Optional native MPR reader. GPL-3.0-or-later; not vendored.
+numpy==2.3.5
+galvani @ git+https://github.com/echemdata/galvani.git@d4a5f444b16eae57d2edfad6df774ead95c92fd6

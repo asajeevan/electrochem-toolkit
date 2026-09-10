@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "electrochem-toolkit"
+version = "0.2.0"
+description = "Traceable import, records and calculations for BioLogic EC-Lab battery measurements"
+readme = "README.md"
+license = "GPL-3.0-or-later"
+requires-python = ">=3.11,<3.13"
+dependencies = ["pydantic==2.13.5"]
+
+[project.optional-dependencies]
+native = ["numpy==2.3.5", "galvani @ git+https://github.com/echemdata/galvani.git@d4a5f444b16eae57d2edfad6df774ead95c92fd6"]
+dev = ["pytest>=8"]
+
+[project.scripts]
+eclab-import = "eclab_import.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["electrochem*", "eclab_import*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

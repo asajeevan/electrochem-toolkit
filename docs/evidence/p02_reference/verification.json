@@ -1,0 +1,1084 @@
+{
+  "package": "P02",
+  "version": "0.1.0",
+  "python": "3.12.3",
+  "platform": "Linux-6.18.44-fc-v24-x86_64-with-glibc2.39",
+  "observation_fixtures": 21,
+  "passed_checks": 268,
+  "checks": [
+    {
+      "name": "hash:S01.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S02.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S03.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S04.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S05.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S06.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S07.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S08.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S09.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S10.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S11.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S12.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S13.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S14.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S15.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S16.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S17.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S18.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S19.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S20.json",
+      "passed": true
+    },
+    {
+      "name": "hash:S21.json",
+      "passed": true
+    },
+    {
+      "name": "hash:policies.json",
+      "passed": true
+    },
+    {
+      "name": "S01:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S01:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S01:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S01:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S01:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S01:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S01:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S01:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S01:reopen",
+      "passed": true
+    },
+    {
+      "name": "S01:energy_gate:0",
+      "passed": true
+    },
+    {
+      "name": "S01:metadata:{'basis': 'active_mass', 'value': '10', 'unit': 'mg', 'expected_mAh_g': '100'}",
+      "passed": true
+    },
+    {
+      "name": "S01:normalization:active_mass",
+      "passed": true
+    },
+    {
+      "name": "S01:metadata:{'basis': 'composite_mass', 'value': '20', 'unit': 'mg', 'expected_mAh_g': '50'}",
+      "passed": true
+    },
+    {
+      "name": "S01:normalization:composite_mass",
+      "passed": true
+    },
+    {
+      "name": "S01:metadata:{'basis': 'cell_mass', 'value': '1000', 'unit': 'mg', 'expected_mAh_g': '1'}",
+      "passed": true
+    },
+    {
+      "name": "S01:normalization:cell_mass",
+      "passed": true
+    },
+    {
+      "name": "S01:metadata:{'basis': 'geometric_area', 'value': '2', 'unit': 'cm^2', 'expected_mAh_cm2': '1/2'}",
+      "passed": true
+    },
+    {
+      "name": "S01:normalization:geometric_area",
+      "passed": true
+    },
+    {
+      "name": "S01:metadata:{'basis': 'active_mass', 'value': None, 'unit': 'mg', 'blocked': 'missing_mass'}",
+      "passed": true
+    },
+    {
+      "name": "S01:metadata:{'basis': 'active_mass', 'value': '0', 'unit': 'mg', 'blocked': 'invalid_denominator'}",
+      "passed": true
+    },
+    {
+      "name": "S01:metadata:{'basis': 'active_mass', 'value': '-1', 'unit': 'mg', 'blocked': 'invalid_denominator'}",
+      "passed": true
+    },
+    {
+      "name": "S02:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S02:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S02:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S02:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S02:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S02:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S02:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S02:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S02:reopen",
+      "passed": true
+    },
+    {
+      "name": "S02:energy_gate:0",
+      "passed": true
+    },
+    {
+      "name": "S03:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S03:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S03:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S03:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S03:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S03:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S03:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S03:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S03:reopen",
+      "passed": true
+    },
+    {
+      "name": "S03:energy_gate:0",
+      "passed": true
+    },
+    {
+      "name": "S04:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S04:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S04:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S04:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S04:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S04:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S04:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S04:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S04:reopen",
+      "passed": true
+    },
+    {
+      "name": "S04:energy_gate:0",
+      "passed": true
+    },
+    {
+      "name": "S05:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S05:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S05:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S05:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S05:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S05:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S05:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S05:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S05:reopen",
+      "passed": true
+    },
+    {
+      "name": "S05:energy_gate:0",
+      "passed": true
+    },
+    {
+      "name": "S05:energy_gate:1",
+      "passed": true
+    },
+    {
+      "name": "S05:energy_gate:2",
+      "passed": true
+    },
+    {
+      "name": "S05:component:constant_current",
+      "passed": true
+    },
+    {
+      "name": "S05:component:constant_voltage",
+      "passed": true
+    },
+    {
+      "name": "S06:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S06:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S06:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S06:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S06:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S06:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S06:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S06:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S06:reopen",
+      "passed": true
+    },
+    {
+      "name": "S06:energy_gate:0",
+      "passed": true
+    },
+    {
+      "name": "S07:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S07:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S07:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S07:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S07:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S07:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S07:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S07:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S07:reopen",
+      "passed": true
+    },
+    {
+      "name": "S07:energy_gate:0",
+      "passed": true
+    },
+    {
+      "name": "S07:energy_gate:2",
+      "passed": true
+    },
+    {
+      "name": "S08:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S08:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S08:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S08:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S08:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S08:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S08:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S08:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S08:reopen",
+      "passed": true
+    },
+    {
+      "name": "S08:energy_gate:0",
+      "passed": true
+    },
+    {
+      "name": "S08:energy_gate:2",
+      "passed": true
+    },
+    {
+      "name": "S08:bridge_rejected",
+      "passed": true
+    },
+    {
+      "name": "S09:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S09:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S09:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S09:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S09:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S09:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S09:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S09:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S09:reopen",
+      "passed": true
+    },
+    {
+      "name": "S09:energy_gate:0",
+      "passed": true
+    },
+    {
+      "name": "S09:energy_gate:2",
+      "passed": true
+    },
+    {
+      "name": "S09:bridge_rejected",
+      "passed": true
+    },
+    {
+      "name": "S10:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S10:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S10:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S10:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S10:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S10:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S10:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S10:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S10:reopen",
+      "passed": true
+    },
+    {
+      "name": "S11:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S11:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S11:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S11:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S11:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S11:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S11:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S11:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S11:reopen",
+      "passed": true
+    },
+    {
+      "name": "S12:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S12:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S12:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S12:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S12:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S12:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S12:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S12:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S12:reopen",
+      "passed": true
+    },
+    {
+      "name": "S12:energy_gate:0",
+      "passed": true
+    },
+    {
+      "name": "S13:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S13:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S13:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S13:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S13:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S13:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S13:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S13:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S13:reopen",
+      "passed": true
+    },
+    {
+      "name": "S13:energy_gate:0",
+      "passed": true
+    },
+    {
+      "name": "S14:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S14:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S14:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S14:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S14:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S14:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S14:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S14:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S14:reopen",
+      "passed": true
+    },
+    {
+      "name": "S14:energy_gate:0",
+      "passed": true
+    },
+    {
+      "name": "S15:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S15:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S15:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S15:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S15:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S15:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S15:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S15:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S15:reopen",
+      "passed": true
+    },
+    {
+      "name": "S15:energy_gate:0",
+      "passed": true
+    },
+    {
+      "name": "S15:energy_gate:1",
+      "passed": true
+    },
+    {
+      "name": "S15:energy_gate:2",
+      "passed": true
+    },
+    {
+      "name": "S16:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S16:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S16:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S16:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S16:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S16:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S16:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S16:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S16:reopen",
+      "passed": true
+    },
+    {
+      "name": "S16:energy_gate:0",
+      "passed": true
+    },
+    {
+      "name": "S17:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S17:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S17:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S17:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S17:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S17:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S17:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S17:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S17:reopen",
+      "passed": true
+    },
+    {
+      "name": "S17:energy_gate:0",
+      "passed": true
+    },
+    {
+      "name": "S17:energy_gate:1",
+      "passed": true
+    },
+    {
+      "name": "S18:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S18:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S18:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S18:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S18:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S18:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S18:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S18:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S18:reopen",
+      "passed": true
+    },
+    {
+      "name": "S18:energy_gate:0",
+      "passed": true
+    },
+    {
+      "name": "S18:energy_gate:1",
+      "passed": true
+    },
+    {
+      "name": "S19:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S19:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S19:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S19:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S19:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S19:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S19:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S19:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S19:reopen",
+      "passed": true
+    },
+    {
+      "name": "S19:energy_gate:0",
+      "passed": true
+    },
+    {
+      "name": "S19:energy_gate:2",
+      "passed": true
+    },
+    {
+      "name": "S19:CE",
+      "passed": true
+    },
+    {
+      "name": "S19:energy_ratio",
+      "passed": true
+    },
+    {
+      "name": "S20:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S20:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S20:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S20:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S20:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S20:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S20:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S20:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S20:reopen",
+      "passed": true
+    },
+    {
+      "name": "S20:energy_gate:0",
+      "passed": true
+    },
+    {
+      "name": "S21:exact:signed_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S21:exact:positive_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S21:exact:negative_charge_C",
+      "passed": true
+    },
+    {
+      "name": "S21:exact:signed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S21:exact:absorbed_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S21:exact:delivered_energy_J",
+      "passed": true
+    },
+    {
+      "name": "S21:exact:supported_duration_s",
+      "passed": true
+    },
+    {
+      "name": "S21:raw_tokens",
+      "passed": true
+    },
+    {
+      "name": "S21:reopen",
+      "passed": true
+    },
+    {
+      "name": "S21:energy_gate:0",
+      "passed": true
+    },
+    {
+      "name": "S21:energy_gate:1",
+      "passed": true
+    },
+    {
+      "name": "S21:display_does_not_change_input",
+      "passed": true
+    },
+    {
+      "name": "S21:display_only_integration_detected",
+      "passed": true
+    },
+    {
+      "name": "policy:retention_explicit_reference",
+      "passed": true
+    },
+    {
+      "name": "policy:over_unity_arithmetic",
+      "passed": true
+    },
+    {
+      "name": "policy:common_mass_cancellation:9/1000",
+      "passed": true
+    },
+    {
+      "name": "policy:common_mass_cancellation:1/100",
+      "passed": true
+    },
+    {
+      "name": "policy:common_mass_cancellation:11/1000",
+      "passed": true
+    },
+    {
+      "name": "mutation:power_trapezoid_detected",
+      "passed": true
+    },
+    {
+      "name": "mutation:net_absolute_hides_reversal",
+      "passed": true
+    },
+    {
+      "name": "mutation:gap_bridge_detected",
+      "passed": true
+    }
+  ],
+  "evidence_scope": "Exact reference arithmetic and P01 contract/reopening tests. Recipe diagnostic strings are specified, not executed by a production analysis engine.",
+  "verifier_sha256": "c23fb9b90c684e77dc4ff5cfb72512f999d5f7e2903abe1844f1f95601dc0ab9"
+}

@@ -1,0 +1,6 @@
+{
+  "python": "3.12.14",
+  "platform": "Linux-6.18.35-x86_64-with-glibc2.39",
+  "pydantic": "2.13.5",
+  "numpy_evaluation_only": "2.3.5"
+}

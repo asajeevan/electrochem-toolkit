@@ -1,0 +1,286 @@
+{
+  "scope": "Read-only public paired-file comparison; native library not integrated",
+  "numpy": "2.3.5",
+  "galvani_git_commit": "d4a5f444b16eae57d2edfad6df774ead95c92fd6",
+  "criterion": "Exact flag equality; numeric error at most half the last printed decimal digit. Discrepancies retained, never widen tolerance automatically.",
+  "pairs": [
+    {
+      "stem": "bio_logic1",
+      "mpt_sha256": "0c6275fd5ca4ecec2f06c19ecc1ff532835096cd4c262bf73b61f9bf670029d5",
+      "mpr_sha256": "2297914c6c90686e74262e9875bd4e2bab83edb7d79db67fb41f419dd69652cb",
+      "text_rows": 3119,
+      "native_rows": 3119,
+      "columns": [
+        {
+          "text_column": "time/s",
+          "native_column": "time/s",
+          "max_absolute_error_original_unit": "0.000004999194722622632980346679688",
+          "rounding_bound_failures": 0,
+          "first_failure_rows": [],
+          "invalid_text_rows": [],
+          "rounding_failures_with_binary_roundtrip_mismatch": 0
+        },
+        {
+          "text_column": "Ewe/V",
+          "native_column": "Ewe/V",
+          "max_absolute_error_original_unit": "4.9945831298828125E-10",
+          "rounding_bound_failures": 0,
+          "first_failure_rows": [],
+          "invalid_text_rows": [],
+          "rounding_failures_with_binary_roundtrip_mismatch": 0
+        },
+        {
+          "text_column": "dq/mA.h",
+          "native_column": "dq/mA.h",
+          "max_absolute_error_original_unit": "5.430467745833311710157431662E-20",
+          "rounding_bound_failures": 135,
+          "first_failure_rows": [
+            27,
+            29,
+            66,
+            97,
+            103
+          ],
+          "invalid_text_rows": [],
+          "rounding_failures_with_binary_roundtrip_mismatch": 0
+        },
+        {
+          "flag": "mode",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "ox/red",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "error",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "control changes",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "Ns changes",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "counter inc.",
+          "exact_mismatches": 0
+        }
+      ]
+    },
+    {
+      "stem": "bio_logic2",
+      "mpt_sha256": "fdde6c918ee60fe4761dccfbef102336ecf80ac67d02e4a9c4c9d00f9128ccb8",
+      "mpr_sha256": "fcfcf65acdbadc0ec7c768ada1825c460931a94c6cc38db5ef02b05b0630e2bd",
+      "text_rows": 61,
+      "native_rows": 61,
+      "columns": [
+        {
+          "text_column": "time/s",
+          "native_column": "time/s",
+          "max_absolute_error_original_unit": "0.00001494083406869322061538696289",
+          "rounding_bound_failures": 0,
+          "first_failure_rows": [],
+          "invalid_text_rows": [],
+          "rounding_failures_with_binary_roundtrip_mismatch": 0
+        },
+        {
+          "text_column": "Ewe/V",
+          "native_column": "Ewe/V",
+          "max_absolute_error_original_unit": "4.9017333984375E-9",
+          "rounding_bound_failures": 0,
+          "first_failure_rows": [],
+          "invalid_text_rows": [],
+          "rounding_failures_with_binary_roundtrip_mismatch": 0
+        },
+        {
+          "text_column": "dq/mA.h",
+          "native_column": "dq/mA.h",
+          "max_absolute_error_original_unit": "0",
+          "rounding_bound_failures": 0,
+          "first_failure_rows": [],
+          "invalid_text_rows": [],
+          "rounding_failures_with_binary_roundtrip_mismatch": 0
+        },
+        {
+          "flag": "mode",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "ox/red",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "error",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "control changes",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "Ns changes",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "counter inc.",
+          "exact_mismatches": 0
+        }
+      ]
+    },
+    {
+      "stem": "bio_logic4",
+      "mpt_sha256": "511857ab36082a4419acb5a19799717033b4de038d3c2767d74eabef91584817",
+      "mpr_sha256": "29c36e0d628827f542689e45f7ba306a94de56db3798d16f1059708423109871",
+      "text_rows": 4137,
+      "native_rows": 4137,
+      "columns": [
+        {
+          "text_column": "time/s",
+          "native_column": "time/s",
+          "max_absolute_error_original_unit": "0.000004994819229468703269958496094",
+          "rounding_bound_failures": 0,
+          "first_failure_rows": [],
+          "invalid_text_rows": [],
+          "rounding_failures_with_binary_roundtrip_mismatch": 0
+        },
+        {
+          "text_column": "Ewe/V",
+          "native_column": "Ewe/V",
+          "max_absolute_error_original_unit": "4.99847412109375E-9",
+          "rounding_bound_failures": 0,
+          "first_failure_rows": [],
+          "invalid_text_rows": [],
+          "rounding_failures_with_binary_roundtrip_mismatch": 0
+        },
+        {
+          "text_column": "dq/mA.h",
+          "native_column": "dq/mA.h",
+          "max_absolute_error_original_unit": "5.492411353068007429101271555E-21",
+          "rounding_bound_failures": 177,
+          "first_failure_rows": [
+            24,
+            75,
+            137,
+            142,
+            143
+          ],
+          "invalid_text_rows": [],
+          "rounding_failures_with_binary_roundtrip_mismatch": 0
+        },
+        {
+          "flag": "mode",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "ox/red",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "error",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "control changes",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "Ns changes",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "counter inc.",
+          "exact_mismatches": 0
+        }
+      ]
+    },
+    {
+      "stem": "bio_logic5",
+      "mpt_sha256": "b9c66344193fdab59bef3ab01a6cd2d1354002d85c37699e817f2f57b7a7fd42",
+      "mpr_sha256": "5ab4cec5dd8cf72e490389fa76456c6b3c748bf030d10c382978906bb949c9c1",
+      "text_rows": 249,
+      "native_rows": 249,
+      "columns": [
+        {
+          "text_column": "time/s",
+          "native_column": "time/s",
+          "max_absolute_error_original_unit": "0.00004970624882262200117111206055",
+          "rounding_bound_failures": 0,
+          "first_failure_rows": [],
+          "invalid_text_rows": [
+            0
+          ],
+          "rounding_failures_with_binary_roundtrip_mismatch": 0
+        },
+        {
+          "text_column": "Ewe/V",
+          "native_column": "Ewe/V",
+          "max_absolute_error_original_unit": "4.6527099609375E-10",
+          "rounding_bound_failures": 0,
+          "first_failure_rows": [],
+          "invalid_text_rows": [],
+          "rounding_failures_with_binary_roundtrip_mismatch": 0
+        },
+        {
+          "text_column": "I/mA",
+          "native_column": "I/mA",
+          "max_absolute_error_original_unit": "4.982147216796875E-11",
+          "rounding_bound_failures": 0,
+          "first_failure_rows": [],
+          "invalid_text_rows": [],
+          "rounding_failures_with_binary_roundtrip_mismatch": 0
+        },
+        {
+          "text_column": "dQ/mA.h",
+          "native_column": "dQ/mA.h",
+          "max_absolute_error_original_unit": "5.449803610699746059253811836E-19",
+          "rounding_bound_failures": 8,
+          "first_failure_rows": [
+            8,
+            42,
+            52,
+            91,
+            101
+          ],
+          "invalid_text_rows": [],
+          "rounding_failures_with_binary_roundtrip_mismatch": 0
+        },
+        {
+          "flag": "mode",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "ox/red",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "error",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "control changes",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "Ns changes",
+          "exact_mismatches": 0
+        },
+        {
+          "flag": "counter inc.",
+          "exact_mismatches": 0
+        }
+      ]
+    },
+    {
+      "stem": "bio_logic6",
+      "mpt_sha256": "874eb31dbb40012d9fb5ec819c431a8d297a579bf63aaf807b3688762cf8fe4d",
+      "mpr_sha256": "dff1008d2e19b7b7c79bab28d2eaeb2e7d3ad1c8204116080797f253596e30d9",
+      "text_rows": 958,
+      "native_rows": 2331,
+      "columns": [],
+      "alignment": "row_count_mismatch; no pointwise comparison"
+    }
+  ]
+}

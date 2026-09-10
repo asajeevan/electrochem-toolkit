@@ -1,0 +1,69 @@
+/workspace/scratch/c9e66a6b6212/eclab_import/native.py:73: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/eclab-native-weh7v77q/source.mpr'>
+  obj=mod.MPRfile(str(p),error_on_unknown_column=True)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+test_backend_fingerprint_gate (test_native.NativeTests.test_backend_fingerprint_gate) ... ok
+test_declared_record_count_mismatch (test_native.NativeTests.test_declared_record_count_mismatch) ... /workspace/scratch/c9e66a6b6212/p03_native/tests/test_native.py:68: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/eclab-native-ywk7tf_w/source.mpr'>
+  with self.assertRaises(ImportFailure):inspect_native(bytes(data),'x.mpr')
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_exact_binary_record_provenance (test_native.NativeTests.test_exact_binary_record_provenance) ... ok
+test_existing_text_cli_export_remains_independent (test_native.NativeTests.test_existing_text_cli_export_remains_independent) ... ok
+test_independent_struct_decode (test_native.NativeTests.test_independent_struct_decode) ... ok
+test_link_target_evidence_and_source_corruption (test_native.NativeTests.test_link_target_evidence_and_source_corruption) ... /workspace/scratch/c9e66a6b6212/eclab_import/native.py:73: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/eclab-native-z_kog_yt/source.mpr'>
+  obj=mod.MPRfile(str(p),error_on_unknown_column=True)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_module_payload_hashes_and_flags_retained (test_native.NativeTests.test_module_payload_hashes_and_flags_retained) ... ok
+test_native_nonfinite_preserved_as_invalid (test_native.NativeTests.test_native_nonfinite_preserved_as_invalid) ... /workspace/scratch/c9e66a6b6212/eclab_import/native.py:73: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/eclab-native-f8g60mz7/source.mpr'>
+  obj=mod.MPRfile(str(p),error_on_unknown_column=True)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/c9e66a6b6212/eclab_import/native.py:73: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/eclab-native-uixsugg_/source.mpr'>
+  obj=mod.MPRfile(str(p),error_on_unknown_column=True)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_no_source_names_invented (test_native.NativeTests.test_no_source_names_invented) ... ok
+test_nonsettings_cannot_be_linked (test_native.NativeTests.test_nonsettings_cannot_be_linked) ... /workspace/scratch/c9e66a6b6212/eclab_import/native.py:73: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/eclab-native-c_ooxkwm/source.mpr'>
+  obj=mod.MPRfile(str(p),error_on_unknown_column=True)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_numpy_version_gate (test_native.NativeTests.test_numpy_version_gate) ... ok
+test_projection_preserves_hex_and_unresolved_support (test_native.NativeTests.test_projection_preserves_hex_and_unresolved_support) ... /workspace/scratch/c9e66a6b6212/eclab_import/native.py:73: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/eclab-native-y0i9lvdu/source.mpr'>
+  obj=mod.MPRfile(str(p),error_on_unknown_column=True)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_reopen_without_backend_or_original_path (test_native.NativeTests.test_reopen_without_backend_or_original_path) ... /workspace/scratch/c9e66a6b6212/eclab_import/native.py:73: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/eclab-native-5fjpwat2/source.mpr'>
+  obj=mod.MPRfile(str(p),error_on_unknown_column=True)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_settings_link_is_explicit_and_not_measurements (test_native.NativeTests.test_settings_link_is_explicit_and_not_measurements) ... /workspace/scratch/c9e66a6b6212/eclab_import/native.py:73: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/eclab-native-rmm8dzdj/source.mpr'>
+  obj=mod.MPRfile(str(p),error_on_unknown_column=True)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_sidecars_never_loaded_implicitly (test_native.NativeTests.test_sidecars_never_loaded_implicitly) ... /workspace/scratch/c9e66a6b6212/eclab_import/native.py:73: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/eclab-native-gq2temcj/source.mpr'>
+  obj=mod.MPRfile(str(p),error_on_unknown_column=True)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_tampered_decoding_rejected (test_native.NativeTests.test_tampered_decoding_rejected) ... /workspace/scratch/c9e66a6b6212/eclab_import/native.py:73: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/eclab-native-kuwri61e/source.mpr'>
+  obj=mod.MPRfile(str(p),error_on_unknown_column=True)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_unknown_column_id_rejected_without_heuristics (test_native.NativeTests.test_unknown_column_id_rejected_without_heuristics) ... /workspace/scratch/c9e66a6b6212/p03_native/tests/test_native.py:64: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/eclab-native-bxtcslpd/source.mpr'>
+  with self.assertRaises(ImportFailure):inspect_native(bytes(data),'x.mpr')
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_unknown_data_version_rejected (test_native.NativeTests.test_unknown_data_version_rejected) ... /workspace/scratch/c9e66a6b6212/p03_native/tests/test_native.py:59: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/eclab-native-t0e1ghuz/source.mpr'>
+  with self.assertRaises(ImportFailure):inspect_native(bytes(data),'x.mpr')
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_wrong_magic_truncation_and_trailing_bytes (test_native.NativeTests.test_wrong_magic_truncation_and_trailing_bytes) ... /workspace/scratch/c9e66a6b6212/p03_native/tests/test_native.py:51: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/eclab-native-7sk3t954/source.mpr'>
+  with self.subTest(size=len(data)),self.assertRaises(ImportFailure):inspect_native(data,'x.mpr')
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/scratch/c9e66a6b6212/p03_native/tests/test_native.py:51: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/eclab-native-75_1vcl3/source.mpr'>
+  with self.subTest(size=len(data)),self.assertRaises(ImportFailure):inspect_native(data,'x.mpr')
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.539s
+
+OK

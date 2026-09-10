@@ -1,0 +1,109 @@
+{
+  "adapter_version": "0.1.0",
+  "source_sha256": "5ab4cec5dd8cf72e490389fa76456c6b3c748bf030d10c382978906bb949c9c1",
+  "format": "mpr",
+  "rows": 249,
+  "backend_fields": [
+    {
+      "index": 0,
+      "backend_label": "flags",
+      "dtype": "|u1",
+      "offset": 0,
+      "width": 1,
+      "interpreted_unit": null
+    },
+    {
+      "index": 1,
+      "backend_label": "time/s",
+      "dtype": "<f8",
+      "offset": 1,
+      "width": 8,
+      "interpreted_unit": "s"
+    },
+    {
+      "index": 2,
+      "backend_label": "control/V",
+      "dtype": "<f4",
+      "offset": 9,
+      "width": 4,
+      "interpreted_unit": "V"
+    },
+    {
+      "index": 3,
+      "backend_label": "Ewe/V",
+      "dtype": "<f4",
+      "offset": 13,
+      "width": 4,
+      "interpreted_unit": "V"
+    },
+    {
+      "index": 4,
+      "backend_label": "I/mA",
+      "dtype": "<f4",
+      "offset": 17,
+      "width": 4,
+      "interpreted_unit": "mA"
+    },
+    {
+      "index": 5,
+      "backend_label": "dQ/mA.h",
+      "dtype": "<f8",
+      "offset": 21,
+      "width": 8,
+      "interpreted_unit": "mA.h"
+    },
+    {
+      "index": 6,
+      "backend_label": "P/W",
+      "dtype": "<f4",
+      "offset": 29,
+      "width": 4,
+      "interpreted_unit": "W"
+    }
+  ],
+  "encoded_column_ids": [
+    1,
+    2,
+    3,
+    21,
+    31,
+    65,
+    4,
+    19,
+    6,
+    8,
+    23,
+    70
+  ],
+  "modules": [
+    {
+      "payload_offset": 109,
+      "payload_length": 1897,
+      "version": 0,
+      "name_hex": "564d5020536574202020",
+      "longname_hex": "564d502073657474696e677320202020202020202020202020",
+      "date_hex": "30312f32382f3133",
+      "payload_sha256": "dbcd4f77db5160fd91da54aea66484eaeb6859473c6d7f03a241873206c5a624"
+    },
+    {
+      "payload_offset": 2063,
+      "payload_length": 8622,
+      "version": 2,
+      "name_hex": "564d5020646174612020",
+      "longname_hex": "564d5020646174612020202020202020202020202020202020",
+      "date_hex": "30312f32382f3133",
+      "payload_sha256": "aa988845d60d85be49b5af3bdceb3f20c6b3e738bf1f886c0c5b5f0a92404e49"
+    },
+    {
+      "payload_offset": 10742,
+      "payload_length": 2836,
+      "version": 0,
+      "name_hex": "564d50204c4f47202020",
+      "longname_hex": "564d50204c4f47202020202020202020202020202020202020",
+      "date_hex": "30312f32382f3133",
+      "payload_sha256": "8c3c207d8e1f9bca5a96df59da5e8437a1ab3196c9ad4c9dca1d782638aec7b7"
+    }
+  ],
+  "status": "review_required; labels are backend interpretations; intervals unresolved",
+  "saved_project": "p03_native/examples/native_with_context.ecproj"
+}

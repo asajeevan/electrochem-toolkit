@@ -1,0 +1,44 @@
+[
+  {
+    "file": "020-formation_CB5.mpr",
+    "sha256": "586836288e1144454c277ecd6adfc384bfe1614ed141900c5f004b26a8b54d64",
+    "source_url": "https://github.com/echemdata/galvani/blob/d4a5f444b16eae57d2edfad6df774ead95c92fd6/tests/testdata/020-formation_CB5.mpr",
+    "license": "CC-BY-4.0; accompanying attribution and any file-specific notice apply",
+    "modified": false
+  },
+  {
+    "file": "bio_logic1.mpr",
+    "sha256": "2297914c6c90686e74262e9875bd4e2bab83edb7d79db67fb41f419dd69652cb",
+    "source_url": "https://github.com/echemdata/galvani/blob/d4a5f444b16eae57d2edfad6df774ead95c92fd6/tests/testdata/bio_logic1.mpr",
+    "license": "CC-BY-4.0; accompanying attribution and any file-specific notice apply",
+    "modified": false
+  },
+  {
+    "file": "bio_logic2.mpr",
+    "sha256": "fcfcf65acdbadc0ec7c768ada1825c460931a94c6cc38db5ef02b05b0630e2bd",
+    "source_url": "https://github.com/echemdata/galvani/blob/d4a5f444b16eae57d2edfad6df774ead95c92fd6/tests/testdata/bio_logic2.mpr",
+    "license": "CC-BY-4.0; accompanying attribution and any file-specific notice apply",
+    "modified": false
+  },
+  {
+    "file": "bio_logic4.mpr",
+    "sha256": "29c36e0d628827f542689e45f7ba306a94de56db3798d16f1059708423109871",
+    "source_url": "https://github.com/echemdata/galvani/blob/d4a5f444b16eae57d2edfad6df774ead95c92fd6/tests/testdata/bio_logic4.mpr",
+    "license": "CC-BY-4.0; accompanying attribution and any file-specific notice apply",
+    "modified": false
+  },
+  {
+    "file": "bio_logic5.mpr",
+    "sha256": "5ab4cec5dd8cf72e490389fa76456c6b3c748bf030d10c382978906bb949c9c1",
+    "source_url": "https://github.com/echemdata/galvani/blob/d4a5f444b16eae57d2edfad6df774ead95c92fd6/tests/testdata/bio_logic5.mpr",
+    "license": "CC-BY-4.0; accompanying attribution and any file-specific notice apply",
+    "modified": false
+  },
+  {
+    "file": "bio_logic6.mpr",
+    "sha256": "dff1008d2e19b7b7c79bab28d2eaeb2e7d3ad1c8204116080797f253596e30d9",
+    "source_url": "https://github.com/echemdata/galvani/blob/d4a5f444b16eae57d2edfad6df774ead95c92fd6/tests/testdata/bio_logic6.mpr",
+    "license": "CC-BY-4.0; accompanying attribution and any file-specific notice apply",
+    "modified": false
+  }
+]

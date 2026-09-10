@@ -1,0 +1,107 @@
+{
+  "id": "S01",
+  "title": "Constant current and normalization",
+  "version": "0.1.0",
+  "method": "M01 v0.1",
+  "columns": [
+    "time/s",
+    "I/A",
+    "U/V",
+    "native_flag",
+    "counter/C"
+  ],
+  "rows": [
+    [
+      "0",
+      ".001",
+      "3",
+      "synthetic",
+      null
+    ],
+    [
+      "3600",
+      ".001",
+      "3",
+      "synthetic",
+      null
+    ]
+  ],
+  "blocks": [
+    "b1",
+    "b1"
+  ],
+  "supported_edges": [
+    0
+  ],
+  "excluded_edge_reasons": {},
+  "current_multiplier": 1,
+  "potential_role": "terminal",
+  "configuration": "full_cell",
+  "interpolation": "point_linear",
+  "completeness": "complete",
+  "uncertainty": {
+    "status": "not_evaluated",
+    "standard_uncertainty": null
+  },
+  "expected": {
+    "signed_charge_C": "18/5",
+    "positive_charge_C": "18/5",
+    "negative_charge_C": "0",
+    "signed_energy_J": "54/5",
+    "absorbed_energy_J": "54/5",
+    "delivered_energy_J": "0",
+    "supported_duration_s": "3600"
+  },
+  "derivation": "Rectangle: 1 mA for 1 h = 1 mAh = 18/5 C; terminal work = 3 V times charge.",
+  "blocked_outputs": {},
+  "normalization_cases": [
+    {
+      "basis": "active_mass",
+      "value": "10",
+      "unit": "mg",
+      "expected_mAh_g": "100"
+    },
+    {
+      "basis": "composite_mass",
+      "value": "20",
+      "unit": "mg",
+      "expected_mAh_g": "50"
+    },
+    {
+      "basis": "cell_mass",
+      "value": "1000",
+      "unit": "mg",
+      "expected_mAh_g": "1"
+    },
+    {
+      "basis": "geometric_area",
+      "value": "2",
+      "unit": "cm^2",
+      "expected_mAh_cm2": "1/2"
+    },
+    {
+      "basis": "active_mass",
+      "value": null,
+      "unit": "mg",
+      "blocked": "missing_mass"
+    },
+    {
+      "basis": "active_mass",
+      "value": "0",
+      "unit": "mg",
+      "blocked": "invalid_denominator"
+    },
+    {
+      "basis": "active_mass",
+      "value": "-1",
+      "unit": "mg",
+      "blocked": "invalid_denominator"
+    }
+  ],
+  "tolerance": {
+    "reference": "exact rational equality",
+    "future_float_absolute_floor_SI": "1e-14",
+    "future_float_relative": "1e-12",
+    "rationale": "Small exact rational fixtures; allowance for binary arithmetic only, not experimental/model uncertainty."
+  }
+}

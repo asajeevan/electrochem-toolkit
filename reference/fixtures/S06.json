@@ -1,0 +1,64 @@
+{
+  "id": "S06",
+  "title": "Rest with measured nonzero current",
+  "version": "0.1.0",
+  "method": "M01 v0.1",
+  "columns": [
+    "time/s",
+    "I/A",
+    "U/V",
+    "native_flag",
+    "counter/C"
+  ],
+  "rows": [
+    [
+      "0",
+      ".000001",
+      "3",
+      "synthetic",
+      null
+    ],
+    [
+      "10",
+      ".000001",
+      "3",
+      "synthetic",
+      null
+    ]
+  ],
+  "blocks": [
+    "b1",
+    "b1"
+  ],
+  "supported_edges": [
+    0
+  ],
+  "excluded_edge_reasons": {},
+  "current_multiplier": 1,
+  "potential_role": "terminal",
+  "configuration": "full_cell",
+  "interpolation": "point_linear",
+  "completeness": "complete",
+  "uncertainty": {
+    "status": "not_evaluated",
+    "standard_uncertainty": null
+  },
+  "expected": {
+    "signed_charge_C": "1/100000",
+    "positive_charge_C": "1/100000",
+    "negative_charge_C": "0",
+    "signed_energy_J": "3/100000",
+    "absorbed_energy_J": "3/100000",
+    "delivered_energy_J": "0",
+    "supported_duration_s": "10"
+  },
+  "derivation": "Recorded 1 microampere for 10 seconds passes 10 microcoulombs. A rest label cannot silently zero a valid measurement.",
+  "blocked_outputs": {},
+  "protocol_label": "rest",
+  "tolerance": {
+    "reference": "exact rational equality",
+    "future_float_absolute_floor_SI": "1e-14",
+    "future_float_relative": "1e-12",
+    "rationale": "Small exact rational fixtures; allowance for binary arithmetic only, not experimental/model uncertainty."
+  }
+}

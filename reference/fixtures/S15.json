@@ -1,0 +1,83 @@
+{
+  "id": "S15",
+  "title": "Interrupted constant-voltage tail",
+  "version": "0.1.0",
+  "method": "M01 v0.1",
+  "columns": [
+    "time/s",
+    "I/A",
+    "U/V",
+    "native_flag",
+    "counter/C"
+  ],
+  "rows": [
+    [
+      "0",
+      ".002",
+      "3",
+      "synthetic",
+      null
+    ],
+    [
+      "1",
+      ".002",
+      "4",
+      "synthetic",
+      null
+    ],
+    [
+      "3",
+      ".001",
+      "4",
+      "synthetic",
+      null
+    ],
+    [
+      "4",
+      "0",
+      "4",
+      "synthetic",
+      null
+    ]
+  ],
+  "blocks": [
+    "b1",
+    "b1",
+    "b1",
+    "b1"
+  ],
+  "supported_edges": [
+    0,
+    1,
+    2
+  ],
+  "excluded_edge_reasons": {},
+  "current_multiplier": 1,
+  "potential_role": "terminal",
+  "configuration": "full_cell",
+  "interpolation": "point_linear",
+  "completeness": "partial",
+  "uncertainty": {
+    "status": "not_evaluated",
+    "standard_uncertainty": null
+  },
+  "expected": {
+    "signed_charge_C": "11/2000",
+    "positive_charge_C": "11/2000",
+    "negative_charge_C": "0",
+    "signed_energy_J": "21/1000",
+    "absorbed_energy_J": "21/1000",
+    "delivered_energy_J": "0",
+    "supported_duration_s": "4"
+  },
+  "derivation": "Observed signal is S05, but no intended termination is established; zero endpoint alone does not establish completion.",
+  "blocked_outputs": {
+    "full_cycle_CE": "incomplete_branch"
+  },
+  "tolerance": {
+    "reference": "exact rational equality",
+    "future_float_absolute_floor_SI": "1e-14",
+    "future_float_relative": "1e-12",
+    "rationale": "Small exact rational fixtures; allowance for binary arithmetic only, not experimental/model uncertainty."
+  }
+}

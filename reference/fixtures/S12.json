@@ -1,0 +1,65 @@
+{
+  "id": "S12",
+  "title": "Missing voltage leaves charge available",
+  "version": "0.1.0",
+  "method": "M01 v0.1",
+  "columns": [
+    "time/s",
+    "I/A",
+    "U/V",
+    "native_flag",
+    "counter/C"
+  ],
+  "rows": [
+    [
+      "0",
+      "1",
+      null,
+      "synthetic",
+      null
+    ],
+    [
+      "2",
+      "1",
+      null,
+      "synthetic",
+      null
+    ]
+  ],
+  "blocks": [
+    "b1",
+    "b1"
+  ],
+  "supported_edges": [
+    0
+  ],
+  "excluded_edge_reasons": {},
+  "current_multiplier": 1,
+  "potential_role": "terminal",
+  "configuration": "full_cell",
+  "interpolation": "point_linear",
+  "completeness": "complete",
+  "uncertainty": {
+    "status": "not_evaluated",
+    "standard_uncertainty": null
+  },
+  "expected": {
+    "signed_charge_C": "2",
+    "positive_charge_C": "2",
+    "negative_charge_C": "0",
+    "signed_energy_J": null,
+    "absorbed_energy_J": null,
+    "delivered_energy_J": null,
+    "supported_duration_s": "2"
+  },
+  "derivation": "Current rectangle is 2 C. No terminal energy can be obtained without voltage.",
+  "blocked_outputs": {
+    "energy": "missing_terminal_voltage"
+  },
+  "tolerance": {
+    "reference": "exact rational equality",
+    "future_float_absolute_floor_SI": "1e-14",
+    "future_float_relative": "1e-12",
+    "rationale": "Small exact rational fixtures; allowance for binary arithmetic only, not experimental/model uncertainty."
+  }
+}

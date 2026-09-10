@@ -1,0 +1,63 @@
+{
+  "id": "S14",
+  "title": "Sparse but confirmed continuous recording",
+  "version": "0.1.0",
+  "method": "M01 v0.1",
+  "columns": [
+    "time/s",
+    "I/A",
+    "U/V",
+    "native_flag",
+    "counter/C"
+  ],
+  "rows": [
+    [
+      "0",
+      ".001",
+      "3",
+      "synthetic",
+      null
+    ],
+    [
+      "10000",
+      ".001",
+      "3",
+      "synthetic",
+      null
+    ]
+  ],
+  "blocks": [
+    "b1",
+    "b1"
+  ],
+  "supported_edges": [
+    0
+  ],
+  "excluded_edge_reasons": {},
+  "current_multiplier": 1,
+  "potential_role": "terminal",
+  "configuration": "full_cell",
+  "interpolation": "point_linear",
+  "completeness": "complete",
+  "uncertainty": {
+    "status": "not_evaluated",
+    "standard_uncertainty": null
+  },
+  "expected": {
+    "signed_charge_C": "10",
+    "positive_charge_C": "10",
+    "negative_charge_C": "0",
+    "signed_energy_J": "30",
+    "absorbed_energy_J": "30",
+    "delivered_energy_J": "0",
+    "supported_duration_s": "10000"
+  },
+  "derivation": "Synthetic signal explicitly constant over 10000 s. Long sampling interval alone is not proof of a gap.",
+  "blocked_outputs": {},
+  "tolerance": {
+    "reference": "exact rational equality",
+    "future_float_absolute_floor_SI": "1e-14",
+    "future_float_relative": "1e-12",
+    "rationale": "Small exact rational fixtures; allowance for binary arithmetic only, not experimental/model uncertainty."
+  }
+}

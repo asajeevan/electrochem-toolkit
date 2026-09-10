@@ -1,0 +1,16 @@
+{
+  "time": 0,
+  "current": 1,
+  "potential": 2,
+  "native_step": 4,
+  "native_cycle": 5,
+  "current_multiplier": null,
+  "potential_role": "unresolved",
+  "positive_node": null,
+  "negative_node": null,
+  "reference": null,
+  "configuration": "unknown",
+  "passive_current_confirmed": false,
+  "technique": "unresolved",
+  "evidence": "Explicit synthetic column review"
+}

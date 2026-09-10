@@ -1,0 +1,50 @@
+{
+  "version": "0.1.0",
+  "evidence": "Expected scientific policies only; no production recipe implementation.",
+  "retention": {
+    "discharge_C": [
+      "8",
+      "10",
+      "9"
+    ],
+    "formation": [
+      true,
+      false,
+      false
+    ],
+    "reference_index": 1,
+    "expected_fraction": [
+      "4/5",
+      "1",
+      "9/10"
+    ],
+    "exclude_reference_behavior": "incompatible_reference; never silently select another cycle"
+  },
+  "over_unity_CE": {
+    "charge_C": "1",
+    "discharge_C": "11/10",
+    "expected_fraction": "11/10",
+    "behavior": "retain value with review, never clip"
+  },
+  "zero_charge_denominator": {
+    "charge_C": "0",
+    "discharge_C": "1",
+    "status": "invalid_denominator",
+    "expected": null
+  },
+  "cell_configuration": {
+    "symmetric": "directional charge only; no default battery CE",
+    "blocking": "passed charge only; no automatic battery-capacity interpretation",
+    "metal_half_cell": "energy is measured test-cell terminal energy, including metal electrode",
+    "three_electrode": "electrode potential alone cannot supply terminal energy"
+  },
+  "shared_mass": {
+    "mass_g": "1/100",
+    "mass_standard_uncertainty_g": "1/1000",
+    "charge_C": "1",
+    "discharge_C": "9/10",
+    "expected_CE_fraction": "9/10",
+    "mass_only_CE_standard_uncertainty": "0",
+    "note": "Algebraic cancellation only; total uncertainty remains not_evaluated."
+  }
+}

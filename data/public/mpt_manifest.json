@@ -1,0 +1,246 @@
+[
+  {
+    "local_name": "galvani/020-formation_CB5.mpt",
+    "source_repository": "galvani",
+    "commit": "d4a5f444b16eae57d2edfad6df774ead95c92fd6",
+    "source_path": "tests/testdata/020-formation_CB5.mpt",
+    "sha256": "c323f95a3f5f1465d07ef8654a86df1de65e3a5dc3af11e7fb27d187f2ffe43e",
+    "license": "See accompanying file-specific notice",
+    "options": {
+      "encoding": "cp1252",
+      "missing_terminal_empty_field": true,
+      "headerless": false,
+      "decimal": "."
+    },
+    "expected_invalid_values": {}
+  },
+  {
+    "local_name": "galvani/121_CA_455nm_6V_30min_C01.mpt",
+    "source_repository": "galvani",
+    "commit": "d4a5f444b16eae57d2edfad6df774ead95c92fd6",
+    "source_path": "tests/testdata/121_CA_455nm_6V_30min_C01.mpt",
+    "sha256": "7f3792677454642b7d6d64a99d756182845897c0c1f4790e101c071ccc02c7df",
+    "license": "CC-BY-4.0",
+    "options": {
+      "encoding": "cp1252",
+      "missing_terminal_empty_field": true,
+      "headerless": false,
+      "decimal": ","
+    },
+    "expected_invalid_values": {}
+  },
+  {
+    "local_name": "galvani/CV_C01.mpt",
+    "source_repository": "galvani",
+    "commit": "d4a5f444b16eae57d2edfad6df774ead95c92fd6",
+    "source_path": "tests/testdata/CV_C01.mpt",
+    "sha256": "416adc738908b25e7515c1ca9d7c7d8f5df56ed61b0bd556da45327db93fa7bc",
+    "license": "CC-BY-4.0",
+    "options": {
+      "encoding": "cp1252",
+      "missing_terminal_empty_field": true,
+      "headerless": false,
+      "decimal": ","
+    },
+    "expected_invalid_values": {}
+  },
+  {
+    "local_name": "galvani/EIS_latin1.mpt",
+    "source_repository": "galvani",
+    "commit": "d4a5f444b16eae57d2edfad6df774ead95c92fd6",
+    "source_path": "tests/testdata/EIS_latin1.mpt",
+    "sha256": "bb6fd46a62b8a92e723f084a6da6a851489a9bbebc97f3671a1983689e581040",
+    "license": "CC-BY-4.0",
+    "options": {
+      "encoding": "cp1252",
+      "missing_terminal_empty_field": true,
+      "headerless": false,
+      "decimal": ","
+    },
+    "expected_invalid_values": {}
+  },
+  {
+    "local_name": "galvani/bio_logic1.mpt",
+    "source_repository": "galvani",
+    "commit": "d4a5f444b16eae57d2edfad6df774ead95c92fd6",
+    "source_path": "tests/testdata/bio_logic1.mpt",
+    "sha256": "0c6275fd5ca4ecec2f06c19ecc1ff532835096cd4c262bf73b61f9bf670029d5",
+    "license": "CC-BY-4.0",
+    "options": {
+      "encoding": "cp1252",
+      "missing_terminal_empty_field": true,
+      "headerless": false,
+      "decimal": "."
+    },
+    "expected_invalid_values": {}
+  },
+  {
+    "local_name": "galvani/bio_logic2.mpt",
+    "source_repository": "galvani",
+    "commit": "d4a5f444b16eae57d2edfad6df774ead95c92fd6",
+    "source_path": "tests/testdata/bio_logic2.mpt",
+    "sha256": "fdde6c918ee60fe4761dccfbef102336ecf80ac67d02e4a9c4c9d00f9128ccb8",
+    "license": "CC-BY-4.0",
+    "options": {
+      "encoding": "cp1252",
+      "missing_terminal_empty_field": true,
+      "headerless": false,
+      "decimal": "."
+    },
+    "expected_invalid_values": {}
+  },
+  {
+    "local_name": "galvani/bio_logic4.mpt",
+    "source_repository": "galvani",
+    "commit": "d4a5f444b16eae57d2edfad6df774ead95c92fd6",
+    "source_path": "tests/testdata/bio_logic4.mpt",
+    "sha256": "511857ab36082a4419acb5a19799717033b4de038d3c2767d74eabef91584817",
+    "license": "CC-BY-4.0",
+    "options": {
+      "encoding": "cp1252",
+      "missing_terminal_empty_field": true,
+      "headerless": false,
+      "decimal": "."
+    },
+    "expected_invalid_values": {}
+  },
+  {
+    "local_name": "galvani/bio_logic5.mpt",
+    "source_repository": "galvani",
+    "commit": "d4a5f444b16eae57d2edfad6df774ead95c92fd6",
+    "source_path": "tests/testdata/bio_logic5.mpt",
+    "sha256": "b9c66344193fdab59bef3ab01a6cd2d1354002d85c37699e817f2f57b7a7fd42",
+    "license": "CC-BY-4.0",
+    "options": {
+      "encoding": "cp1252",
+      "missing_terminal_empty_field": true,
+      "headerless": false,
+      "decimal": "."
+    },
+    "expected_invalid_values": {
+      "time": 1
+    }
+  },
+  {
+    "local_name": "galvani/bio_logic6.mpt",
+    "source_repository": "galvani",
+    "commit": "d4a5f444b16eae57d2edfad6df774ead95c92fd6",
+    "source_path": "tests/testdata/bio_logic6.mpt",
+    "sha256": "874eb31dbb40012d9fb5ec819c431a8d297a579bf63aaf807b3688762cf8fe4d",
+    "license": "CC-BY-4.0",
+    "options": {
+      "encoding": "cp1252",
+      "missing_terminal_empty_field": true,
+      "headerless": false,
+      "decimal": "."
+    },
+    "expected_invalid_values": {}
+  },
+  {
+    "local_name": "pyprobe/Sample_data_biologic_01_MB_CA1.txt",
+    "source_repository": "pyprobe",
+    "commit": "d0ad5a9b722c3b599d30a7b61cd88f74c5207630",
+    "source_path": "tests/sample_data/biologic/Sample_data_biologic_01_MB_CA1.txt",
+    "sha256": "402116f7451729aa16d603cd8ec55bafa6ae5944a9fd72a6214e1497c259b40c",
+    "license": "BSD-3-Clause",
+    "options": {
+      "encoding": "cp1252",
+      "missing_terminal_empty_field": true,
+      "headerless": false,
+      "decimal": "."
+    },
+    "expected_invalid_values": {}
+  },
+  {
+    "local_name": "pyprobe/Sample_data_biologic_02_MB_CA1.txt",
+    "source_repository": "pyprobe",
+    "commit": "d0ad5a9b722c3b599d30a7b61cd88f74c5207630",
+    "source_path": "tests/sample_data/biologic/Sample_data_biologic_02_MB_CA1.txt",
+    "sha256": "36c25d30597680dbf437e969dd0469e57f37c42808addfff37577d6e0b514482",
+    "license": "BSD-3-Clause",
+    "options": {
+      "encoding": "cp1252",
+      "missing_terminal_empty_field": true,
+      "headerless": false,
+      "decimal": "."
+    },
+    "expected_invalid_values": {}
+  },
+  {
+    "local_name": "pyprobe/Sample_data_biologic_03_MB_CA1.txt",
+    "source_repository": "pyprobe",
+    "commit": "d0ad5a9b722c3b599d30a7b61cd88f74c5207630",
+    "source_path": "tests/sample_data/biologic/Sample_data_biologic_03_MB_CA1.txt",
+    "sha256": "189e1dea7941915c11d37c27685d0fd422d30deea7390c2e2140474d01c901bd",
+    "license": "BSD-3-Clause",
+    "options": {
+      "encoding": "cp1252",
+      "missing_terminal_empty_field": true,
+      "headerless": false,
+      "decimal": "."
+    },
+    "expected_invalid_values": {}
+  },
+  {
+    "local_name": "pyprobe/Sample_data_biologic_CA1.txt",
+    "source_repository": "pyprobe",
+    "commit": "d0ad5a9b722c3b599d30a7b61cd88f74c5207630",
+    "source_path": "tests/sample_data/biologic/Sample_data_biologic_CA1.txt",
+    "sha256": "402116f7451729aa16d603cd8ec55bafa6ae5944a9fd72a6214e1497c259b40c",
+    "license": "BSD-3-Clause",
+    "options": {
+      "encoding": "cp1252",
+      "missing_terminal_empty_field": true,
+      "headerless": false,
+      "decimal": "."
+    },
+    "expected_invalid_values": {}
+  },
+  {
+    "local_name": "pyprobe/Sample_data_biologic_no_header.mpt",
+    "source_repository": "pyprobe",
+    "commit": "d0ad5a9b722c3b599d30a7b61cd88f74c5207630",
+    "source_path": "tests/sample_data/biologic/Sample_data_biologic_no_header.mpt",
+    "sha256": "c74b0702cd747636cc5e5b12c8e33b0eb30a62fd78feac4369854d16ca29890b",
+    "license": "BSD-3-Clause",
+    "options": {
+      "encoding": "cp1252",
+      "missing_terminal_empty_field": true,
+      "headerless": true,
+      "decimal": "."
+    },
+    "expected_invalid_values": {}
+  },
+  {
+    "local_name": "pyprobe/Sample_data_biologic_timestamped.txt",
+    "source_repository": "pyprobe",
+    "commit": "d0ad5a9b722c3b599d30a7b61cd88f74c5207630",
+    "source_path": "tests/sample_data/biologic/Sample_data_biologic_timestamped.txt",
+    "sha256": "43986e197d358e188c16385c86d4aa7bf53ce6fa89cdc6612e37b90a66519814",
+    "license": "BSD-3-Clause",
+    "options": {
+      "encoding": "cp1252",
+      "missing_terminal_empty_field": true,
+      "headerless": false,
+      "decimal": "."
+    },
+    "expected_invalid_values": {
+      "time": 8
+    }
+  },
+  {
+    "local_name": "beep/BioTest_000001.mps",
+    "source_repository": "beep",
+    "commit": "f2b984e4bbf54554d9514c1defc81d09ac2a3dee",
+    "source_path": "tests/test_files/BioTest_000001.mps",
+    "sha256": "fa08695d189f3f25a3e09f08dcecdc90bfe7314819dee233d140ad03c3ec990c",
+    "license": "Apache-2.0",
+    "options": {
+      "encoding": "cp1252",
+      "missing_terminal_empty_field": true,
+      "headerless": false,
+      "decimal": "."
+    },
+    "expected_invalid_values": {}
+  }
+]

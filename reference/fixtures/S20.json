@@ -1,0 +1,63 @@
+{
+  "id": "S20",
+  "title": "Explicit inverted instrument current convention",
+  "version": "0.1.0",
+  "method": "M01 v0.1",
+  "columns": [
+    "time/s",
+    "I/A",
+    "U/V",
+    "native_flag",
+    "counter/C"
+  ],
+  "rows": [
+    [
+      "0",
+      "-.001",
+      "3",
+      "synthetic",
+      null
+    ],
+    [
+      "3600",
+      "-.001",
+      "3",
+      "synthetic",
+      null
+    ]
+  ],
+  "blocks": [
+    "b1",
+    "b1"
+  ],
+  "supported_edges": [
+    0
+  ],
+  "excluded_edge_reasons": {},
+  "current_multiplier": -1,
+  "potential_role": "terminal",
+  "configuration": "full_cell",
+  "interpolation": "point_linear",
+  "completeness": "complete",
+  "uncertainty": {
+    "status": "not_evaluated",
+    "standard_uncertainty": null
+  },
+  "expected": {
+    "signed_charge_C": "18/5",
+    "positive_charge_C": "18/5",
+    "negative_charge_C": "0",
+    "signed_energy_J": "54/5",
+    "absorbed_energy_J": "54/5",
+    "delivered_energy_J": "0",
+    "supported_duration_s": "3600"
+  },
+  "derivation": "Raw negative current maps with documented multiplier -1 to positive terminal current. Raw tokens remain unchanged.",
+  "blocked_outputs": {},
+  "tolerance": {
+    "reference": "exact rational equality",
+    "future_float_absolute_floor_SI": "1e-14",
+    "future_float_relative": "1e-12",
+    "rationale": "Small exact rational fixtures; allowance for binary arithmetic only, not experimental/model uncertainty."
+  }
+}

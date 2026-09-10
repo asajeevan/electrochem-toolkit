@@ -1,0 +1,28 @@
+test_absolute_timestamp_not_seconds (test_text.TextTests.test_absolute_timestamp_not_seconds) ... ok
+test_bad_header_counts (test_text.TextTests.test_bad_header_counts) ... ok
+test_bad_mapping_and_units (test_text.TextTests.test_bad_mapping_and_units) ... ok
+test_bom_and_lf (test_text.TextTests.test_bom_and_lf) ... ok
+test_current_raw_sign_is_not_guessed (test_text.TextTests.test_current_raw_sign_is_not_guessed) ... ok
+test_empty_table_is_inspectable (test_text.TextTests.test_empty_table_is_inspectable) ... ok
+test_explicit_absent_trailing_empty_column (test_text.TextTests.test_explicit_absent_trailing_empty_column) ... ok
+test_explicit_decimal_comma (test_text.TextTests.test_explicit_decimal_comma) ... ok
+test_grouping_overflow_underflow_rejected (test_text.TextTests.test_grouping_overflow_underflow_rejected) ... ok
+test_header_count_line_refs_and_raw (test_text.TextTests.test_header_count_line_refs_and_raw) ... ok
+test_headerless_requires_explicit_mode (test_text.TextTests.test_headerless_requires_explicit_mode) ... ok
+test_lexical_unknown_duplicate_columns (test_text.TextTests.test_lexical_unknown_duplicate_columns) ... ok
+test_malformed_rows_never_skipped (test_text.TextTests.test_malformed_rows_never_skipped) ... ok
+test_missing_and_invalid_numbers_not_zero (test_text.TextTests.test_missing_and_invalid_numbers_not_zero) ... ok
+test_mps_is_context_only (test_text.TextTests.test_mps_is_context_only) ... ok
+test_native_mpr_explicitly_gated (test_text.TextTests.test_native_mpr_explicitly_gated) ... ok
+test_no_automatic_normalized_current_mapping (test_text.TextTests.test_no_automatic_normalized_current_mapping) ... ok
+test_no_intervals_qualified_or_absolute_time_inferred (test_text.TextTests.test_no_intervals_qualified_or_absolute_time_inferred) ... ok
+test_no_silent_legacy_encoding (test_text.TextTests.test_no_silent_legacy_encoding) ... ok
+test_parsed_record_tampering_detected (test_text.TextTests.test_parsed_record_tampering_detected) ... ok
+test_project_reopens_source_and_import_settings (test_text.TextTests.test_project_reopens_source_and_import_settings) ... ok
+test_reset_and_duplicate_rows_preserved (test_text.TextTests.test_reset_and_duplicate_rows_preserved) ... ok
+test_settings_signature_and_nul_rejected (test_text.TextTests.test_settings_signature_and_nul_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.012s
+
+OK

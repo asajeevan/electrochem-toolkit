@@ -1,0 +1,1152 @@
+{
+  "$defs": {
+    "Branch": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "experiment_id": {
+          "minLength": 1,
+          "title": "Experiment Id",
+          "type": "string"
+        },
+        "interval_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Interval Ids",
+          "type": "array"
+        },
+        "direction": {
+          "enum": [
+            "charge",
+            "discharge",
+            "positive_current",
+            "negative_current",
+            "unknown"
+          ],
+          "title": "Direction",
+          "type": "string"
+        },
+        "completeness": {
+          "enum": [
+            "complete",
+            "partial",
+            "unknown"
+          ],
+          "title": "Completeness",
+          "type": "string"
+        },
+        "termination_evidence": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Termination Evidence"
+        },
+        "formation": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Formation"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      },
+      "required": [
+        "id",
+        "experiment_id",
+        "interval_ids",
+        "direction",
+        "completeness",
+        "provenance"
+      ],
+      "title": "Branch",
+      "type": "object"
+    },
+    "Channel": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "source_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Hash",
+          "type": "string"
+        },
+        "column_index": {
+          "minimum": 0,
+          "title": "Column Index",
+          "type": "integer"
+        },
+        "quantity": {
+          "enum": [
+            "time",
+            "current",
+            "potential",
+            "temperature",
+            "charge",
+            "frequency",
+            "resistance"
+          ],
+          "title": "Quantity",
+          "type": "string"
+        },
+        "input_unit": {
+          "minLength": 1,
+          "title": "Input Unit",
+          "type": "string"
+        },
+        "potential_role": {
+          "anyOf": [
+            {
+              "enum": [
+                "terminal",
+                "electrode",
+                "unresolved"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Potential Role"
+        },
+        "positive_node": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Positive Node"
+        },
+        "negative_node": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Negative Node"
+        },
+        "reference": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reference"
+        },
+        "current_polarity": {
+          "anyOf": [
+            {
+              "enum": [
+                -1,
+                1
+              ],
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Current Polarity"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      },
+      "required": [
+        "id",
+        "source_hash",
+        "column_index",
+        "quantity",
+        "input_unit",
+        "provenance"
+      ],
+      "title": "Channel",
+      "type": "object"
+    },
+    "Column": {
+      "additionalProperties": false,
+      "properties": {
+        "original_name": {
+          "title": "Original Name",
+          "type": "string"
+        },
+        "original_unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Original Unit"
+        }
+      },
+      "required": [
+        "original_name",
+        "original_unit"
+      ],
+      "title": "Column",
+      "type": "object"
+    },
+    "Experiment": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "cell_id": {
+          "minLength": 1,
+          "title": "Cell Id",
+          "type": "string"
+        },
+        "configuration": {
+          "enum": [
+            "full_cell",
+            "metal_half_cell",
+            "three_electrode",
+            "symmetric",
+            "blocking",
+            "unknown"
+          ],
+          "title": "Configuration",
+          "type": "string"
+        },
+        "technique": {
+          "minLength": 1,
+          "title": "Technique",
+          "type": "string"
+        },
+        "time_channel": {
+          "minLength": 1,
+          "title": "Time Channel",
+          "type": "string"
+        },
+        "current_channel": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Current Channel"
+        },
+        "voltage_channel": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Voltage Channel"
+        },
+        "passive_current_confirmed": {
+          "default": false,
+          "title": "Passive Current Confirmed",
+          "type": "boolean"
+        },
+        "convention_provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Provenance"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "clock_tolerance_s": {
+          "minimum": 0,
+          "title": "Clock Tolerance S",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "cell_id",
+        "configuration",
+        "technique",
+        "time_channel",
+        "clock_tolerance_s"
+      ],
+      "title": "Experiment",
+      "type": "object"
+    },
+    "Interval": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "left": {
+          "$ref": "#/$defs/RowRef"
+        },
+        "right": {
+          "$ref": "#/$defs/RowRef"
+        },
+        "status": {
+          "enum": [
+            "supported",
+            "excluded",
+            "unresolved"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        },
+        "reconstruction": {
+          "enum": [
+            "point_linear",
+            "interval_mean",
+            "none"
+          ],
+          "title": "Reconstruction",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      },
+      "required": [
+        "id",
+        "left",
+        "right",
+        "status",
+        "reason",
+        "reconstruction",
+        "provenance"
+      ],
+      "title": "Interval",
+      "type": "object"
+    },
+    "MetadataRevision": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "parent_id": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Id"
+        },
+        "reason": {
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        },
+        "entries": {
+          "items": {
+            "$ref": "#/$defs/MetadataValue"
+          },
+          "title": "Entries",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "reason",
+        "entries"
+      ],
+      "title": "MetadataRevision",
+      "type": "object"
+    },
+    "MetadataValue": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "scope_id": {
+          "minLength": 1,
+          "title": "Scope Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "active_mass",
+            "composite_mass",
+            "cell_mass",
+            "geometric_area",
+            "interfacial_area",
+            "thickness",
+            "temperature",
+            "reference_capacity"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        },
+        "unit": {
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        },
+        "confirmed": {
+          "title": "Confirmed",
+          "type": "boolean"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      },
+      "required": [
+        "id",
+        "scope_id",
+        "kind",
+        "value",
+        "unit",
+        "confirmed",
+        "provenance"
+      ],
+      "title": "MetadataValue",
+      "type": "object"
+    },
+    "Observation": {
+      "additionalProperties": false,
+      "properties": {
+        "ref": {
+          "$ref": "#/$defs/RowRef"
+        },
+        "experiment_id": {
+          "minLength": 1,
+          "title": "Experiment Id",
+          "type": "string"
+        },
+        "acquisition_order": {
+          "minimum": 0,
+          "title": "Acquisition Order",
+          "type": "integer"
+        },
+        "block_id": {
+          "minLength": 1,
+          "title": "Block Id",
+          "type": "string"
+        },
+        "samples": {
+          "items": {
+            "$ref": "#/$defs/Sample"
+          },
+          "title": "Samples",
+          "type": "array"
+        },
+        "absolute_time": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Absolute Time"
+        },
+        "absolute_time_provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Provenance"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "native_step": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Native Step"
+        },
+        "native_cycle": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Native Cycle"
+        }
+      },
+      "required": [
+        "ref",
+        "experiment_id",
+        "acquisition_order",
+        "block_id",
+        "samples"
+      ],
+      "title": "Observation",
+      "type": "object"
+    },
+    "Pair": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "charge_branch": {
+          "minLength": 1,
+          "title": "Charge Branch",
+          "type": "string"
+        },
+        "discharge_branch": {
+          "minLength": 1,
+          "title": "Discharge Branch",
+          "type": "string"
+        },
+        "policy": {
+          "minLength": 1,
+          "title": "Policy",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      },
+      "required": [
+        "id",
+        "charge_branch",
+        "discharge_branch",
+        "policy",
+        "provenance"
+      ],
+      "title": "Pair",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "origin": {
+          "enum": [
+            "file",
+            "user",
+            "calculation"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "evidence": {
+          "minLength": 1,
+          "title": "Evidence",
+          "type": "string"
+        },
+        "revision": {
+          "minLength": 1,
+          "title": "Revision",
+          "type": "string"
+        }
+      },
+      "required": [
+        "origin",
+        "evidence",
+        "revision"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "RawRow": {
+      "additionalProperties": false,
+      "properties": {
+        "ref": {
+          "$ref": "#/$defs/RowRef"
+        },
+        "tokens": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Tokens",
+          "type": "array"
+        }
+      },
+      "required": [
+        "ref",
+        "tokens"
+      ],
+      "title": "RawRow",
+      "type": "object"
+    },
+    "Result": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "method_id": {
+          "minLength": 1,
+          "title": "Method Id",
+          "type": "string"
+        },
+        "method_version": {
+          "minLength": 1,
+          "title": "Method Version",
+          "type": "string"
+        },
+        "engine_version": {
+          "minLength": 1,
+          "title": "Engine Version",
+          "type": "string"
+        },
+        "parser_version": {
+          "minLength": 1,
+          "title": "Parser Version",
+          "type": "string"
+        },
+        "metadata_revision": {
+          "minLength": 1,
+          "title": "Metadata Revision",
+          "type": "string"
+        },
+        "input_digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Input Digest",
+          "type": "string"
+        },
+        "interval_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Interval Ids",
+          "type": "array"
+        },
+        "settings": {
+          "items": {
+            "$ref": "#/$defs/Setting"
+          },
+          "title": "Settings",
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "available",
+            "provisional",
+            "needs_metadata",
+            "inapplicable",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "evidence_level": {
+          "enum": [
+            "proposed",
+            "implemented",
+            "software_tested",
+            "experimentally_validated"
+          ],
+          "title": "Evidence Level",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        },
+        "unit": {
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        },
+        "normalization_metadata_id": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Normalization Metadata Id"
+        },
+        "diagnostics": {
+          "default": [],
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Diagnostics",
+          "type": "array"
+        },
+        "assumptions": {
+          "default": [],
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "uncertainty": {
+          "$ref": "#/$defs/Uncertainty",
+          "default": {
+            "status": "not_evaluated",
+            "standard_uncertainty": null,
+            "method": null,
+            "component": null,
+            "covariance_group": null
+          }
+        }
+      },
+      "required": [
+        "id",
+        "method_id",
+        "method_version",
+        "engine_version",
+        "parser_version",
+        "metadata_revision",
+        "input_digest",
+        "interval_ids",
+        "settings",
+        "status",
+        "evidence_level",
+        "value",
+        "unit"
+      ],
+      "title": "Result",
+      "type": "object"
+    },
+    "RowRef": {
+      "additionalProperties": false,
+      "properties": {
+        "source_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Hash",
+          "type": "string"
+        },
+        "record_index": {
+          "minimum": 0,
+          "title": "Record Index",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "source_hash",
+        "record_index"
+      ],
+      "title": "RowRef",
+      "type": "object"
+    },
+    "Sample": {
+      "additionalProperties": false,
+      "properties": {
+        "channel_id": {
+          "minLength": 1,
+          "title": "Channel Id",
+          "type": "string"
+        },
+        "value_si": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value Si"
+        },
+        "validity": {
+          "enum": [
+            "valid",
+            "missing",
+            "invalid"
+          ],
+          "title": "Validity",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "channel_id",
+        "value_si",
+        "validity"
+      ],
+      "title": "Sample",
+      "type": "object"
+    },
+    "Setting": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ],
+      "title": "Setting",
+      "type": "object"
+    },
+    "Source": {
+      "additionalProperties": false,
+      "properties": {
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "byte_size": {
+          "minimum": 0,
+          "title": "Byte Size",
+          "type": "integer"
+        },
+        "original_name": {
+          "minLength": 1,
+          "title": "Original Name",
+          "type": "string"
+        },
+        "format": {
+          "enum": [
+            "mpr",
+            "mpt",
+            "mps",
+            "synthetic",
+            "other"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "columns": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Column"
+          },
+          "title": "Columns",
+          "type": "array"
+        }
+      },
+      "required": [
+        "sha256",
+        "byte_size",
+        "original_name",
+        "format"
+      ],
+      "title": "Source",
+      "type": "object"
+    },
+    "Uncertainty": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "default": "not_evaluated",
+          "enum": [
+            "not_evaluated",
+            "evaluated"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "standard_uncertainty": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Standard Uncertainty"
+        },
+        "method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Method"
+        },
+        "component": {
+          "anyOf": [
+            {
+              "enum": [
+                "measurement",
+                "fit",
+                "between_cell",
+                "combined"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Component"
+        },
+        "covariance_group": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Covariance Group"
+        }
+      },
+      "title": "Uncertainty",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0",
+      "default": "0.1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "id": {
+      "minLength": 1,
+      "title": "Id",
+      "type": "string"
+    },
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/Source"
+      },
+      "title": "Sources",
+      "type": "array"
+    },
+    "raw_rows": {
+      "items": {
+        "$ref": "#/$defs/RawRow"
+      },
+      "title": "Raw Rows",
+      "type": "array"
+    },
+    "channels": {
+      "items": {
+        "$ref": "#/$defs/Channel"
+      },
+      "title": "Channels",
+      "type": "array"
+    },
+    "experiments": {
+      "items": {
+        "$ref": "#/$defs/Experiment"
+      },
+      "title": "Experiments",
+      "type": "array"
+    },
+    "observations": {
+      "items": {
+        "$ref": "#/$defs/Observation"
+      },
+      "title": "Observations",
+      "type": "array"
+    },
+    "intervals": {
+      "items": {
+        "$ref": "#/$defs/Interval"
+      },
+      "title": "Intervals",
+      "type": "array"
+    },
+    "branches": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Branch"
+      },
+      "title": "Branches",
+      "type": "array"
+    },
+    "pairs": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Pair"
+      },
+      "title": "Pairs",
+      "type": "array"
+    },
+    "metadata": {
+      "items": {
+        "$ref": "#/$defs/MetadataRevision"
+      },
+      "title": "Metadata",
+      "type": "array"
+    },
+    "current_metadata_revision": {
+      "minLength": 1,
+      "title": "Current Metadata Revision",
+      "type": "string"
+    },
+    "results": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Result"
+      },
+      "title": "Results",
+      "type": "array"
+    },
+    "display_settings": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Setting"
+      },
+      "title": "Display Settings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "sources",
+    "raw_rows",
+    "channels",
+    "experiments",
+    "observations",
+    "intervals",
+    "metadata",
+    "current_metadata_revision"
+  ],
+  "title": "Project",
+  "type": "object"
+}

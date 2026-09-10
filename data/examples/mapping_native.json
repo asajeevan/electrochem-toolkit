@@ -1,0 +1,16 @@
+{
+  "time": 1,
+  "current": 4,
+  "potential": 3,
+  "native_step": null,
+  "native_cycle": null,
+  "current_multiplier": null,
+  "potential_role": "unresolved",
+  "positive_node": null,
+  "negative_node": null,
+  "reference": null,
+  "configuration": "unknown",
+  "passive_current_confirmed": false,
+  "technique": "unresolved",
+  "evidence": "Public demo field mapping only; not a confirmed cell convention"
+}

@@ -1,0 +1,7 @@
+EC-Lab ASCII FILE
+Nb header lines : 5
+
+Galvanostatic Cycling with Potential Limitation
+time/s	I/mA	Ewe/V	error	Ns	cycle number
+0	1	3	0	0	1
+1	-1	3.1	OVERFLOW	1	1

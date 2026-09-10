@@ -1,0 +1,43 @@
+{
+  "parser_version": "0.1.0",
+  "source_sha256": "db8ae9b513fb1402c056f9d8f6f88642d7fa4b9770374700ead1cdac2c2b121f",
+  "format": "mpt",
+  "encoding": "utf-8-sig",
+  "rows": 2,
+  "column_line": 5,
+  "columns": [
+    {
+      "index": 0,
+      "original_name": "time/s",
+      "original_unit": "s"
+    },
+    {
+      "index": 1,
+      "original_name": "I/mA",
+      "original_unit": "mA"
+    },
+    {
+      "index": 2,
+      "original_name": "Ewe/V",
+      "original_unit": "V"
+    },
+    {
+      "index": 3,
+      "original_name": "error",
+      "original_unit": null
+    },
+    {
+      "index": 4,
+      "original_name": "Ns",
+      "original_unit": null
+    },
+    {
+      "index": 5,
+      "original_name": "cycle number",
+      "original_unit": null
+    }
+  ],
+  "diagnostics": [],
+  "status": "review_required; no intervals qualified for integration",
+  "saved_project": "p03_import/examples/synthetic_import.ecproj"
+}
