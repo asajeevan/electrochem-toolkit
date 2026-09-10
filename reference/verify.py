@@ -143,6 +143,6 @@ def run():
       'observation_fixtures':len(cases),'passed_checks':len(checks),'checks':checks,
       'evidence_scope':'Exact reference arithmetic and P01 contract/reopening tests. Recipe diagnostic strings are specified, not executed by a production analysis engine.',
       'verifier_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
-    (ROOT/'evidence/verification.json').write_text(json.dumps(result,indent=2)+'\n')
+    (ROOT.parent/'docs/evidence/p02_reference/verification.json').write_text(json.dumps(result,indent=2)+'\n')
     print(f"PASS: {len(cases)} observation fixtures; {len(checks)} checks. No experimental validation.")
 if __name__=='__main__':run()

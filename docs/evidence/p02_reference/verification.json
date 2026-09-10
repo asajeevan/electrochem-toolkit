@@ -1080,5 +1080,5 @@
     }
   ],
   "evidence_scope": "Exact reference arithmetic and P01 contract/reopening tests. Recipe diagnostic strings are specified, not executed by a production analysis engine.",
-  "verifier_sha256": "c23fb9b90c684e77dc4ff5cfb72512f999d5f7e2903abe1844f1f95601dc0ab9"
+  "verifier_sha256": "d9748d3963e3573fd247fa245b236fd3952faea6a98742d27e96d3be6cae55ef"
 }
