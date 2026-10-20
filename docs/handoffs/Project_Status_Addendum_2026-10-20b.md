@@ -115,6 +115,17 @@ handout and `SHA256SUMS.txt`, checked as a draft before publishing and again aft
 (`scripts/check_github_release.py`; evidence in `docs/evidence/p13_installers/`; procedure in
 `docs/releases/RELEASING.md`; ADR-006 *Outcome*). No DOI: the author is not using Zenodo for now.
 
+Later that evening: the Windows launcher is linked with `--no-insert-timestamp`, so two builds of the same sources
+give the same `Cyclara.exe` (a test builds it twice); `STATUS.md` and `README.md` no longer describe the installer
+as missing or other cyclers as parked; `scripts/check_github_release.py` and `docs/releases/RELEASING.md` record
+how a release is checked before and after publishing. A page on the author's site,
+https://asajeevan.github.io/cyclara/, presents the app: a live figure drawn from Cyclara's own analysis of the
+synthetic demonstration cell, seven screens in light and dark, the export folder and two exported figures, each
+claim with its evidence, the cyclers as the compatibility matrix states them, install steps, the checksums and the
+citation of 0.8.0, and the open limits. It is linked from the site's home page and from the README; its checks:
+no failed request or broken link, no automated accessibility (axe, WCAG 2.1 AA) violation at 1300 and 390 px in
+both themes, and the page's checksums, reference and BibTeX compared with the release and the app.
+
 ## Next
 
 Open a real long Arbin or Neware export (several hundred thousand rows) and a real multi-plateau
