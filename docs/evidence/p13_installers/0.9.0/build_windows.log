@@ -1,0 +1,28 @@
+00:39:00 Cyclara 0.9.0, build dir /home/claude/work/build
+00:39:02 cpython-3.12.15+20261013-x86_64-pc-windows-msvc-install_only.tar.gz: checksum verified
+00:39:04 $ /usr/bin/python3 -m pip  download -q --no-deps --only-binary=:all: --platform win_am ... (pins in installer/requirements-bundle.txt)
+00:39:11 $ /usr/bin/python3 -m pip  install -q --no-deps --no-index --only-binary=:all: --platf ... (pins in installer/requirements-bundle.txt)
+00:39:18 cpython-3.12.15+20261013-x86_64-unknown-linux-gnu-install_only.tar.gz: checksum verified
+00:39:22 $ /home/claude/work/build/linux/python/bin/python3.12 -m compileall -q -j 0 --invalidation-mode unchecked-hash /home/claude/work/build/stage_win/python/Lib /home/claude/work/build/stage_win/app
+00:39:36 $ /home/claude/work/build/linux/python/bin/python3.12 -I -c import sys; sys.path[:0] = ['/home/claude/work/build/stage_win/app', '/home/claude/work/build/pure312']
+assert sys.version_info[:2] == (3, 12), sys.version
+import electrochem, eclab_import, electrochem.readers, electrochem.workflow, electrochem.analyze
+from electrochem.readers import BUILTIN; assert BUILTIN
+print('pure-python import under', sys.version.split()[0], 'ok')
+pure-python import under 3.12.15 ok
+00:39:39 $ x86_64-w64-mingw32-windres launcher.rc -O coff -o launcher_res.o
+00:39:39 $ x86_64-w64-mingw32-gcc -municode -mwindows -O2 -Wall -Wl,--no-insert-timestamp -o Cyclara.exe /build/checkout-36be5dd/installer/windows/launcher.c launcher_res.o -lshell32 -lole32
+00:39:40 Windows tree: 259 binaries, every import resolves
+00:39:40 $ /usr/bin/python3 /build/checkout-36be5dd/installer/windows/bitmaps.py /home/claude/work/build/art
+{'welcome.bmp': PosixPath('/home/claude/work/build/art/welcome.bmp'), 'header.bmp': PosixPath('/home/claude/work/build/art/header.bmp')}
+00:39:41 $ makensis -V2 -DVERSION=0.9.0 -DSTAGE=/home/claude/work/build/stage_win -DART=/home/claude/work/build/art -DOUT=/build/checkout-36be5dd/installer/dist/Cyclara-0.9.0-Setup.exe -DSIZE_KB=444992 -DSIZE_MB=434 /build/checkout-36be5dd/installer/windows/cyclara.nsi
+00:44:29 wrote /build/checkout-36be5dd/installer/dist/Cyclara-0.9.0-Setup.exe (105.4 MB; installed 435 MB)
+00:44:30 $ bash /build/checkout-36be5dd/installer/winetest/run.sh /home/claude/work/build/stage_win
+1. the launcher in Python mode
+imports ok Z:\home\claude\work\build\stage_win\Cyclara.exe 0.9.0
+wine_run done, code 0
+2. every view of the demonstration file (scripts/studio_images.py)
+   screenshots written: 27
+Wine run passed: /home/claude/work/build/winetest/run.log
+00:46:42 Cyclara-0.9.0-Setup.exe  105.4 MB  sha256 d7dfbb78a4cc6ccf…
+WINDOWS EXIT 0

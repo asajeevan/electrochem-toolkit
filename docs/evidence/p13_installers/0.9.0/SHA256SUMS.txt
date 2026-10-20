@@ -1,0 +1,4 @@
+d7dfbb78a4cc6ccfe2926a55ef167986a0a83ba5054b67e0e1644d62244f8eb1  Cyclara-0.9.0-Setup.exe
+96364ec97722dabafbdc80aa7a6729af087a20dce8ba04af0f27d56bd08b274b  Cyclara-0.9.0-macOS-AppleSilicon.zip
+c4a31f3025822b23fd5cba37a5e336bc4a97e84013ff2023888be54bf32fb2e0  Cyclara-0.9.0-macOS-Intel.zip
+3edcf3b823791b6613f9275f85a62caf150f4bcfe6c2e341f215fd405ac37a68  Cyclara_handout_v0.9.0.pdf

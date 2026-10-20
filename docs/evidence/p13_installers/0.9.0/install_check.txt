@@ -1,0 +1,30 @@
+Install check of Cyclara-0.9.0-Setup.exe under 32-bit Wine (/S), over the released 0.8.0
+installer: d7dfbb78a4cc6ccf…  previous: 7182922082ba701e…
+0.8.0 installed first: 10800 files in 26 s
+    DisplayVersion    REG_SZ    0.8.0
+0.9.0 installed over it with /S: 38 s
+stage files written after the installer was built: 31, all pytest caches of the self-test run: True
+stage files 10812, installed 10813, missing 0, extra ['Uninstall.exe'], differing 0
+files of 0.8.0 not in 0.9.0, apart from Uninstall.exe: 0, of which left behind: 0 []
+INSTALLED TREE BYTE-IDENTICAL TO THE STAGE (plus Uninstall.exe) [] []
+Cyclara.desktop
+Cyclara.lnk
+desktop shortcut present
+drive_c/users/root/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Cyclara.lnk
+drive_c/users/root/Desktop/Cyclara.lnk
+    DisplayName    REG_SZ    Cyclara
+    DisplayVersion    REG_SZ    0.9.0
+    EstimatedSize    REG_DWORD    0x6ca40
+    Publisher    REG_SZ    Aswadh Shyma Sajeevan
+.mpr: Cyclara.Measurement
+.mpt: Cyclara.Measurement
+.cex: Cyclara.Measurement
+.csv: Cyclara.Measurement
+.txt: Cyclara.Measurement
+.xlsx: Cyclara.Measurement
+uninstall removed the folder
+shortcuts left: 0
+uninstall key removed
+open with .mpr removed
+open with .cex removed
+INSTALL CHECK EXIT 0

@@ -1,0 +1,28 @@
+Released build (36be5dd): the build's own Wine check (installer/build.py --wine: imports, every view)
+imports ok Z:\home\claude\work\build\stage_win\Cyclara.exe 0.9.0
+wine_run done, code 0
+written to Z:\home\claude\work\build\winetest\shots
+wine_run done, code 0
+
+The same staged tree, installer/winetest/run.sh STAGE --tests (imports, every view, the whole suite with the bundled Windows interpreter)
+imports ok Z:\home\claude\work\build\stage_win\Cyclara.exe 0.9.0
+wine_run done, code 0
+written to Z:\home\claude\work\build\winetest\shots
+wine_run done, code 0
+sssssssssssssss......uuuuuuuu.uuuu.uuuuu..........uuuu...............uuu [  4%]
+uuuuuuuuuuuuuuuuuu...................................................... [ 10%]
+.................................................uuu.................... [ 17%]
+....................................s....s.............................. [ 24%]
+........................................................................ [ 31%]
+........................................................................ [ 38%]
+........................................................................ [ 45%]
+........................................................................ [ 53%]
+........................................................................ [ 60%]
+........................................................................ [ 67%]
+........................................................................ [ 74%]
+........................................................................ [ 82%]
+........................................................................ [ 89%]
+........................................................................ [ 96%]
+.............uuuuu.uuu..........uuu...........                           [100%]
+981 passed, 18 skipped, 56 subtests passed in 694.86s (0:11:34)
+wine_run done, code 0

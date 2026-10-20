@@ -1,6 +1,6 @@
 # Releasing Cyclara
 
-How a version reaches other people, as done for 0.8.0 on 20 October 2026. Why this way, and what was compared:
+How a version reaches other people, as done for 0.8.0 (20 October 2026) and 0.9.0 (21 October 2026). Why this way, and what was compared:
 `docs/adr/ADR-006_Distribution.md`. Share the link to the release page
 (`https://github.com/asajeevan/electrochem-toolkit/releases/latest`), never the files themselves.
 
@@ -22,16 +22,24 @@ How a version reaches other people, as done for 0.8.0 on 20 October 2026. Why th
    `python -m electrochem.citation --write` (a test requires the committed file to equal the generated one), and
    write `docs/releases/vX.Y.Z.md`: a first-level heading, then one line per paragraph, because the release page
    breaks lines where the text does.
-2. **Build what is published.** Commit and push to `main`. From a clean checkout of that commit run the whole
-   suite and build the installers (`installer/README.md`), then the Wine harness and the install check on the
-   Windows build.
+2. **Review what the release says, then build what is published.** Before building, have someone who did not write
+   the new code compare every statement the release makes about it (README, `HOW_TO_USE.txt`, the handout,
+   `STATUS.md`, the method documents, the release notes, the web page) with the code. For 0.9.0 this found a defect
+   and several claims larger than the code, and the first build was discarded
+   (`docs/handoffs/Project_Status_Addendum_2026-10-21.md`). Commit and push to `main`. From a clean checkout of that
+   commit run the whole suite and build the installers (`installer/README.md`), then the Wine harness with the
+   self-tests (`installer/winetest/run.sh STAGE --tests`) and the install check on the Windows build. The self-tests
+   write pytest caches into the staged tree; run the install check after them and compare the installed tree with
+   the stage as built, leaving those caches out.
 3. **The release folder.** The three installers, the handout, and `SHA256SUMS.txt` (`sha256sum` of those four
    files). Nothing else is attached.
-4. **Record it.** Put the checksums in the notes and the build evidence in `docs/evidence/p13_installers/`;
+4. **Record it.** Put the checksums in the notes and the build evidence in `docs/evidence/p13_installers/X.Y.Z/`
+   (0.8.0's is at the top of that folder);
    commit and push. From now until the release is published, push nothing else to `main`: the tag is created
    on `main` at the moment of publishing.
-5. **Draft.** Releases > *Draft a new release*, or
-   `https://github.com/asajeevan/electrochem-toolkit/releases/new?tag=vX.Y.Z&target=main&title=Cyclara%20X.Y.Z`:
+5. **Draft** (the author: the build environment may not create releases or tags). Releases > *Draft a new
+   release*, or `https://github.com/asajeevan/electrochem-toolkit/releases/new?tag=vX.Y.Z&target=main&title=Cyclara%20X.Y.Z`,
+   to which `&body=` and the URL-encoded notes without their heading can be added so the description is filled in:
    tag `vX.Y.Z` (*Create new tag*, target `main`), title `Cyclara X.Y.Z`, the notes without their heading, the
    files of the release folder. Wait for every upload to finish, then *Save draft*, not *Publish*.
 6. **Check the draft.**
@@ -42,7 +50,7 @@ How a version reaches other people, as done for 0.8.0 on 20 October 2026. Why th
 
    It must end with READY TO PUBLISH. It needs the GitHub CLI (`gh`) signed in with read access, and it only
    reads. For 0.8.0 it caught the two macOS archives not yet attached and the notes file attached by mistake.
-7. **Publish**, then run the same command with `--record docs/evidence/p13_installers/github_release_vX.Y.Z.json`.
+7. **Publish**, then run the same command with `--record docs/evidence/p13_installers/X.Y.Z/github_release_vX.Y.Z.json`.
    It must end with PUBLISHED AND VERIFIED: immutable, the tag on the expected commit, GitHub's digest of every
    file equal to the tested one, and the attestation naming each of them.
 8. **The attestation's signature**, on any computer with ordinary network access:

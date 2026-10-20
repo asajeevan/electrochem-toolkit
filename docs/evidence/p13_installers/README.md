@@ -1,5 +1,8 @@
 # Evidence for the installers
 
+0.9.0 (21 October 2026) has its own folder, `0.9.0/` (its `README.md` says what was run). Everything below and at
+this level is 0.8.0's.
+
 The files here belong to the released build of 0.8.0 (20 October 2026), the one attached to the GitHub release; `0.7.0/` keeps the morning's build of
 the same day. `build_windows.log` and `build_macos.log` are the build's own log (pip command lines shortened);
 `*.sha256` are the checksums of the files delivered; the four PNGs are the installer's pages photographed under
