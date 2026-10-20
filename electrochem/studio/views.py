@@ -351,7 +351,11 @@ class CapacityView(View):
             return
         s, an = rec.run.settings, rec.run.an
         rows = [c for c in an.cycles if c.complete]
-        self.set_empty(None if rows else (NO_CYCLES if s.charge is None else "No cycle has both a charge and a discharge."))
+        both = any(c.charge_branch is not None and c.discharge_branch is not None for c in an.cycles)
+        self.set_empty(None if rows else (NO_CYCLES if s.charge is None else
+                                          "No cycle is complete: a branch of each pair reaches the end of the file or "
+                                          "has an unsupported interval (the Cycles table says which)." if both else
+                                          "No cycle has both a charge and a discharge."))
         theme.style_plot(self.top, xlabel=None, ylabel=capacity_titles(s))
         theme.style_plot(self.bottom, xlabel=CYCLE_TITLES, ylabel=CE_TITLES)
         t = theme.tokens()
@@ -488,6 +492,10 @@ class VoltageView(View):
         t = theme.tokens()
         n = np.array([c.cycle for c in rows], float)
         vc = np.array([c.average_charge_voltage_V for c in rows]); vd = np.array([c.average_discharge_voltage_V for c in rows])
+        # the cycle's own hysteresis: withheld (nan) for a pair with a step that ended at once (cycling.degenerate)
+        hy = np.array([np.nan if c.average_voltage_hysteresis_V is None else c.average_voltage_hysteresis_V
+                       for c in rows], float)
+        ok = np.isfinite(hy)
         size = 6 if len(n) <= 150 else 4
         if not self.compact:
             _legend(self.top, t)
@@ -495,16 +503,19 @@ class VoltageView(View):
                                                       brush=pg.mkBrush("#A8507F" if t.name == "light" else "#E59AC5")), n, vc))
         self.top.addItem(self.keep(pg.ScatterPlotItem(n, vd, symbol="t", size=size + 1, pen=None, name="Discharge",
                                                       brush=pg.mkBrush("#0072B2" if t.name == "light" else "#56B4E9")), n, vd))
-        self.bottom.addItem(self.keep(pg.ScatterPlotItem(n, vc - vd, symbol="s", size=size, pen=None,
-                                                         brush=pg.mkBrush(t.ink)), n, vc - vd))
+        self.bottom.addItem(self.keep(pg.ScatterPlotItem(n[ok], hy[ok], symbol="s", size=size, pen=None,
+                                                         brush=pg.mkBrush(t.ink)), n[ok], hy[ok]))
         if self.focus is not None:
             for w in (self.top, self.bottom):
                 w.addItem(pg.InfiniteLine(self.focus, angle=90, pen=pg.mkPen(t.selection, width=1, style=Qt.DashLine)))
 
         def lab(k):
             return (f"Cycle {int(n[k])}: average charge {vc[k]:.4f} V, discharge {vd[k]:.4f} V, "
-                    f"hysteresis {vc[k] - vd[k]:.4f} V")
-        self._points += [(self.top, n, vc, lab), (self.top, n, vd, lab), (self.bottom, n, vc - vd, lab)]
+                    + (f"hysteresis {hy[k]:.4f} V" if ok[k] else "hysteresis withheld (a step that ended at once)"))
+
+        def lab_ok(k):
+            return lab(int(np.flatnonzero(ok)[k]))
+        self._points += [(self.top, n, vc, lab), (self.top, n, vd, lab), (self.bottom, n[ok], hy[ok], lab_ok)]
         for w in (self.top, self.bottom):
             w.getPlotItem().enableAutoRange()
 

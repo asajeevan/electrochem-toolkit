@@ -84,7 +84,8 @@ def profiles_dir() -> Path:
 
 
 # Instrument binaries this version does not read, by extension: refused with an instruction to export text.
-BINARY_FORMATS = {".res": "Arbin", ".nda": "Neware", ".ndax": "Neware", ".cex": "LANHE or LAND battery tester"}
+# (A LANHE .cex is read natively: readers.lanhe_cex, chosen by the file's signature in open_file.)
+BINARY_FORMATS = {".res": "Arbin", ".nda": "Neware", ".ndax": "Neware"}
 
 
 def open_with_profile(path, profile=None, progress=None) -> Loaded:
@@ -145,10 +146,14 @@ def open_with_profile(path, profile=None, progress=None) -> Loaded:
 
 def open_file(path, *, native=False, encoding="cp1252", decimal=None, profile=None, progress=None) -> Loaded:
     """Open any measurement file. EC-Lab and BT-Lab files (by their own signature, or an .mpr) take the
-    validated readers; everything else goes through an import profile (open_with_profile), which reports
-    its progress through `progress(rows_read, bytes_read, bytes_total)` when a callback is given."""
-    from .readers import is_eclab
+    validated readers, and a LANHE .cex (by its signature, or its extension) the native .cex reader;
+    everything else goes through an import profile (open_with_profile), which reports its progress
+    through `progress(rows_read, bytes_read, bytes_total)` when a callback is given."""
+    from .readers import is_eclab, lanhe_cex, native_table
     path = Path(path)
+    if path.suffix.lower() == ".cex" or lanhe_cex.is_cex(path):
+        raw, meta = lanhe_cex.read(path, progress=progress)
+        return Loaded(path, native_table(raw), meta, None)
     if profile is not None or not is_eclab(path):
         return open_with_profile(path, profile, progress=progress)
     if not native and path.suffix.lower() == ".mpr":
@@ -366,7 +371,9 @@ def methods(s: Settings, dqde_mv: float, dqde_units: str, peak_pair_window_mV: f
     return {
         "charge": "sum of instrument dq increments over supported edges when available, else trapezoid of sampled current (M01 point-linear)",
         "energy": "dq times mean edge potential, or exact integral of point-linear I(t)E(t); requires the cell voltage or a potential against a stated reference",
-        "coulombic_efficiency": "100 x Q_discharge / Q_charge for complete pairs",
+        "coulombic_efficiency": "100 x Q_discharge / Q_charge for complete pairs; not given (nor the energy efficiency and "
+                                "the hysteresis) for a pair in which one branch spans one recorded interval and carries "
+                                "under 0.1 % of the other's charge, a step that ended at once",
         "capacity_retention": f"100 x Q_discharge(n) / Q_discharge(cycle {s.reference_cycle})",
         "average_voltage": "energy / charge of the same branch: the charge-weighted mean potential, which for several plateaus is the "
                            "capacity-weighted mean of the plateau potentials",
@@ -449,7 +456,13 @@ def export(run: Run, out: Path, o: ExportOptions, progress=None) -> dict:
         summary["plateaus"] = plateaus.summary(s.reference_cycle)
     (out / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     th = theoretical_from_header(meta) if meta else {}
-    (out / "metadata.json").write_text(json.dumps({"declared_in_header": meta, "theoretical_from_header": th}, indent=2, default=str) + "\n")
+    # the tester's own step table, rebuilt by a native reader (readers.lanhe_cex): a CSV of its own, not
+    # repeated in metadata.json
+    steps_table = meta.get("instrument_steps") if meta else None
+    declared = {k: v for k, v in meta.items() if k != "instrument_steps"} if meta else meta
+    (out / "metadata.json").write_text(json.dumps({"declared_in_header": declared, "theoretical_from_header": th}, indent=2, default=str) + "\n")
+    if steps_table:
+        write_csv(out / "instrument_steps.csv", steps_table)
 
     figures = {}
     checks = {}
@@ -487,7 +500,8 @@ def export(run: Run, out: Path, o: ExportOptions, progress=None) -> dict:
         # a file from another instrument: the profile it was read with and what the reader concluded, so the
         # import is reproducible from this record alone
         "import": ({"profile": meta.get("import_profile"), "report": meta.get("import_report"),
-                    "findings": meta.get("import_findings")} if meta.get("profile") else None),
+                    "findings": meta.get("import_findings"),
+                    "steps_table": "instrument_steps.csv" if steps_table else None} if meta.get("profile") else None),
         "derived_settings": {"theoretical_capacity_mAh_g": s.theoretical_capacity_mAh_g, "energy_allowed": s.energy_allowed},
         "segmentation": seg.convention,
         "unsupported_edges": {str(k): v for k, v in seg.edges.reason.items()},

@@ -506,12 +506,16 @@ class DqdeGrid:
     basis: str
     bin_mV: float
 
-    def filled(self) -> "DqdeGrid":
+    def filled(self, first: int | None = None, last: int | None = None) -> "DqdeGrid":
         """Every integer cycle from the first to the last, NaN rows where a cycle has no curve: rows then sit at
-        their cycle numbers, so a missing or unselected cycle shows as a gap, never as a neighbour's data."""
+        their cycle numbers, so a missing or unselected cycle shows as a gap, never as a neighbour's data.
+        first and last widen the range (never narrow it), so two directions can share one set of rows."""
         if len(self.cycles) == 0:
             return self
-        full = np.arange(int(self.cycles.min()), int(self.cycles.max()) + 1)
+        lo, hi = int(self.cycles.min()), int(self.cycles.max())
+        lo = lo if first is None else min(lo, int(first))
+        hi = hi if last is None else max(hi, int(last))
+        full = np.arange(lo, hi + 1)
         z = np.full((len(full), len(self.voltage_V)), np.nan)
         z[np.searchsorted(full, self.cycles)] = self.dqde
         return DqdeGrid(self.direction, full, self.voltage_V, z, self.basis, self.bin_mV)

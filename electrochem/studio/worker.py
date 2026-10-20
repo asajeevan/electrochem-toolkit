@@ -220,6 +220,7 @@ FRIENDLY = [
                  "the rows of values; a binary file (.res, .nda, .mpr renamed) has to be exported as text or "
                  "Excel first."),
     ("binary_export", None),
+    ("cex_", None),                         # the .cex reader's refusals are written for the user already
     ("signature_required", "The file has no EC-Lab header: it starts directly with a table. Export it again from "
                            "EC-Lab, or open the .mpr."),
     ("settings_", "This is an EC-Lab settings (.mps) file: it holds a protocol, not measurements. Open the run's "

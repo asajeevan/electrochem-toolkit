@@ -37,6 +37,28 @@ def is_eclab(path: str | Path) -> bool:
     return any(head.lstrip().startswith(s) for s in ECLAB_SIGNATURES)
 
 
+def native_table(raw: RawTable) -> Table:
+    """The engine's Table from a native binary reader's RawTable (readers.lanhe_cex).
+
+    Such a reader states a step type on every row, from the file's own step-start units, so the mode array is
+    complete (1 constant current, 2 constant voltage, 3 rest) and a row of unknown type cannot get here (the
+    reader refuses it). Its counter increments arrive in Ah and leave in coulombs, like the generic path's."""
+    kinds = np.asarray(raw.step_kind, dtype=object)
+    mode = np.full(raw.n, np.nan)
+    for kind, code in _MODE.items():
+        mode[kinds == kind] = code
+    if np.isnan(mode).any():
+        raise ValueError("a row of the native reader has no known step type")
+    rep = raw.report
+    return Table(
+        source_name=raw.source_name, source_sha256=raw.source_sha256, format=raw.profile,
+        columns=tuple(raw.columns), t=raw.t, i=raw.i, e=raw.e, ns=raw.step_id, mode=mode, oxred=None, error=None,
+        half_cycle=None, cycle=raw.cycle, q_instrument=None, dq=raw.dq * 3600.0 if raw.dq is not None else None,
+        temperature=raw.temperature, invalid_rows={}, labels=dict(rep.get("labels", {})), header=(),
+        potentials={rep.get("potential_name", "voltage"): raw.e},
+    )
+
+
 def to_table(raw: RawTable, profile: ImportProfile) -> Table:
     """The engine's Table from a RawTable: SI arrays, charge-positive current, the instrument's
     charge increments in coulombs, and labels naming the source columns.

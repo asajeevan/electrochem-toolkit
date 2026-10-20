@@ -61,6 +61,15 @@ Rafael A. L. Chioquetti, João V. S. Vital and Silvia H. P. Serrano, [Understand
 - File SHA-256: `a029d9673c625eeab81a3e61141e5ff074dfae7872fd22bea8fa474a8bf31270`.
 - Source identity: `libfile_6737c8bdaa5c819197905606e6a6819f`.
 
+## C08: LANHE (LAND) `.cex` layout as another decoder reads it
+
+culture-medium, *battery-data-tool*, `land_extract.py`, version 0.5.7, commit 1037eb0 (GitHub; the repository has no licence file). Inspected 20 October 2026 for P08g.
+
+- Inspected: the header fields it reads (magic, layout code, range codes, active mass), the block and control-unit signatures and kinds, the 16-byte record with float32 capacity (Ah) and energy (Wh), its step-type codes and its list of range codes it calls verified.
+- Used only to locate fields in a real file. Every fact the reader relies on was established again on that file from four statements inside it (`docs/P08g_LANHE_cex_Reader.md`, section 3). Taken from this source without that: the active-mass field and the retention-reference units, marked so in P08g.
+- No code copied or adapted: without a licence, all rights stay with its author. It extracts per-cycle capacities and energies; it does not decode voltage, current or time, and it refuses the constant-voltage step type.
+- Its README asks users to check its output against the tester's official export; for Cyclara's reader that comparison is recorded as still missing.
+
 ## Equation-to-evidence and remaining gates
 
 | Contract | Evidence / independent work | Remaining gate |
@@ -71,6 +80,7 @@ Rafael A. L. Chioquetti, João V. S. Vital and Silvia H. P. Serrano, [Understand
 | Point-sample quadrature | C05 and independent polynomial derivation | Sampling suitability and production tests |
 | Product interpolation for energy | M01.N1 derivation; exact primitive and composite midpoint check | Channel synchronization and numerical implementation |
 | Counter comparison | C03,C04 | Instrument/version-specific documentation and matched exports |
+| LANHE `.cex` layout and scales | C08 (field locations); the real file's own clock, counters and step plan (P08g) | LANHE's Excel export of the same file; other layouts and ranges |
 | Uncertainty | C06; explicit gradients and algebraic cancellation | Real calibration, timestamps, offsets, covariance |
 | CV model theory | C07 scoped reading only | Full method/derivation/correction review; independent models |
 

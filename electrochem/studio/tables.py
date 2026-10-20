@@ -249,10 +249,18 @@ class Diagnostics(QListWidget):
                                                   f"{b.charge_mAh / med:.0f} times the median {d} ({med:.3g} mAh), over "
                                                   f"{b.duration_s / 3600:.1f} h{v}; it ended by {b.terminated_by}. "
                                                   "The data alone do not say why; check the cell and the protocol."))
-            inc = [c.cycle for c in rec.run.an.cycles if not c.complete]
-            if inc:
-                items.append(("info", f"{len(inc)} incomplete cycle{'s' if len(inc) > 1 else ''} (no partner branch): "
-                                      + ", ".join(map(str, inc[:12])) + ("…" if len(inc) > 12 else "")))
+            def listed(cs):
+                return ", ".join(map(str, cs[:12])) + ("…" if len(cs) > 12 else "")
+            lone = [c.cycle for c in rec.run.an.cycles if not c.complete and
+                    (c.charge_branch is None or c.discharge_branch is None)]
+            partial = [c.cycle for c in rec.run.an.cycles if not c.complete and
+                       c.charge_branch is not None and c.discharge_branch is not None]
+            if lone:
+                items.append(("info", f"{len(lone)} incomplete cycle{'s' if len(lone) > 1 else ''} (no partner branch): "
+                                      + listed(lone)))
+            if partial:                    # both branches present, one cut short: the end of the file, or a gap
+                items.append(("info", f"{len(partial)} incomplete cycle{'s' if len(partial) > 1 else ''} (a branch "
+                                      "reaches the end of the file or has an unsupported interval): " + listed(partial)))
             for n in (rec.run.an.summary.notes or "").split("; "):
                 if n:
                     items.append(("info", n))
@@ -268,6 +276,17 @@ class Diagnostics(QListWidget):
                                      f"charge from the instrument's counter ({sem.replace('_', ' ')})")))
         for f in rec.loaded.meta.get("import_findings", []):
             items.append(("warn" if f.get("severity") == "warn" else "info", f"Import: {f.get('message', '')}"))
+        cex = (rep_ or {}).get("cex") or {}
+        sc, tc = cex.get("scale_check") or {}, cex.get("time_check") or {}
+        if sc.get("basis"):                # a .cex read natively: its scales against the tester's own counters
+            items.append(("info", f"Import: the decoded current integrates to the tester's capacity counter within "
+                                  f"{abs(sc['current_ratio'] - 1) * 100:.2g} %"
+                                  + (f", and the decoded voltage reproduces its energy counter within "
+                                     f"{abs(sc['voltage_ratio'] - 1) * 100:.2g} %" if sc.get("voltage_ratio") else "")
+                                  + f" ({sc['intervals']} intervals of {sc['basis']})"))
+        if tc.get("slope"):
+            items.append(("info", f"Import: the record time follows the tester's clock between step starts "
+                                  f"(slope {tc['slope']:.6f}, largest offset {tc['largest_offset_s']:.2f} s)"))
         cv = (rec.loaded.meta.get("import_report") or {}).get("counter_vs_integral") or {}
         parts = [f"{side} {abs(v['relative_difference']) * 100:.3f} %" for side, v in cv.items()
                  if isinstance(v, dict) and v.get("relative_difference") is not None]

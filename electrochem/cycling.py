@@ -54,6 +54,28 @@ from .table import Table
 
 F = 96485.33212  # C/mol
 
+# A branch that spans one recorded interval (two rows) and carries less than this fraction of the charge of the
+# branch it is paired with is a step that ended at once: in a real LANHE file (October 2026), a charge to a
+# voltage limit started on a cell already above that limit, and paired with the long discharge after it gave a
+# coulombic efficiency of millions of per cent. The ratio of such a pair describes that step, not the cell, so no
+# efficiency and no hysteresis are given for it; its capacities and the retention are (M01 section 6).
+DEGENERATE_ROWS = 2
+DEGENERATE_FRACTION = 1e-3
+
+
+def degenerate(b: Branch, q_mAh: float | None, partner_q_mAh: float | None) -> bool:
+    """True for a branch of at most DEGENERATE_ROWS rows carrying under DEGENERATE_FRACTION of its partner's charge."""
+    if q_mAh is None or partner_q_mAh is None or not partner_q_mAh > 0:
+        return False
+    return (b.end - b.start + 1) <= DEGENERATE_ROWS and q_mAh < DEGENERATE_FRACTION * partner_q_mAh
+
+
+def degenerate_note(b: Branch, r, partner) -> str:
+    """The words for a degenerate branch b (result r) paired with or followed by `partner` (a result)."""
+    return (f"the {r.direction} branch {r.branch} spans one recorded interval ({r.duration_s:.3g} s) and carries "
+            f"{100 * r.charge_mAh / partner.charge_mAh:.2g} % of the charge of {partner.direction} branch "
+            f"{partner.branch}: a step that ended at once")
+
 
 def integrate(t, i, e, supported, dq=None):
     """Signed charge (C) and signed energy (J) over supported edges.
@@ -382,7 +404,13 @@ def _cycle_result(p: Pair, br: dict, reference) -> CycleResult:
             hyst = c.average_voltage_V - d.average_voltage_V
         if c.mid_capacity_voltage_V is not None and d.mid_capacity_voltage_V is not None:
             mid_h = c.mid_capacity_voltage_V - d.mid_capacity_voltage_V
-    note = p.note or ("" if ok else "incomplete pair: efficiency and retention unavailable")
+    lead = ""
+    if c and d:
+        for b, x, y in ((p.charge, c, d), (p.discharge, d, c)):
+            if degenerate(b, x.charge_mAh, y.charge_mAh):
+                lead = degenerate_note(b, x, y) + ", so no efficiency or hysteresis is given for this pair"
+                ce = ee = hyst = mid_h = None
+    note = "; ".join(x for x in (p.note or ("" if ok else "incomplete pair: efficiency and retention unavailable"), lead) if x)
     return CycleResult(
         cycle=p.index, native_cycle=p.native_cycle, complete=ok,
         charge_branch=c.branch if c else None, discharge_branch=d.branch if d else None,
@@ -431,6 +459,11 @@ def _summary(cycles, s, tab) -> Summary:
     notes = []
     if cycles and last.cycle != cycles[-1].cycle:
         notes.append(f"cycle {cycles[-1].cycle} incomplete and excluded from the summary")
+    odd = [c.cycle for c in ok if "a step that ended at once" in c.note]
+    if odd:
+        notes.append(f"cycle{'s' if len(odd) > 1 else ''} {', '.join(map(str, odd[:12]))} pair{'' if len(odd) > 1 else 's'} "
+                     "a branch that ended at once with a full one: no efficiency or hysteresis for "
+                     f"{'them' if len(odd) > 1 else 'it'} (cycles.csv says which branch)")
     return Summary(
         complete_cycles=len(ok), reference_cycle=s.reference_cycle,
         first_cycle_charge_mAh=first.charge_capacity_mAh, first_cycle_discharge_mAh=first.discharge_capacity_mAh,

@@ -576,3 +576,30 @@ def test_the_focus_ring_follows_the_selected_view(win, app):
     win.files.setFocus(); app.processEvents()                 # focus elsewhere stays where it is
     win.show_view(0); app.processEvents()
     assert QApplication.focusWidget() is win.files
+
+
+def test_a_lanhe_cex_opens_with_its_direction_answered_and_its_checks_listed(win, app, tmp_path):
+    """A LANHE .cex is read natively (readers.lanhe_cex): the window answers the current direction from the
+    file's step types and says why, asks the cycle order when the file opens with a step that ended at once,
+    lists the reader's checks among the diagnostics, and tells a cut-short cycle from an unpaired one."""
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).parent))
+    import cex_synthetic as cs
+    from test_degenerate_pairs import HOLD
+    from electrochem.studio.model import open_questions
+    blob, _ = cs.write(HOLD)
+    p = tmp_path / "hold.cex"
+    p.write_bytes(blob)
+    win.open_paths([p]); pump(app)
+    rec = win.rec
+    assert rec.loaded.meta["profile"] == "lanhe-cex" and rec.answers.charge == "ox"
+    assert [q.key for q in open_questions(rec.answers, rec.loaded, rec.run)][0] == "order"
+    for a in ({"configuration": "full"}, {"no_mass": True}, {"cycle_order": "discharge-first"}):
+        win._answer(a); pump(app)
+    texts = [win.results.diagnostics.item(k).text() for k in range(win.results.diagnostics.count())]
+    assert any("integrates to the tester's capacity counter" in t for t in texts)
+    assert any("follows the tester's clock" in t for t in texts)
+    assert any(t.startswith("1 incomplete cycle (no partner branch): 1") for t in texts)
+    assert any(t.startswith("1 incomplete cycle (a branch reaches the end of the file") for t in texts)
+    assert win.strip.incomplete_why == {1: "no partner branch",
+                                        2: "a branch reaches the end of the file or has an unsupported interval"}

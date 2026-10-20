@@ -55,6 +55,7 @@ class CycleStrip(QWidget):
         self.setAccessibleName("Cycle strip")
         self.cycles: list[int] = []
         self.incomplete: set = set()
+        self.incomplete_why: dict = {}          # cycle -> why it is incomplete, in words
         self.values = np.array([])
         self.ce: dict[int, float] = {}
         self.unit = ""
@@ -74,9 +75,10 @@ class CycleStrip(QWidget):
         return QSize(600, 74)
 
     # -------------------------------------------------------------- data
-    def set_data(self, cycles, values, ce=None, unit="", incomplete=(), key=None):
+    def set_data(self, cycles, values, ce=None, unit="", incomplete=(), key=None, incomplete_why=None):
         """key identifies the file: the bars rise once per file, not on every redraw."""
         self.incomplete = set(incomplete)
+        self.incomplete_why = dict(incomplete_why or {})
         if key is not None and key != self._shown_key and cycles:
             self._shown_key = key
             self._grow = 0.0
@@ -243,7 +245,8 @@ class CycleStrip(QWidget):
         if c != self.hover:
             self.hover = c
             v = self.values[k]
-            txt = f"Cycle {c}" + (" (incomplete: no partner branch)" if c in self.incomplete else "")
+            txt = f"Cycle {c}" + (f" (incomplete: {self.incomplete_why.get(c, 'no partner branch')})"
+                                  if c in self.incomplete else "")
             if np.isfinite(v):
                 txt += f": {v:.4g} {self.unit}"
             if c in self.ce and self.ce[c] is not None:

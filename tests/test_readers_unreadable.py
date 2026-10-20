@@ -1,7 +1,8 @@
 """Files the layout detection used to stumble on (found with a LANHE/LAND .cex binary sent in October 2026, which
 reached the window as a raw csv error): an instrument's own binary file is refused with an instruction before any
 text parsing, a text export whose rows end in a lone carriage return is read like any other, and a UTF-16 export
-that keeps its byte-order mark is detected and read. All files here are synthetic."""
+that keeps its byte-order mark is detected and read. All files here are synthetic. A real .cex is now read by its
+own reader (tests/test_readers_cex.py); a file named .cex that is not one is refused here."""
 import csv
 from pathlib import Path
 
@@ -30,8 +31,9 @@ TABLE = "Elapsed Time(s),Amps(A),Volts(V),Cycle Index,Step Index\n" + "\n".join(
 CHARGE_MAH = 0.001 * 59 * 60 / 3.6        # 59 intervals of 60 s at 1 mA, by construction
 
 
-@pytest.mark.parametrize("name,code", [("hold_001_2.cex", "binary_export"), ("run.bin", "binary_content"),
-                                       ("run.txt", "binary_content"), ("run.csv", "binary_content")])
+@pytest.mark.parametrize("name,code", [("hold_001_2.cex", "cex_signature"), ("run.res", "binary_export"),
+                                       ("run.bin", "binary_content"), ("run.txt", "binary_content"),
+                                       ("run.csv", "binary_content")])
 def test_an_instrument_binary_is_refused_with_an_instruction(tmp_path, profiles, name, code):
     p = tmp_path / name
     p.write_bytes(binary_blob())
@@ -39,8 +41,10 @@ def test_an_instrument_binary_is_refused_with_an_instruction(tmp_path, profiles,
         workflow.open_file(p)
     assert info.value.code == code
     assert "Export the run as .csv, .txt or .xlsx" in str(info.value)
-    if name.endswith(".cex"):
-        assert "LANHE or LAND" in str(info.value)
+    if name.endswith(".cex"):                                   # a .cex that is not one (the reader: test_readers_cex)
+        assert "LANHE (LAND) .cex signature" in str(info.value)
+    if name.endswith(".res"):
+        assert "Arbin" in str(info.value)
     assert not looks_tabular(p)                                 # and a folder scan passes over it quietly
 
 

@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (QButtonGroup, QFrame, QGridLayout, QHBoxLayout, Q
 from ..cycling import capacity_basis, cycle_capacity
 from ..workflow import EC_LAB_DEFAULT_MASS_MG
 from . import theme
-from .model import Record, first_branch_direction, parse_number, questions, state_of
+from .model import Record, degenerate_start, first_branch_direction, parse_number, questions, state_of
 from .tables import implausible_capacity
 from .views import capacity_unit, ref_text
 
@@ -294,6 +294,8 @@ class Inspector(QScrollArea):
         if meta.get("profile"):
             rep_ = meta.get("import_report", {})
             src = ("its step types name charge, discharge and rest" if rep_.get("current_sign_declared") in ("unsigned", "detect")
+                   else "its step types name charge, discharge and rest, and the sign of its current agrees on every step"
+                   if rep_.get("direction_from_step_types")
                    else f"the {meta['profile']} profile declares which sign is charge")
             card.body.addWidget(_label(f"Answered from the import: the current was made charge-positive when the file "
                                        f"was read, because {src}. Evidence: {meta.get('profile_evidence', '')}", "muted"))
@@ -312,7 +314,9 @@ class Inspector(QScrollArea):
     def _q_order(self, card, rec):
         first = first_branch_direction(rec.answers, rec.run)
         if first:
-            card.body.addWidget(_label(f"With the direction you gave, the file starts with a {first}.", "muted"))
+            lead = degenerate_start(rec.run)
+            card.body.addWidget(_label(f"With the direction you gave, the file starts with a {first}"
+                                       + (f"; {lead}." if lead else "."), "muted"))
         self._choices(card, "cycle_order", [
             ("charge-first", "Charge, then discharge",
              "each charge is paired with the discharge after it; a discharge before the first charge stays unpaired"),
@@ -448,7 +452,7 @@ class Inspector(QScrollArea):
                          integer=True, check=is_complete)
 
     # ---------------------------------------------------------------- values
-    def _value_grid(self, title, items, rec):
+    def _value_grid(self, title, items, rec, note=None):
         box = QFrame(); box.setObjectName("Panel")
         lay = QVBoxLayout(box); lay.setContentsMargins(12, 10, 12, 10); lay.setSpacing(6)
         lay.addWidget(_label(title, "h2"))
@@ -470,6 +474,8 @@ class Inspector(QScrollArea):
             g.addWidget(v, r, 1)
         g.setColumnStretch(1, 1)
         lay.addLayout(g)
+        if note:                                  # the cycle's own note: why a value of this cycle is withheld
+            lay.addWidget(_label(note[0].upper() + note[1:] + ".", "muted"))
         self.lay.addWidget(box)
 
     def _summary(self, rec):
@@ -529,7 +535,7 @@ class Inspector(QScrollArea):
         title = f"Cycle {c}" + ("" if row.complete else " (incomplete)")
         if c not in rec.selected_cycles():
             title += ", previewed: not in the selection"
-        self._value_grid(title, items, rec)
+        self._value_grid(title, items, rec, note=row.note or None)
 
     def _plateaus(self, rec, c):
         """The dQ/dE peaks of the focused cycle as the tables report them: pairs with their separation, peaks

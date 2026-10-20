@@ -246,7 +246,7 @@ VIEWS = [("Overview", OverviewView), ("Profiles", ProfilesView), ("Capacity", Ca
          ("Data", DataView)]
 ISSUES = f"{__url__}/issues"
 # what the window opens: EC-Lab files, and the text or workbook exports of any other cycler
-DATA_SUFFIXES = (".mpr", ".mpt", ".txt", ".csv", ".tsv", ".dat", ".xlsx", ".xlsm", ".xls", ".nda", ".ndax", ".res")
+DATA_SUFFIXES = (".mpr", ".mpt", ".cex", ".txt", ".csv", ".tsv", ".dat", ".xlsx", ".xlsm", ".xls", ".nda", ".ndax", ".res")
 ERROR_LOG = Path.home() / ".electrochem-toolkit-errors.log"
 ROOT = Path(__file__).resolve().parents[2]                     # the toolkit folder: data/demo lives beside electrochem/
 DEMO_FILE = ROOT / "data" / "demo" / "cyclara_demo_synthetic.mpt"
@@ -953,7 +953,9 @@ class MainWindow(QMainWindow):
             return methods_text.Context()
         run = rec.run
         s = rec.run_settings if (run is not None and rec.run_settings is not None) else settings_for(rec.answers)
-        prof = getattr(rec.profile, "name", None) if rec.profile is not None else None
+        # rec.profile holds the profile's name (meta["profile"]); reading .name from it gave None, so the methods
+        # window never named the profile a file was read with
+        prof = rec.profile if isinstance(rec.profile, str) else getattr(rec.profile, "name", None)
         return methods_text.Context(
             settings=s, run=run, dqde_mv=run.dqde_mv if run is not None else 10.0,
             dqde_units=self.studio.dq.currentData() if hasattr(self.studio, "dq") else "au",
@@ -1095,8 +1097,8 @@ class MainWindow(QMainWindow):
         start = self.settings.value("last_dir", str(Path.home()))
         paths, _ = QFileDialog.getOpenFileNames(
             self, "Open cycling files", start,
-            "Cycling files (*.mpr *.mpt *.csv *.txt *.tsv *.dat *.xlsx *.xlsm);;EC-Lab files (*.mpr *.mpt);;"
-            "Other cyclers' exports (*.csv *.txt *.tsv *.dat *.xlsx *.xlsm);;All files (*)")
+            "Cycling files (*.mpr *.mpt *.cex *.csv *.txt *.tsv *.dat *.xlsx *.xlsm);;EC-Lab files (*.mpr *.mpt);;"
+            "LANHE files (*.cex);;Other cyclers' exports (*.csv *.txt *.tsv *.dat *.xlsx *.xlsm);;All files (*)")
         if paths:
             self.open_paths([Path(p) for p in paths])
 
@@ -1155,9 +1157,9 @@ class MainWindow(QMainWindow):
         if has_mps:
             msg = "An .mps file holds a protocol's settings, not measurements: open the run's .mpr or .mpt file."
         elif dirs and not exts:
-            msg = f"There is no measurement file in {dirs[0].name} (.mpr, .mpt, .csv, .txt or .xlsx)."
+            msg = f"There is no measurement file in {dirs[0].name} (.mpr, .mpt, .cex, .csv, .txt or .xlsx)."
         elif exts:
-            msg = (f"{', '.join(exts)} files are not read: open an EC-Lab .mpr or .mpt, another cycler's .csv, "
+            msg = (f"{', '.join(exts)} files are not read: open an EC-Lab .mpr or .mpt, a LANHE .cex, another cycler's .csv, "
                    ".txt or .xlsx export, or a folder holding them.")
         else:
             msg = "Nothing to open."
@@ -1256,6 +1258,7 @@ class MainWindow(QMainWindow):
             # and it stays one undoable step with its source shown in the inspector
             rep_ = loaded.meta.get("import_report", {})
             how = ("the file's step types name the direction" if rep_.get("current_sign_declared") in ("unsigned", "detect")
+                   or rep_.get("direction_from_step_types")
                    else f"the {loaded.meta['profile']} profile declares positive current as charge")
             self.results.activity.log(f"{rec.path.name}: current direction answered from the import: {how}")
             if self._ingesting is rec:
@@ -1603,8 +1606,12 @@ class MainWindow(QMainWindow):
         cyc = rec.run.an.cycles
         vals = [cycle_capacity(c, "discharge", s) if c.complete else None for c in cyc]   # the basis the unit names
         key = (rec.loaded.tab.source_sha256, id(rec)) if grow else None
+        why = {c.cycle: ("no partner branch" if c.charge_branch is None or c.discharge_branch is None else
+                         "a branch reaches the end of the file or has an unsupported interval")
+               for c in cyc if not c.complete}
         self.strip.set_data([c.cycle for c in cyc], vals, {c.cycle: c.coulombic_efficiency_pct for c in cyc},
-                            capacity_unit(s), incomplete=[c.cycle for c in cyc if not c.complete], key=key)
+                            capacity_unit(s), incomplete=[c.cycle for c in cyc if not c.complete], key=key,
+                            incomplete_why=why)
         self.strip.set_selection(rec.selected_cycles(), rec.focus_cycle)
         self.expr.setText(compress(rec.selected_cycles()))
 

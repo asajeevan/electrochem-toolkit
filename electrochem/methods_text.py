@@ -239,7 +239,11 @@ TOPICS: list[Topic] = [
             "retention; the cycle range used is written beside it. A change of rate between cycles makes retention "
             "a comparison of protocols, not a measure of degradation: that judgement is yours.</p>"
             "<h4>Not produced when</h4><p>The pair is incomplete, the charge capacity is zero, the reference cycle "
-            "is missing or incomplete, or fewer than three cycles are available for the fit.</p>"),
+            "is missing or incomplete, or fewer than three cycles are available for the fit. Nor for a pair in "
+            "which one branch spans one recorded interval and carries under 0.1 % of the other's charge, a step "
+            "that ended at once (a charge to a voltage limit begun above that limit): its efficiency, energy "
+            "efficiency and hysteresis would describe that step, not the cell, so the cycle's note says so and only "
+            "its capacities and retention are given (M01 section 6).</p>"),
         outputs="cycles.csv: coulombic_efficiency_pct, coulombic_inefficiency_pct, capacity_retention_pct; "
                 "summary.json: mean_coulombic_efficiency_pct (from cycle 2), mean_coulombic_efficiency_last10_pct, "
                 "retention_at_last_cycle_pct, cycle_reaching_80pct_retention, capacity_fade_pct_per_cycle, "
@@ -581,7 +585,11 @@ def for_file(key: str, ctx: Context) -> list[str]:
     elif key == "limits":
         out.append(f"Cyclara {__version__}; the settings and methods of this analysis are written to settings.json "
                    "with every export.")
-    if ctx.profile_name:
+    if ctx.profile_name == "lanhe-cex":
+        out.append("Read natively from the tester's .cex file (reader lanhe-cex); its scales, their check against the "
+                   "tester's own capacity and energy counters, and the tester's step table are in settings.json and "
+                   "instrument_steps.csv.")
+    elif ctx.profile_name:
         out.append(f"Read with the import profile '{ctx.profile_name}'; its conventions (current sign, direction "
                    "source, capacity semantics, cycle base) are in settings.json.")
     return out

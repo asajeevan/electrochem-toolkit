@@ -263,6 +263,24 @@ def legend_band(ax, n_entries, ncol=1, where="top", row_height=None, pad=0.035, 
         ax.set_ylim(hi - span, hi)
 
 
+def _corner_note(ax, text):
+    """A short note in a lower corner of the axes clear of the data: the lower left, else the lower right, else
+    the lower left of a band added below the data for it (a fixed corner drew the bin width over a curve that
+    reached it, found with a synthetic file, 20 October 2026)."""
+    fig = ax.figure
+    for x, ha in ((0.03, "left"), (0.97, "right")):
+        t = ax.text(x, 0.03, text, transform=ax.transAxes, ha=ha, va="bottom", fontsize=_J.small_pt)
+        try:
+            fig.draw_without_rendering()
+        except Exception:
+            fig.canvas.draw()
+        if _data_in_box(ax, t.get_window_extent(fig.canvas.get_renderer())) == 0:
+            return t
+        t.remove()
+    legend_band(ax, 0, 1, "bottom", title=True)
+    return ax.text(0.03, 0.03, text, transform=ax.transAxes, ha="left", va="bottom", fontsize=_J.small_pt)
+
+
 def place_legend(ax, handles, labels, locs, axes=None, **kw):
     """Put the legend at the first of `locs` where it covers no data (lines, points, bands, guides).
 
@@ -417,7 +435,8 @@ def capacity_efficiency(cycles, s, ax=None, width=None, ce_range="auto", show_ch
     ax.xaxis.set_major_locator(MaxNLocator(integer=True, steps=[1, 2, 5, 10], nbins=6))
     ax.set_xlim(0, (n.max() + max(1, 0.02 * n.max())) if n.size else 2)
     ax2 = ax.twinx()
-    ax2.plot(n, ce, "^", color=BLACK, markeredgewidth=0, markersize=ms * 1.05, label="Coulombic efficiency",
+    ax2.plot(n, ce, "^", color=BLACK, markeredgewidth=0, markersize=ms * 1.05,
+             label="Coulombic efficiency" if np.isfinite(ce).any() else "_nolegend_",     # none given: no entry
              zorder=3, linestyle="none")
     ax2.set_ylim(*ce_limits(ce, ce_range))
     ax2.set_ylabel("Coulombic efficiency (%)")
@@ -496,8 +515,7 @@ def dqde(tab, seg, s, cycles, ax=None, width=None, bin_mV=10.0, palette="blues",
             place_legend(ax, h, l_, ("lower left", "lower right"), ncol=ncol, title=f"{bin_mV:g} mV bins",
                          alignment="left")
         elif n:
-            ax.text(0.03, 0.03, f"{bin_mV:g} mV bins", transform=ax.transAxes, ha="left", va="bottom",
-                    fontsize=_J.small_pt)
+            _corner_note(ax, f"{bin_mV:g} mV bins")
     else:
         box(ax, potential_label(tab, s), lab)
         ax.axhline(0, color=GREY, linewidth=0.5, zorder=1)
@@ -530,11 +548,14 @@ def average_voltage(cycles, s, ax=None, width=None, journal="nature"):
         span = max(hi_v - lo_v, 0.01)
         ax.set_ylim(lo_v - 0.10 * span, hi_v + 0.10 * span)
     ax2 = ax.twinx()
-    hyst = vc - vd
+    # the cycle's own hysteresis, not vc - vd: it is withheld for a pair with a step that ended at once
+    hyst = np.array([np.nan if c.average_voltage_hysteresis_V is None else c.average_voltage_hysteresis_V
+                     for c in rows], float)
     ax2.plot(n, hyst, "s", color=BLACK, markeredgewidth=0, markersize=ms * 0.85,
-             label=f"Hysteresis, $\\Delta\\mathit{{{sym}}}$", zorder=3, linestyle="none")
+             label=(f"Hysteresis, $\\Delta\\mathit{{{sym}}}$" if np.isfinite(hyst).any() else "_nolegend_"),
+             zorder=3, linestyle="none")
     ax2.set_ylabel(f"Hysteresis, $\\Delta\\mathit{{{sym}}}$ (V)")
-    if n.size:
+    if np.isfinite(hyst).any():
         h_lo = min(0.0, float(np.nanmin(hyst)))
         h_rng = max(float(np.nanmax(hyst)) - h_lo, 0.05 / 2.6)
         ax2.set_ylim(h_lo - 0.04 * h_rng, h_lo + h_rng * 2.6)        # hysteresis in the lower part
@@ -598,14 +619,19 @@ def _dqde_unit(s, units):
     return {"specific": "mAh g$^{−1}$ V$^{−1}$", "areal": "mAh cm$^{−2}$ V$^{−1}$", "absolute": "mAh V$^{−1}$"}[basis_of(s)]
 
 
-def _evolution_grids(curves):
+def _evolution_grids(curves, common_rows=False):
+    """The charge and discharge grids, each filled to contiguous cycles; with common_rows, both to the cycles of
+    either, so panels that share a cycle axis show the same rows (a direction without a curve in the first or
+    last cycle no longer leaves the other panel's rows outside the shared range)."""
     from .differential import evolution_grid
-    out = []
-    for d in ("charge", "discharge"):
-        g = evolution_grid(curves, d)
-        if g is not None:
-            out.append(g.filled())
-    return out
+    raw = [g for g in (evolution_grid(curves, d) for d in ("charge", "discharge")) if g is not None]
+    if not raw:
+        return []
+    if not common_rows:
+        return [g.filled() for g in raw]
+    lo = min(int(g.cycles.min()) for g in raw)
+    hi = max(int(g.cycles.max()) for g in raw)
+    return [g.filled(lo, hi) for g in raw]
 
 
 def _grid_scale(grids, units):
@@ -635,7 +661,7 @@ def fig6_dqde_map(curves, s, tab=None, units="au", journal="nature", width=None)
     """
     from matplotlib.colors import Normalize
     apply_style(journal)
-    grids = _evolution_grids(curves)
+    grids = _evolution_grids(curves, common_rows=True)          # the panels share one cycle axis
     w = width or col_width("one_half", journal)
     n = max(len(grids), 1)
     fig, axes = plt.subplots(1, n, figsize=(w, w * 0.50), layout="constrained", sharex=True, sharey=True,
@@ -659,7 +685,7 @@ def fig6_dqde_map(curves, s, tab=None, units="au", journal="nature", width=None)
         ax.set_xlim(*xr)
         ax.set_ylim(ye[0], ye[-1])
         box(ax, xlab, "Cycle number" if ax is axes[0] else None)
-        ax.yaxis.set_major_locator(MaxNLocator(integer=True, nbins=6))
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True, nbins=6, min_n_ticks=1 if len(g.cycles) == 1 else 2))
         ax.xaxis.set_major_locator(MaxNLocator(nbins=5))
         ax.set_title(g.direction.capitalize(), fontsize=_J.text_pt, pad=3.0)
         if ax is not axes[0]:
@@ -738,7 +764,8 @@ def fig7_dqde_surface(curves, s, tab=None, units="au", journal="nature", width=N
             ax.set_zlabel(zlab, labelpad=1.0)
         ax.set_title(g.direction.capitalize(), fontsize=_J.text_pt)
         ax.xaxis.set_major_locator(MaxNLocator(nbins=4))
-        ax.yaxis.set_major_locator(MaxNLocator(integer=True, nbins=4))
+        # one cycle: MaxNLocator drops integer=True when fewer than two integers fit and labels 1.50, 1.75...
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True, nbins=4, min_n_ticks=1 if len(g.cycles) == 1 else 2))
         ax.zaxis.set_major_locator(MaxNLocator(nbins=3))
         ax.tick_params(axis="both", which="major", pad=-1.0)
         for axis in (ax.xaxis, ax.yaxis, ax.zaxis):

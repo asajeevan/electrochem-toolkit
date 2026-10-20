@@ -81,16 +81,24 @@ EVERY TIME
      again with everything filled in from the saved profile; choose that one
      column, check, and the profile moves on. docs/P08d_Instrument_Compatibility_Matrix.md says which
      instruments were checked on real files.
-     Binary files from other makers (.res, .nda, .ndax, .cex) are not read:
-     export them as text or Excel from the instrument's software first. A
-     LANHE or LAND .cex file is exported as an Excel workbook, which is read.
+     A LANHE (LAND) .cex file is read directly: Cyclara checks its reading
+     against the tester's own capacity and energy counters and lists the
+     tester's steps in instrument_steps.csv. A .cex it cannot vouch for (a
+     layout or step type not yet seen) is refused with the reason; export that
+     run to Excel from LANHE's software, which is read.
+     Binary files from other makers (.res, .nda, .ndax) are not read: export
+     them as text or Excel from the instrument's software first.
   4. On the right, answer the three questions:
        a. Which current direction charges the cell?
           Positive current charges = oxidation at the working electrode (usual for a
           positive electrode against Li metal).
           If the file then starts with a discharge, one more question appears: does each
           cycle start with a charge or a discharge? (Discharge first is usual for a cell
-          assembled in the charged state.)
+          assembled in the charged state.) It appears too when the file starts with a
+          step that ended at once (one recorded interval, under 0.1 % of the charge of
+          the branch after it), such as a charge to a voltage limit begun above it.
+          For a LANHE .cex this first question is answered from the file: its step
+          types name charge and discharge, and the current agrees with them.
        b. What does the potential column measure?
           Half-cell: type the reference, for example  Li+/Li
           Full cell: the two-electrode cell voltage.

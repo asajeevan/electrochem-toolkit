@@ -208,10 +208,11 @@ def main(argv=None):
         print(f"  cycle {sm.last_cycle}: retention {f(sm.retention_at_last_cycle_pct, '{:.1f}')} %, mean CE (cycles 2+) {f(sm.mean_coulombic_efficiency_pct, '{:.2f}')} %,"
               f" fade {f(sm.capacity_fade_pct_per_cycle, '{:.3f}')} %/cycle")
         if sm.mean_average_discharge_voltage_V is not None:
-            print(f"  mean average discharge potential {sm.mean_average_discharge_voltage_V:.3f} V, mean hysteresis {sm.mean_voltage_hysteresis_V:.3f} V")
+            print(f"  mean average discharge potential {sm.mean_average_discharge_voltage_V:.3f} V, mean hysteresis "
+                  f"{f(sm.mean_voltage_hysteresis_V, '{:.3f}')} V")
         if sm.theoretical_capacity_mAh_g:
             print(f"  theoretical capacity {sm.theoretical_capacity_mAh_g:.1f} mAh/g, first-cycle utilisation {f(sm.first_cycle_utilisation_pct, '{:.1f}')} %")
-    for w in warnings + list(seg.convention.get("notes", [])):
+    for w in warnings + list(seg.convention.get("notes", [])) + [n for n in (sm.notes or "").split("; ") if n]:
         print("  note:", w)
     if s.charge is None:
         print("  --charge not given: branches labelled by current sign only; efficiency and retention unavailable")

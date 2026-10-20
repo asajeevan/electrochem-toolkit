@@ -16,9 +16,15 @@ from that instrument is then recognised automatically.
 
 The validated EC-Lab path (eclab_import) is never routed through here: bridge.is_eclab
 decides from the file's own signature.
+
+One instrument's own binary file is read natively, because a real one was decoded and its
+reading can be checked against the tester's own counters on every file: the LANHE (LAND)
+.cex (lanhe_cex.py, chosen by its signature).
 """
-from .bridge import is_eclab, to_table
+from . import lanhe_cex
+from .bridge import is_eclab, native_table, to_table
 from .builtin import BUILTIN
+from .lanhe_cex import is_cex
 from .profile import Binding, Conventions, ImportProfile, Layout
 from .propose import Proposal, looks_tabular
 from .propose import propose as propose_mapping
@@ -26,5 +32,5 @@ from .reader import ImportFailure, RawTable, read
 from .registry import Entry, Registry, confirm, fingerprint
 
 __all__ = ["BUILTIN", "Binding", "Conventions", "Entry", "ImportFailure", "ImportProfile", "Layout", "Proposal",
-           "RawTable", "Registry", "confirm", "fingerprint", "is_eclab", "looks_tabular", "propose_mapping", "read",
-           "to_table"]
+           "RawTable", "Registry", "confirm", "fingerprint", "is_cex", "is_eclab", "lanhe_cex", "looks_tabular",
+           "native_table", "propose_mapping", "read", "to_table"]
