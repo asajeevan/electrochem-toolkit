@@ -1,6 +1,6 @@
 # Evidence for the installers
 
-The files here belong to the delivered build of 0.8.0 (20 October 2026); `0.7.0/` keeps the morning's build of
+The files here belong to the released build of 0.8.0 (20 October 2026), the one attached to the GitHub release; `0.7.0/` keeps the morning's build of
 the same day. `build_windows.log` and `build_macos.log` are the build's own log (pip command lines shortened);
 `*.sha256` are the checksums of the files delivered; the four PNGs are the installer's pages photographed under
 Wine and Xvfb.
@@ -18,3 +18,10 @@ then 0.8.0 over it (39 s and 38 s); the installed tree equals the built stage fi
 (B: 10 799 files hashed), no file of 0.7.0 left behind, only `Uninstall.exe` added; Start menu and Desktop
 shortcuts, the uninstall key (DisplayVersion 0.8.0) and the "Open with" registration present; `Uninstall.exe /S`
 removed the folder, both shortcuts and the keys.
+
+Released build (19:21, from a clean checkout of commit c7014cc, the published source): the same 10 799 files as
+build B except `README.md` and `docs/Cyclara_handout.pdf` (the corrected macOS first-launch advice) and the
+launcher's PE time stamp and header checksum, compared file by file; the whole suite on that checkout passed (925
+passed, 2 skipped, 8 min 28 s); under Wine, imports and every view; the install check again: 0.7.0 first, then
+this build over it in 37 s, the installed tree byte-identical to the stage (10 799 files) plus `Uninstall.exe`, no
+file of 0.7.0 left, shortcuts and keys present, a clean uninstall. Its checksums are the `*.sha256` files here.
