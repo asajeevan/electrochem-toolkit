@@ -95,3 +95,13 @@ with other bytes, with a test of that rule, and the large-file test reads the pe
 
 Next for the build: link the launcher with `-Wl,--no-insert-timestamp` so that two builds of the same sources give
 the same `Cyclara.exe`.
+
+## Published (20 October 2026)
+
+The release build of 0.8.0 (clean checkout of c7014cc) is published as an immutable GitHub release,
+https://github.com/asajeevan/electrochem-toolkit/releases/tag/v0.8.0: tag on 1463d92, the three installers, the
+handout and `SHA256SUMS.txt`. `scripts/check_github_release.py` checks a draft against the release folder before it
+is published and the release after (immutable, tag commit, GitHub's digest of each file, the signed attestation's
+contents); `tests/test_check_github_release.py` gives it the faults it must catch. Its record and output:
+`docs/evidence/p13_installers/github_release_v0.8.0*`. The procedure for the next release:
+`docs/releases/RELEASING.md`.

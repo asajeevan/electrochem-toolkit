@@ -19,9 +19,24 @@ then 0.8.0 over it (39 s and 38 s); the installed tree equals the built stage fi
 shortcuts, the uninstall key (DisplayVersion 0.8.0) and the "Open with" registration present; `Uninstall.exe /S`
 removed the folder, both shortcuts and the keys.
 
-Released build (19:21, from a clean checkout of commit c7014cc, the published source): the same 10 799 files as
+Released build (19:21, from a clean checkout of commit c7014cc, the source of the program; the tag `v0.8.0` is on
+the next commit, 1463d92, which adds only these checksums and this evidence): the same 10 799 files as
 build B except `README.md` and `docs/Cyclara_handout.pdf` (the corrected macOS first-launch advice) and the
 launcher's PE time stamp and header checksum, compared file by file; the whole suite on that checkout passed (925
 passed, 2 skipped, 8 min 28 s); under Wine, imports and every view; the install check again: 0.7.0 first, then
 this build over it in 37 s, the installed tree byte-identical to the stage (10 799 files) plus `Uninstall.exe`, no
 file of 0.7.0 left, shortcuts and keys present, a clean uninstall. Its checksums are the `*.sha256` files here.
+
+GitHub release (published 20 October 2026, 18:30:07 UTC, by the author from his own account; the build
+environment may not create releases): https://github.com/asajeevan/electrochem-toolkit/releases/tag/v0.8.0, release
+id 418709205, immutable, tag `v0.8.0` on 1463d92, five files: the three installers, the handout and
+`SHA256SUMS.txt`. Before it was published the draft was checked three times with a first version of
+`scripts/check_github_release.py` (the same checks of a draft; the attestation checks apply only after publishing):
+the first check found the two macOS archives not yet attached and the notes file attached by mistake, the second
+the notes file still attached, the third nothing wrong; then the release was published. After publishing the script found the
+release immutable, the tag on 1463d92, GitHub's SHA-256 digest of each file equal to the tested file's, and GitHub's
+release attestation (in-toto `release/v0.2`, a Sigstore bundle with a certificate and an RFC 3161 time stamp) naming
+the commit and all five files with those digests: `github_release_v0.8.0_check.txt`, and the record with the
+attestation bundle in `github_release_v0.8.0.json`. Not checked here: the attestation's signature. `gh release verify`
+needs GitHub's attestation store and the Sigstore trust root, which this environment's network policy refuses;
+`gh release verify v0.8.0 -R asajeevan/electrochem-toolkit` does it on any connected computer.

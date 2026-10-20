@@ -124,10 +124,19 @@ so, and the first run on each system is the remaining acceptance step.
 ## Signing
 
 Neither installer is code-signed. Windows SmartScreen shows "Windows protected
-your PC" until the publisher has reputation or an EV certificate (a paid,
-identity-checked purchase); macOS Gatekeeper requires an Apple Developer ID
-(paid) and notarisation for a silent first launch. The user guide describes
-the one-time "Run anyway" and "Open Anyway" steps. A university's code-signing
-certificate, if one is available, is the way to remove them: sign
-`Cyclara.exe` and the installer with `signtool`, the .app with `codesign` and
-submit it with `notarytool`.
+your PC" for a download without reputation. A signed installer shares its
+certificate's reputation from one version to the next, but Microsoft states
+that a newly signed file may still be warned about until that reputation
+builds, and that EV certificates no longer bypass SmartScreen;
+`docs/adr/ADR-006_Distribution.md` compares the certificates open to an
+individual developer. macOS Gatekeeper requires an Apple Developer ID (paid)
+and notarisation for a silent first launch. The user guide describes the
+one-time "Run anyway" and "Open Anyway" steps. With a certificate (a
+university's, if one is available): sign `Cyclara.exe` and the installer with
+`signtool`, the .app with `codesign`, and submit it with `notarytool`.
+
+## Publishing
+
+The installers are published as immutable GitHub releases; the procedure,
+with the check of the draft before it is published, is
+`docs/releases/RELEASING.md`.

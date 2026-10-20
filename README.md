@@ -15,6 +15,8 @@ New users: read **docs/Cyclara_handout.pdf** (illustrated) or `HOW_TO_USE.txt`.
 
 ## Install and open
 
+Download the installer for your computer from the [latest release](https://github.com/asajeevan/electrochem-toolkit/releases/latest). Its files cannot be replaced after publication, and the page lists each file's SHA-256 and how to check it.
+
 **Windows** (10 version 1903 or later, or 11; 64-bit): run **Cyclara-0.8.0-Setup.exe**, click Next, Install, Finish. It installs into your user folder, with no administrator password, and puts Cyclara on the Desktop and in the Start menu. The first time, Windows SmartScreen may say "Windows protected your PC" because the installer carries no paid signing certificate: click *More info*, then *Run anyway*. Remove it from Settings > Apps.
 
 **macOS** (14 Sonoma or later): unzip **Cyclara-0.8.0-macOS-AppleSilicon.zip** (M1 to M4) or **Cyclara-0.8.0-macOS-Intel.zip**, drag **Cyclara.app** to Applications and open it. The first time, macOS says it cannot verify the app (no paid Apple certificate): click Done, then System Settings > Privacy & Security > *Open Anyway*, and open it again. On an older macOS, right-click the app and choose Open.

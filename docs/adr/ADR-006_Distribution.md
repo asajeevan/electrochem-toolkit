@@ -1,7 +1,8 @@
 # ADR-006: How Cyclara is shared
 
-Date: 20 October 2026. Status: **proposed**; the decision and the accounts are the author's. Facts below were
-checked on this date at the sources listed; prices and eligibility change, so check again before paying.
+Date: 20 October 2026. Status: **accepted** for GitHub Releases (in force from 0.8.0, see *Outcome*); Zenodo
+deferred by the author to a later release; signing not yet. The decision and the accounts are the author's. Facts
+below were checked on this date at the sources listed; prices and eligibility change, so check again before paying.
 
 ## Context
 
@@ -59,6 +60,23 @@ reputation.
 
 Recipients get a stable address, files that cannot be swapped after publication, and a way to check them; papers
 can cite a DOI that resolves to the exact version; the one-time Windows and macOS warnings remain until signing.
+
+## Outcome (20 October 2026)
+
+- Decision 1 done: release immutability switched on, then 0.8.0 published at
+  https://github.com/asajeevan/electrochem-toolkit/releases/tag/v0.8.0 with the three installers, the handout and
+  `SHA256SUMS.txt`. The author published it from his own account (decision 3): the build environment may push
+  commits but may not create releases or tags, nor change the immutability setting.
+- The draft was checked before publishing and the release after (`scripts/check_github_release.py`): the first
+  check of the draft found two archives not yet attached and the notes file attached by mistake, which an
+  immutable release could not have shed. Published: immutable, tag `v0.8.0` on 1463d92, GitHub's SHA-256 of every
+  file equal to the tested file's, GitHub's signed attestation naming the commit and all five files. Its signature
+  was not checked in the build environment (network policy); `gh release verify` does that on a connected computer.
+  Evidence: `docs/evidence/p13_installers/`; procedure for next time: `docs/releases/RELEASING.md`.
+- Decision 2 deferred by the author: Zenodo is not yet connected. Zenodo archives the releases published after a
+  repository is switched on, so 0.8.0 has no DOI; the next release will have one if Zenodo is switched on first
+  (0.8.0 itself could still be uploaded to Zenodo by hand).
+- Decision 4 (signing) stays open.
 
 ## Sources (inspected 20 October 2026)
 

@@ -107,8 +107,17 @@ Sent to the chat: `Cyclara-0.8.0-Setup.exe` (105 MB), `Cyclara-0.8.0-macOS-Apple
 and the 15-page handout `Cyclara_handout_v0.8.0.pdf`. Checksums: `docs/evidence/p13_installers/*.sha256`.
 The PC was not connected to the session, so nothing was written to E:.
 
+Those first installers (build B) were then superseded by the release build from a clean checkout of c7014cc,
+which differs from B only in `README.md`, the handout and the launcher's time stamp. The release build is what
+was published, 18:30 UTC: an immutable GitHub release,
+https://github.com/asajeevan/electrochem-toolkit/releases/tag/v0.8.0, tag on 1463d92, three installers, the
+handout and `SHA256SUMS.txt`, checked as a draft before publishing and again after
+(`scripts/check_github_release.py`; evidence in `docs/evidence/p13_installers/`; procedure in
+`docs/releases/RELEASING.md`; ADR-006 *Outcome*). No DOI: Zenodo is to be switched on before the next release.
+
 ## Next
 
 Open a real long Arbin or Neware export (several hundred thousand rows) and a real multi-plateau
 material in the app and compare the plateau table with what you read from the curves by hand; install
-from the rebuilt installers on a Windows PC and a Mac. Then batch mode and impedance.
+from the published installers on a Windows PC and a Mac. Then batch mode and impedance. Before the next
+release: switch Zenodo on for the repository, so that release gets a DOI (`docs/releases/RELEASING.md`).
