@@ -49,6 +49,11 @@ A desktop app on the cycling engine (PySide6 6.12.0 and pyqtgraph 0.14.0, the st
 - **Checked** with `scripts/check_github_release.py` before publishing (the draft: it caught two archives not yet attached and a notes file attached by mistake) and after: immutable, tag on 1463d92, GitHub's SHA-256 of every file equal to the tested file's, GitHub's signed release attestation naming the commit and all five files. The attestation's signature was not checked in the build environment, whose network policy blocks the hosts `gh release verify` needs. Evidence: `docs/evidence/p13_installers/`. Procedure for the next release: `docs/releases/RELEASING.md`.
 - **No DOI.** The author is not using Zenodo for now, so the citation is the versioned GitHub reference. If a DOI is wanted later, Zenodo has to be switched on before the release that should carry it (it archives only releases published afterwards); `docs/releases/RELEASING.md`.
 
+## After 0.8.0 (in `main`, not yet in an installer)
+
+- **Unreadable files refused in words.** A LANHE or LAND `.cex` binary sent on 20 October 2026 reached the window as a raw `csv` error. Now `.cex` joins `.res`, `.nda` and `.ndax` with an instruction to export Excel or text; any other file with NUL bytes is refused as `binary_content` before layout detection; the detection ends a row at a lone carriage return and honours UTF-16 and UTF-32 byte-order marks, so Excel's "Unicode text" export opens. Tests on synthetic files: `tests/test_readers_unreadable.py`.
+- **Reproducible launcher.** Two builds of the same sources give the same `Cyclara.exe` (`tests/test_installer.py`).
+
 ## Next task
 
 Install Cyclara 0.8.0 from the one-click installers on a Windows PC and a Mac, open real files from each cycler available (a long Arbin or Neware export of several hundred thousand rows among them, and a material with several plateaus, comparing the plateau table with a reading of the curves by hand), and note what is confusing or missing (the first-launch SmartScreen and Gatekeeper prompts included); finish the compatibility matrix on real files; then batch mode across cells (one settings file per cell, combined retention figures with independent-cell statistics), then impedance: Nyquist and Bode plots, conductivity and VFT fits for polymer electrolytes.

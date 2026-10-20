@@ -1,5 +1,8 @@
 {
  "captured_with": {
+  "amended": [
+   "2026-10-20: the eight entries lone_cr.csv, mixed_endings.csv, utf16_bom.csv, utf16be_bom.csv, utf32_bom.csv, arbin_example.res, test.nda and test.ndax recaptured for the intended change of tests/test_readers_unreadable.py (layout detection ends a row at a lone carriage return, honours UTF-16 and UTF-32 byte-order marks, and no longer lets a csv.Error escape); every other entry is the original capture (docs/P08d, section 5)"
+  ],
   "note": "the generic reader before the P08f streaming rewrite",
   "numpy": "2.3.5",
   "python": "3.13.16"
@@ -13721,10 +13724,31 @@
   "lone_cr.csv": {
    "profile_sha256": "f3eeab1007973c5c4f27ff1df99e877bdf495459fa056861447801337e1c1f91",
    "propose": {
-    "code": null,
-    "kind": "error",
-    "message": "new-line character seen in unquoted field - do you need to open the file with newline=''?",
-    "type": "Error"
+    "bindings": "{\"current_ampere\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Current(A)\"], \"source_unit\": null}, \"step_id\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Step_Index\"], \"source_unit\": \"1\"}, \"test_time_second\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Test_Time(s)\"], \"source_unit\": null}, \"voltage_volt\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Voltage(V)\"], \"source_unit\": null}}",
+    "blocking": [],
+    "chosen": "{\"current_ampere\": [\"Current(A)\", 2, 100, \"exact name\", \"A\"], \"step_id\": [\"Step_Index\", 0, 100, \"exact name\", null], \"test_time_second\": [\"Test_Time(s)\", 1, 100, \"exact name\", \"s\"], \"voltage_volt\": [\"Voltage(V)\", 3, 100, \"exact name\", \"V\"]}",
+    "headers": [
+     "Step_Index",
+     "Test_Time(s)",
+     "Current(A)",
+     "Voltage(V)"
+    ],
+    "kind": "proposal",
+    "layout": "{\"comment\": null, \"decimal\": \"auto\", \"delimiter\": \",\", \"encoding\": \"utf-8-sig\", \"header_contains\": [], \"header_row\": 1, \"kind\": \"delimited\", \"sheets\": null, \"skip_rows_after_header\": 0, \"unit_row\": null}",
+    "layout_rows": 40,
+    "layout_rows_sha256": "88b3c9fe7fc10472d9acc32d53917c2c09aa1f6cb18d585045806c2aa0b8a049",
+    "measured": "{\"current_has_negative_values\": true, \"current_range_in_file_units\": \"-0.002 to 0.002\", \"rows\": 40, \"time_is_monotonic\": true, \"time_span_in_file_units\": \"0 to 390\"}",
+    "preview": {
+     "len": 40,
+     "sha256": "88b3c9fe7fc10472d9acc32d53917c2c09aa1f6cb18d585045806c2aa0b8a049"
+    },
+    "questions": [
+     "The current is signed. Confirm whether positive means charge (most instruments) or discharge (some BioLogic and Maccor configurations). Getting this backwards swaps every charge and discharge capacity in the results.",
+     "No capacity column was matched, so capacity will be integrated from the sampled current. On sparsely sampled constant-voltage tails that underestimates the instrument's own value."
+    ],
+    "rejected": "{\"current_ampere\": [], \"record_index\": [\"Step_Index\"], \"step_id\": [], \"test_time_second\": [], \"voltage_volt\": []}",
+    "unit_unknown": "{}",
+    "unmapped_columns": []
    },
    "read": {
     "arrays": {
@@ -14079,10 +14103,31 @@
   "mixed_endings.csv": {
    "profile_sha256": "f3eeab1007973c5c4f27ff1df99e877bdf495459fa056861447801337e1c1f91",
    "propose": {
-    "code": null,
-    "kind": "error",
-    "message": "new-line character seen in unquoted field - do you need to open the file with newline=''?",
-    "type": "Error"
+    "bindings": "{\"current_ampere\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Current(A)\"], \"source_unit\": null}, \"step_id\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Step_Index\"], \"source_unit\": \"1\"}, \"test_time_second\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Test_Time(s)\"], \"source_unit\": null}, \"voltage_volt\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Voltage(V)\"], \"source_unit\": null}}",
+    "blocking": [],
+    "chosen": "{\"current_ampere\": [\"Current(A)\", 2, 100, \"exact name\", \"A\"], \"step_id\": [\"Step_Index\", 0, 100, \"exact name\", null], \"test_time_second\": [\"Test_Time(s)\", 1, 100, \"exact name\", \"s\"], \"voltage_volt\": [\"Voltage(V)\", 3, 100, \"exact name\", \"V\"]}",
+    "headers": [
+     "Step_Index",
+     "Test_Time(s)",
+     "Current(A)",
+     "Voltage(V)"
+    ],
+    "kind": "proposal",
+    "layout": "{\"comment\": null, \"decimal\": \"auto\", \"delimiter\": \",\", \"encoding\": \"utf-8-sig\", \"header_contains\": [], \"header_row\": 1, \"kind\": \"delimited\", \"sheets\": null, \"skip_rows_after_header\": 0, \"unit_row\": null}",
+    "layout_rows": 40,
+    "layout_rows_sha256": "88b3c9fe7fc10472d9acc32d53917c2c09aa1f6cb18d585045806c2aa0b8a049",
+    "measured": "{\"current_has_negative_values\": true, \"current_range_in_file_units\": \"-0.002 to 0.002\", \"rows\": 40, \"time_is_monotonic\": true, \"time_span_in_file_units\": \"0 to 390\"}",
+    "preview": {
+     "len": 40,
+     "sha256": "88b3c9fe7fc10472d9acc32d53917c2c09aa1f6cb18d585045806c2aa0b8a049"
+    },
+    "questions": [
+     "The current is signed. Confirm whether positive means charge (most instruments) or discharge (some BioLogic and Maccor configurations). Getting this backwards swaps every charge and discharge capacity in the results.",
+     "No capacity column was matched, so capacity will be integrated from the sampled current. On sparsely sampled constant-voltage tails that underestimates the instrument's own value."
+    ],
+    "rejected": "{\"current_ampere\": [], \"record_index\": [\"Step_Index\"], \"step_id\": [], \"test_time_second\": [], \"voltage_volt\": []}",
+    "unit_unknown": "{}",
+    "unmapped_columns": []
    },
    "read": {
     "arrays": {
@@ -18071,10 +18116,31 @@
   "utf16_bom.csv": {
    "profile_sha256": "f3eeab1007973c5c4f27ff1df99e877bdf495459fa056861447801337e1c1f91",
    "propose": {
-    "code": null,
-    "kind": "error",
-    "message": "could not find a delimited table in this file",
-    "type": "ValueError"
+    "bindings": "{\"current_ampere\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Current(A)\"], \"source_unit\": null}, \"step_id\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Step_Index\"], \"source_unit\": \"1\"}, \"test_time_second\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Test_Time(s)\"], \"source_unit\": null}, \"voltage_volt\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Voltage(V)\"], \"source_unit\": null}}",
+    "blocking": [],
+    "chosen": "{\"current_ampere\": [\"Current(A)\", 2, 100, \"exact name\", \"A\"], \"step_id\": [\"Step_Index\", 0, 100, \"exact name\", null], \"test_time_second\": [\"Test_Time(s)\", 1, 100, \"exact name\", \"s\"], \"voltage_volt\": [\"Voltage(V)\", 3, 100, \"exact name\", \"V\"]}",
+    "headers": [
+     "Step_Index",
+     "Test_Time(s)",
+     "Current(A)",
+     "Voltage(V)"
+    ],
+    "kind": "proposal",
+    "layout": "{\"comment\": null, \"decimal\": \"auto\", \"delimiter\": \",\", \"encoding\": \"utf-16\", \"header_contains\": [], \"header_row\": 1, \"kind\": \"delimited\", \"sheets\": null, \"skip_rows_after_header\": 0, \"unit_row\": null}",
+    "layout_rows": 40,
+    "layout_rows_sha256": "88b3c9fe7fc10472d9acc32d53917c2c09aa1f6cb18d585045806c2aa0b8a049",
+    "measured": "{\"current_has_negative_values\": true, \"current_range_in_file_units\": \"-0.002 to 0.002\", \"rows\": 40, \"time_is_monotonic\": true, \"time_span_in_file_units\": \"0 to 390\"}",
+    "preview": {
+     "len": 40,
+     "sha256": "88b3c9fe7fc10472d9acc32d53917c2c09aa1f6cb18d585045806c2aa0b8a049"
+    },
+    "questions": [
+     "The current is signed. Confirm whether positive means charge (most instruments) or discharge (some BioLogic and Maccor configurations). Getting this backwards swaps every charge and discharge capacity in the results.",
+     "No capacity column was matched, so capacity will be integrated from the sampled current. On sparsely sampled constant-voltage tails that underestimates the instrument's own value."
+    ],
+    "rejected": "{\"current_ampere\": [], \"record_index\": [\"Step_Index\"], \"step_id\": [], \"test_time_second\": [], \"voltage_volt\": []}",
+    "unit_unknown": "{}",
+    "unmapped_columns": []
    },
    "read": {
     "arrays": {
@@ -18193,10 +18259,31 @@
   "utf16be_bom.csv": {
    "profile_sha256": "f3eeab1007973c5c4f27ff1df99e877bdf495459fa056861447801337e1c1f91",
    "propose": {
-    "code": null,
-    "kind": "error",
-    "message": "could not find a delimited table in this file",
-    "type": "ValueError"
+    "bindings": "{\"current_ampere\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Current(A)\"], \"source_unit\": null}, \"step_id\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Step_Index\"], \"source_unit\": \"1\"}, \"test_time_second\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Test_Time(s)\"], \"source_unit\": null}, \"voltage_volt\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Voltage(V)\"], \"source_unit\": null}}",
+    "blocking": [],
+    "chosen": "{\"current_ampere\": [\"Current(A)\", 2, 100, \"exact name\", \"A\"], \"step_id\": [\"Step_Index\", 0, 100, \"exact name\", null], \"test_time_second\": [\"Test_Time(s)\", 1, 100, \"exact name\", \"s\"], \"voltage_volt\": [\"Voltage(V)\", 3, 100, \"exact name\", \"V\"]}",
+    "headers": [
+     "Step_Index",
+     "Test_Time(s)",
+     "Current(A)",
+     "Voltage(V)"
+    ],
+    "kind": "proposal",
+    "layout": "{\"comment\": null, \"decimal\": \"auto\", \"delimiter\": \",\", \"encoding\": \"utf-16\", \"header_contains\": [], \"header_row\": 1, \"kind\": \"delimited\", \"sheets\": null, \"skip_rows_after_header\": 0, \"unit_row\": null}",
+    "layout_rows": 40,
+    "layout_rows_sha256": "88b3c9fe7fc10472d9acc32d53917c2c09aa1f6cb18d585045806c2aa0b8a049",
+    "measured": "{\"current_has_negative_values\": true, \"current_range_in_file_units\": \"-0.002 to 0.002\", \"rows\": 40, \"time_is_monotonic\": true, \"time_span_in_file_units\": \"0 to 390\"}",
+    "preview": {
+     "len": 40,
+     "sha256": "88b3c9fe7fc10472d9acc32d53917c2c09aa1f6cb18d585045806c2aa0b8a049"
+    },
+    "questions": [
+     "The current is signed. Confirm whether positive means charge (most instruments) or discharge (some BioLogic and Maccor configurations). Getting this backwards swaps every charge and discharge capacity in the results.",
+     "No capacity column was matched, so capacity will be integrated from the sampled current. On sparsely sampled constant-voltage tails that underestimates the instrument's own value."
+    ],
+    "rejected": "{\"current_ampere\": [], \"record_index\": [\"Step_Index\"], \"step_id\": [], \"test_time_second\": [], \"voltage_volt\": []}",
+    "unit_unknown": "{}",
+    "unmapped_columns": []
    },
    "read": {
     "arrays": {
@@ -18270,10 +18357,31 @@
   "utf32_bom.csv": {
    "profile_sha256": "f3eeab1007973c5c4f27ff1df99e877bdf495459fa056861447801337e1c1f91",
    "propose": {
-    "code": null,
-    "kind": "error",
-    "message": "could not find a delimited table in this file",
-    "type": "ValueError"
+    "bindings": "{\"current_ampere\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Current(A)\"], \"source_unit\": null}, \"step_id\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Step_Index\"], \"source_unit\": \"1\"}, \"test_time_second\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Test_Time(s)\"], \"source_unit\": null}, \"voltage_volt\": {\"assumed\": true, \"offset\": 0.0, \"reverse_sign\": false, \"scale\": 1.0, \"source\": [\"Voltage(V)\"], \"source_unit\": null}}",
+    "blocking": [],
+    "chosen": "{\"current_ampere\": [\"Current(A)\", 2, 100, \"exact name\", \"A\"], \"step_id\": [\"Step_Index\", 0, 100, \"exact name\", null], \"test_time_second\": [\"Test_Time(s)\", 1, 100, \"exact name\", \"s\"], \"voltage_volt\": [\"Voltage(V)\", 3, 100, \"exact name\", \"V\"]}",
+    "headers": [
+     "Step_Index",
+     "Test_Time(s)",
+     "Current(A)",
+     "Voltage(V)"
+    ],
+    "kind": "proposal",
+    "layout": "{\"comment\": null, \"decimal\": \"auto\", \"delimiter\": \",\", \"encoding\": \"utf-32\", \"header_contains\": [], \"header_row\": 1, \"kind\": \"delimited\", \"sheets\": null, \"skip_rows_after_header\": 0, \"unit_row\": null}",
+    "layout_rows": 40,
+    "layout_rows_sha256": "88b3c9fe7fc10472d9acc32d53917c2c09aa1f6cb18d585045806c2aa0b8a049",
+    "measured": "{\"current_has_negative_values\": true, \"current_range_in_file_units\": \"-0.002 to 0.002\", \"rows\": 40, \"time_is_monotonic\": true, \"time_span_in_file_units\": \"0 to 390\"}",
+    "preview": {
+     "len": 40,
+     "sha256": "88b3c9fe7fc10472d9acc32d53917c2c09aa1f6cb18d585045806c2aa0b8a049"
+    },
+    "questions": [
+     "The current is signed. Confirm whether positive means charge (most instruments) or discharge (some BioLogic and Maccor configurations). Getting this backwards swaps every charge and discharge capacity in the results.",
+     "No capacity column was matched, so capacity will be integrated from the sampled current. On sparsely sampled constant-voltage tails that underestimates the instrument's own value."
+    ],
+    "rejected": "{\"current_ampere\": [], \"record_index\": [\"Step_Index\"], \"step_id\": [], \"test_time_second\": [], \"voltage_volt\": []}",
+    "unit_unknown": "{}",
+    "unmapped_columns": []
    },
    "read": {
     "arrays": {
@@ -18950,14 +19058,14 @@
    "identified": {
     "code": null,
     "kind": "error",
-    "message": "new-line character seen in unquoted field - do you need to open the file with newline=''?",
-    "type": "Error"
+    "message": "could not find a delimited table in this file",
+    "type": "ValueError"
    },
    "propose": {
     "code": null,
     "kind": "error",
-    "message": "new-line character seen in unquoted field - do you need to open the file with newline=''?",
-    "type": "Error"
+    "message": "could not find a delimited table in this file",
+    "type": "ValueError"
    },
    "sha256": "298ffcc60acb4f04614ce7fbaa87b5923857a3d7462bb25447026134ace37154"
   },
@@ -21702,14 +21810,14 @@
    "identified": {
     "code": null,
     "kind": "error",
-    "message": "new-line character seen in unquoted field - do you need to open the file with newline=''?",
-    "type": "Error"
+    "message": "could not find a delimited table in this file",
+    "type": "ValueError"
    },
    "propose": {
     "code": null,
     "kind": "error",
-    "message": "new-line character seen in unquoted field - do you need to open the file with newline=''?",
-    "type": "Error"
+    "message": "could not find a delimited table in this file",
+    "type": "ValueError"
    },
    "sha256": "97d49971a3c243e9e8f1b5e1574026de4417e371ad733677cd1b2f2711c48516"
   },
@@ -21717,14 +21825,14 @@
    "identified": {
     "code": null,
     "kind": "error",
-    "message": "new-line character seen in unquoted field - do you need to open the file with newline=''?",
-    "type": "Error"
+    "message": "could not find a delimited table in this file",
+    "type": "ValueError"
    },
    "propose": {
     "code": null,
     "kind": "error",
-    "message": "new-line character seen in unquoted field - do you need to open the file with newline=''?",
-    "type": "Error"
+    "message": "could not find a delimited table in this file",
+    "type": "ValueError"
    },
    "sha256": "2b1e53cff126b54c8c85026068e0d0de72fdde6428fc58771eca59b7e21eaef0"
   },

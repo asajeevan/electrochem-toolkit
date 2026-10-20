@@ -81,8 +81,9 @@ EVERY TIME
      again with everything filled in from the saved profile; choose that one
      column, check, and the profile moves on. docs/P08d_Instrument_Compatibility_Matrix.md says which
      instruments were checked on real files.
-     Binary files from other makers (.res, .nda, .ndax) are not read: export
-     them as text or Excel from the instrument's software first.
+     Binary files from other makers (.res, .nda, .ndax, .cex) are not read:
+     export them as text or Excel from the instrument's software first. A
+     LANHE or LAND .cex file is exported as an Excel workbook, which is read.
   4. On the right, answer the three questions:
        a. Which current direction charges the cell?
           Positive current charges = oxidation at the working electrode (usual for a

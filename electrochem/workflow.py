@@ -83,6 +83,10 @@ def profiles_dir() -> Path:
     return Path(os.environ.get("ELECTROCHEM_PROFILES") or Path.home() / ".electrochem-toolkit" / "profiles")
 
 
+# Instrument binaries this version does not read, by extension: refused with an instruction to export text.
+BINARY_FORMATS = {".res": "Arbin", ".nda": "Neware", ".ndax": "Neware", ".cex": "LANHE or LAND battery tester"}
+
+
 def open_with_profile(path, profile=None, progress=None) -> Loaded:
     """Open a file from another instrument through an import profile.
 
@@ -97,9 +101,21 @@ def open_with_profile(path, profile=None, progress=None) -> Loaded:
     size = path.stat().st_size
     if size == 0:
         raise ImportFailure("empty_file", "the file is empty")
-    if path.suffix.lower() in (".res", ".nda", ".ndax"):
-        raise ImportFailure("binary_export", f"{path.name} is a binary instrument file ({path.suffix}); this version reads "
-                            "text and Excel exports. Export the run as .csv, .txt or .xlsx from the cycler's software.")
+    suffix = path.suffix.lower()
+    if suffix in BINARY_FORMATS:
+        raise ImportFailure("binary_export", f"{path.name} is a binary instrument file ({path.suffix}, "
+                            f"{BINARY_FORMATS[suffix]}); this version reads text and Excel exports. Export the run "
+                            "as .csv, .txt or .xlsx from the cycler's software.")
+    if suffix not in (".xlsx", ".xlsm", ".xls"):
+        # A text export never contains NUL; an instrument's own binary file almost always does. Refuse it here,
+        # before the layout detection tries to read it as delimited text, unless a UTF-16 or UTF-32 byte-order
+        # mark says the NULs belong to the encoding.
+        with open(path, "rb") as fh:
+            head = fh.read(65536)
+        if b"\x00" in head and not head.startswith((b"\xff\xfe", b"\xfe\xff", b"\x00\x00\xfe\xff")):
+            raise ImportFailure("binary_content", f"{path.name} is not a text export: it contains NUL bytes, so it "
+                                "is an instrument's own binary file, or a UTF-16 text export without its byte-order "
+                                "mark. Export the run as .csv, .txt or .xlsx from the cycler's software.")
     if profile is None:
         reg = Registry(profiles_dir())
         try:
@@ -110,6 +126,10 @@ def open_with_profile(path, profile=None, progress=None) -> Loaded:
                               proposal=propose_mapping(path, registry=reg))
             except ValueError as exc:
                 raise ImportFailure("no_table", f"{path.name}: {exc}") from exc
+        except ImportFailure:
+            raise
+        except ValueError as exc:                   # no table found while identifying: say so in the same words
+            raise ImportFailure("no_table", f"{path.name}: {exc}") from exc
     elif isinstance(profile, str) and profile in BUILTIN:
         profile = BUILTIN[profile]
     elif isinstance(profile, (str, Path)):

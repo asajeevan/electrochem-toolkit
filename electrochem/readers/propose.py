@@ -308,12 +308,14 @@ def _detect(path: Path) -> _Detected:
     complete = len(blob) >= size
     if not complete and b"\n" in blob:
         blob = blob[:blob.rfind(b"\n") + 1]               # whole lines only
-    encoding = next((e for e in ("utf-8-sig", "utf-8", "cp1252", "latin-1")
-                     if _decodes(blob, e)), "latin-1")
+    encoding = _bom_encoding(blob) or next((e for e in ("utf-8-sig", "utf-8", "cp1252", "latin-1")
+                                            if _decodes(blob, e)), "latin-1")
     text = blob.decode(encoding, errors="replace")
     best: tuple[int, str, int, list[list[str]]] | None = None
     for delim in ("\t", ";", ",", "|"):
-        grid = list(csv.reader(io.StringIO(text), delimiter=delim))
+        grid = _grid(text, delim)
+        if grid is None:
+            continue
         h = _find_header(grid)
         if h is None:
             continue
@@ -393,16 +395,36 @@ def looks_tabular(path: str | Path, limit: int = 65536) -> bool:
             blob = fh.read(limit)
     except OSError:
         return False
-    if not blob or b"\x00" in blob[:4096]:
+    bom = _bom_encoding(blob)
+    if not blob or (b"\x00" in blob[:4096] and bom in (None, "utf-8-sig")):
         return False
-    encoding = next((e for e in ("utf-8-sig", "utf-8", "cp1252", "latin-1") if _decodes(blob, e)), "latin-1")
+    encoding = bom or next((e for e in ("utf-8-sig", "utf-8", "cp1252", "latin-1") if _decodes(blob, e)), "latin-1")
     text = blob.decode(encoding, errors="replace")
     for delim in ("\t", ";", ",", "|"):
-        grid = list(csv.reader(io.StringIO(text), delimiter=delim))
-        h = _find_header(grid)
+        grid = _grid(text, delim)
+        h = _find_header(grid) if grid is not None else None
         if h is not None and len(grid[h]) >= 3:
             return True
     return False
+
+
+def _grid(text: str, delim: str) -> list[list[str]] | None:
+    """The rows of `text` split by `delim`, with any line ending (\\n, \\r\\n or a lone \\r) ending a row, as
+    the reader's splitlines() does; None when the text is not well-formed delimited text for this delimiter."""
+    try:
+        return list(csv.reader(io.StringIO(text, newline=""), delimiter=delim))
+    except csv.Error:
+        return None
+
+
+def _bom_encoding(blob: bytes) -> str | None:
+    """The encoding a byte-order mark at the start of the file declares (UTF-32 is tested before UTF-16, whose
+    mark it begins with), or None. The reader honours the same marks."""
+    for mark, enc in ((b"\xff\xfe\x00\x00", "utf-32"), (b"\x00\x00\xfe\xff", "utf-32"), (b"\xff\xfe", "utf-16"),
+                      (b"\xfe\xff", "utf-16"), (b"\xef\xbb\xbf", "utf-8-sig")):
+        if blob.startswith(mark):
+            return enc
+    return None
 
 
 def _decodes(blob: bytes, encoding: str) -> bool:

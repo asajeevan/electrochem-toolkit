@@ -72,6 +72,7 @@ unchanged.
 | PEC | CSV, `Total Time (Hours in hh:mm:ss.xxx)` (`pec-csv-clock`) | `pec/Test25205.csv` (cellpy, MIT) | R, A, W; counter not compared (no current flows) | **Recognised and read; conventions not measurable** | Open-circuit storage only. Sign and counter behaviour carried over from `pec-csv` (same software, 2019). |
 | Landt / LANHE | Excel, sheets `Record`, `Mode`, `Cycle` (`landt-xlsx`) | `landt/NJK_CC_156_C30_C_x30.xlsx` (navani, MIT; 2.4 MB, kept whole for its Cycle sheet) | R, A, S 60/60 runs, E, V: 30 charge and 30 discharge capacities within 1.6 % of the instrument's Cycle sheet (0.6 % median) | **Verified on a real file** | The Record sheet has no step or cycle number, so its per-state `Capacity/mAh` counter cannot be checked at boundaries and is not bound; capacity is integrated from a time printed to 0.01 h and a current printed to 0.0001 mA, which bounds the agreement. Continuation sheets without a header (P08 trap 6) are not read and are warned about (`headerless_sheet_not_read`); no real multi-sheet Landt file was available. |
 | Landt | CSV | battery-data-format `data/SINTEF__LiGrR2032__2024-04-30__25degC__Landt.csv` (Apache-2.0) | inspected | **No profile** | A site-converted CSV (`test_time_s`, `current_A`, ...), not a Landt export. |
+| Landt / LANHE | `.cex` binary | none shipped (a user's file, private, 20 October 2026) | refused with `binary_export` (`tests/test_readers_unreadable.py`, on a synthetic binary) | **Binary, not readable** | No published description of the format was found. One open project decodes it (`culture-medium/battery-data-tool`, v0.5.7), but it carries no licence, so its code is not reused. Export the run to Excel from the tester's software; that workbook is read by `landt-xlsx`. Before this row the file reached the window as a raw `csv` error (fixed, below). |
 | Digatron | any | none | | **No real file available** | The corpus holds only a BDF conversion (`FZJ__INR21700__...Digatron.bdf.csv` in battery-data-format), not a raw export. |
 | BioLogic (EC-Lab, BT-Lab) | `.mpr`, `.mpt` | `data/public/mpr`, `data/public/mpt` | the validated EC-Lab path (P03), untouched | Unchanged | Not part of P08d. |
 | Gamry | `.DTA` | gamry-parser `tests/data/ccd_data.dta`, `ccd_charge_data.dta` (MIT) | inspected | **Not supported** | A charge-discharge `.DTA` holds a per-half-cycle summary (`CAPACITYCURVE`) or one `CURVE` table per segment followed by metadata lines; the generic reader reads one table per file. Needs a format-specific table extractor. |
@@ -105,9 +106,13 @@ run here (the corpus is untrusted code), so none is tested on the shipped binari
 | access-parser (ClarotyICS, Access `.mdb`/`.accdb`, so Arbin `.res`) | Apache-2.0 | 7b73391, 21 January 2025 (v0.0.6), low activity | construct, tabulate (both pure Python, MIT) | Yes | Yes (Apache-2.0 is compatible with GPL-3.0) | The only pure-Python route to `.res` found. Its code handles Jet 3, 4, 5 and 2010 headers; both Arbin `.res` files looked at begin `Standard Jet DB` with version byte 1 (Jet 4). Its README warns it was tested on a limited set of databases. Untested on `.res` here; a future evaluation would read `Channel_Normal_Table` from `arbin/arbin_example.res` and compare it with an Arbin CSV of the same test, which this corpus does not contain. |
 | cellpy `.res` loader | MIT | 29d916c, 19 October 2026 | pyodbc with the Microsoft Access ODBC driver (Windows), or the `mdb-export` command of mdbtools (Linux, macOS); sqlalchemy, pandas | No | Licence yes, packaging no | Needs a system component the installers cannot bundle. navani's `.res` route (galvani `res2sqlite`) also shells out to mdbtools. |
 
-Decision recorded: no binary reader is integrated in P08d. `.res`, `.nda` and `.ndax`
-stay refused with an instruction to export text, and the shipped examples test that
-refusal.
+Decision recorded: no binary reader is integrated in P08d. `.res`, `.nda`, `.ndax` and
+`.cex` stay refused with an instruction to export text, and the shipped examples test that
+refusal. Since 20 October 2026 any other file with NUL bytes in its first 64 KiB, and no
+UTF-16 or UTF-32 byte-order mark, is refused as `binary_content` before the layout
+detection reads it as text; the detection ends a row at any line ending (a lone carriage
+return included, as the reader's `splitlines()` does) and honours UTF-16 and UTF-32
+byte-order marks (`tests/test_readers_unreadable.py`).
 
 ## 6. Reader changes P08d needed, each with a test
 
