@@ -51,3 +51,7 @@ How a version reaches other people, as done for 0.8.0 on 20 October 2026. Why th
    blocks the attestation store and the Sigstore trust root, so this step was not run there for 0.8.0.)
 9. **With Zenodo on:** when the DOI appears, add it to `electrochem/citation.py`, regenerate `CITATION.cff`, and
    commit.
+10. **The website page** (https://asajeevan.github.io/cyclara/, repository `asajeevan/asajeevan.github.io`): update the
+    version and date, the download links and sizes, the checksums, the reference and BibTeX and the JSON-LD
+    `softwareVersion` in `cyclara/index.html`, then run that site's build so its sitemap date follows (its
+    `docs/seo.md` lists the parts).

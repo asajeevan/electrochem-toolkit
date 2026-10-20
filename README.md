@@ -15,7 +15,7 @@ New users: read **docs/Cyclara_handout.pdf** (illustrated) or `HOW_TO_USE.txt`.
 
 ## Install and open
 
-Download the installer for your computer from the [latest release](https://github.com/asajeevan/electrochem-toolkit/releases/latest). Its files cannot be replaced after publication, and the page lists each file's SHA-256 and how to check it.
+Download the installer for your computer from the [latest release](https://github.com/asajeevan/electrochem-toolkit/releases/latest). Its files cannot be replaced after publication, and the page lists each file's SHA-256 and how to check it. A short tour, with a live figure and every download, is on [the Cyclara page](https://asajeevan.github.io/cyclara/).
 
 **Windows** (10 version 1903 or later, or 11; 64-bit): run **Cyclara-0.8.0-Setup.exe**, click Next, Install, Finish. It installs into your user folder, with no administrator password, and puts Cyclara on the Desktop and in the Start menu. The first time, Windows SmartScreen may say "Windows protected your PC" because the installer carries no paid signing certificate: click *More info*, then *Run anyway*. Remove it from Settings > Apps.
 
