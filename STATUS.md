@@ -47,7 +47,7 @@ A desktop app on the cycling engine (PySide6 6.12.0 and pyqtgraph 0.14.0, the st
 
 - **Published** as an immutable GitHub release, https://github.com/asajeevan/electrochem-toolkit/releases/tag/v0.8.0 (18:30 UTC, by the author from his own account): the three installers, the handout and `SHA256SUMS.txt`. The tag `v0.8.0` is on 1463d92, the build's source c7014cc plus the checksums and evidence (documentation only). Recipients get the link to the release page, not the files (ADR-006).
 - **Checked** with `scripts/check_github_release.py` before publishing (the draft: it caught two archives not yet attached and a notes file attached by mistake) and after: immutable, tag on 1463d92, GitHub's SHA-256 of every file equal to the tested file's, GitHub's signed release attestation naming the commit and all five files. The attestation's signature was not checked in the build environment, whose network policy blocks the hosts `gh release verify` needs. Evidence: `docs/evidence/p13_installers/`. Procedure for the next release: `docs/releases/RELEASING.md`.
-- **No DOI yet.** Zenodo archives only releases published after the repository is switched on there, so 0.8.0 has none; switch it on before the next release, then add the DOI to the citation (`electrochem/citation.py`).
+- **No DOI.** The author is not using Zenodo for now, so the citation is the versioned GitHub reference. If a DOI is wanted later, Zenodo has to be switched on before the release that should carry it (it archives only releases published afterwards); `docs/releases/RELEASING.md`.
 
 ## Next task
 
@@ -88,11 +88,11 @@ All 925 tests (with 56 subtests; 2 skipped where an optional library is absent) 
 
 ## Known limits
 
-- Text import is bounded to declared profiles; 256 MiB input. Native import: 5,000,000 records, 128 fields, one data module. Snapshots: 50 MiB uncompressed.
+- Size limits. The app and `python -m electrochem.analyze` read EC-Lab text exports of up to 2 GiB through the fast path and `.mpr` files with no size cap of their own (memory is the limit). A file the fast path hands to the strict importer (anything unusual) is held to that importer's limits: 256 MiB, and for `.mpr` 5,000,000 records, 128 fields and one data module; the strict text importer accepts declared profiles only. Other cyclers' exports: up to 2 GiB. Snapshots: 50 MiB uncompressed.
 - Native versus text comparison across six public files shows 415 last-digit differences: 362 round-trip to the same binary value, 53 differ by at most four ULP after decimal parsing. This is export rounding, not an import defect. The native record is treated as the primary source where both exist.
-- Windows and macOS use of the desktop app untested by a user; no screen-reader test; no packaged installer (setup scripts instead).
-- The P12a CV app may carry the pyqtgraph SI-prefix defect (U02, section 10).
+- The one-click installers are tested under Wine (Windows) and by static checks (macOS), not yet by a user on a physical Windows PC or a Mac, and they are not code-signed, so Windows and macOS ask once before the first launch. No screen-reader test.
+- The CV desktop app prototype (P12a, delivered separately; not in `main` or the installers) may carry the pyqtgraph SI-prefix defect found in Cyclara (U02, section 10); run the same test on it before it is merged.
 
 ## Parked
 
-MPS chronology and conflict resolution, GITT and PITT, transference-number workflows, the uncertainty framework, DRT, other vendors, streaming import, schema migration, packaged installer. The build plan in `docs/` still describes them; they are not scheduled.
+MPS chronology and conflict resolution, GITT and PITT, transference-number workflows, the uncertainty framework, DRT, schema migration. The build plan in `docs/` still describes them; they are not scheduled. (Other vendors, streaming import and a packaged installer, parked earlier, are done: P08, P08f, P13.)

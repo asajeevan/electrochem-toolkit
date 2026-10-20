@@ -113,11 +113,10 @@ was published, 18:30 UTC: an immutable GitHub release,
 https://github.com/asajeevan/electrochem-toolkit/releases/tag/v0.8.0, tag on 1463d92, three installers, the
 handout and `SHA256SUMS.txt`, checked as a draft before publishing and again after
 (`scripts/check_github_release.py`; evidence in `docs/evidence/p13_installers/`; procedure in
-`docs/releases/RELEASING.md`; ADR-006 *Outcome*). No DOI: Zenodo is to be switched on before the next release.
+`docs/releases/RELEASING.md`; ADR-006 *Outcome*). No DOI: the author is not using Zenodo for now.
 
 ## Next
 
 Open a real long Arbin or Neware export (several hundred thousand rows) and a real multi-plateau
 material in the app and compare the plateau table with what you read from the curves by hand; install
-from the published installers on a Windows PC and a Mac. Then batch mode and impedance. Before the next
-release: switch Zenodo on for the repository, so that release gets a DOI (`docs/releases/RELEASING.md`).
+from the published installers on a Windows PC and a Mac. Then batch mode and impedance.

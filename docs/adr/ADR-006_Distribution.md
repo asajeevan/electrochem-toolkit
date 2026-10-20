@@ -73,7 +73,7 @@ can cite a DOI that resolves to the exact version; the one-time Windows and macO
   file equal to the tested file's, GitHub's signed attestation naming the commit and all five files. Its signature
   was not checked in the build environment (network policy); `gh release verify` does that on a connected computer.
   Evidence: `docs/evidence/p13_installers/`; procedure for next time: `docs/releases/RELEASING.md`.
-- Decision 2 deferred by the author: Zenodo is not yet connected. Zenodo archives the releases published after a
+- Decision 2 deferred by the author, who does not want Zenodo for now: it is not connected. Zenodo archives the releases published after a
   repository is switched on, so 0.8.0 has no DOI; the next release will have one if Zenodo is switched on first
   (0.8.0 itself could still be uploaded to Zenodo by hand).
 - Decision 4 (signing) stays open.

@@ -127,3 +127,18 @@ def test_the_macos_check_sees_a_missing_framework(tmp_path):
     fw.mkdir(parents=True)
     (fw / "QtCore").write_bytes(macho(["/usr/lib/libSystem.B.dylib"]))
     b.check_macos_tree(app)                                     # now every load resolves
+
+
+@pytest.mark.skipif(not __import__("shutil").which("x86_64-w64-mingw32-gcc"), reason="needs the mingw-w64 cross-compiler")
+def test_the_launcher_builds_to_the_same_bytes_twice(tmp_path):
+    """Two builds of the same sources give the same Cyclara.exe (no link time in the PE header)."""
+    import hashlib
+    import struct
+    import time
+    b = _load()
+    first = b.build_launcher(tmp_path / "one", "0.8.0").read_bytes()
+    time.sleep(1.1)                                       # a time stamp, if one were written, would differ
+    second = b.build_launcher(tmp_path / "two", "0.8.0").read_bytes()
+    assert hashlib.sha256(first).digest() == hashlib.sha256(second).digest()
+    pe = struct.unpack_from("<I", first, 0x3C)[0]
+    assert first[pe:pe + 4] == b"PE\0\0" and struct.unpack_from("<I", first, pe + 8)[0] == 0

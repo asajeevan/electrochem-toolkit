@@ -94,7 +94,7 @@ Validated against EC-Lab on a 110-cycle Li half-cell: coulombic efficiency match
 ## What does not work yet
 
 - CV and impedance analysis, conductivity and VFT fits; batch processing and replicate statistics.
-- A signed installer: the app runs from Setup.bat (Windows) or Setup (Mac).command, which build a shortcut or an app bundle. Not yet run by users on Windows or macOS, or with a screen reader. On a Mac the menu bar names the app "Python" (the program the bundle starts); only a packaged app would change that.
+- Code signing: the installers are not signed, so Windows SmartScreen and macOS Gatekeeper ask once before the first launch (the handout shows the clicks). Not yet run by users on a physical Windows PC or a Mac, or with a screen reader. With the source-folder setup, the macOS menu bar names the app "Python"; the packaged `Cyclara.app` keeps its interpreter in `Contents/MacOS` so that macOS treats it as Cyclara, which has not yet been seen on a Mac.
 - GITT/PITT, transference numbers, DRT (parked).
 
 ## Install by hand

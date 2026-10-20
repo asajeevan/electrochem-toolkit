@@ -11,9 +11,10 @@ How a version reaches other people, as done for 0.8.0 on 20 October 2026. Why th
   cannot be moved or deleted, and GitHub signs a release attestation that names the tag's commit and the SHA-256
   of every file. The title and the description stay editable. A tag that belonged to an immutable release can
   never be used again, even after the release is deleted, so a mistake found after publishing means a new version.
-- **Zenodo, for a DOI** (not yet done). Sign in at zenodo.org with GitHub and switch this repository on *before*
-  publishing the release that should get a DOI: Zenodo archives the releases published after that, not earlier
-  ones. It takes the metadata from `CITATION.cff` (a `.zenodo.json` file would replace it).
+- **Zenodo, for a DOI** (not used for now, the author's choice). If a DOI is wanted: sign in at zenodo.org with
+  GitHub and switch this repository on *before* publishing the release that should get one. Zenodo archives the
+  releases published after that, not earlier ones, and takes the metadata from `CITATION.cff` (a `.zenodo.json`
+  file would replace it).
 
 ## Each release
 

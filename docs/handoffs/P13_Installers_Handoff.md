@@ -94,7 +94,8 @@ with other bytes, with a test of that rule, and the large-file test reads the pe
 `GetProcessMemoryInfo`.
 
 Next for the build: link the launcher with `-Wl,--no-insert-timestamp` so that two builds of the same sources give
-the same `Cyclara.exe`.
+the same `Cyclara.exe`. (Done after the release: `build_launcher()` in `installer/build.py`; two builds give the
+same bytes and a zero PE time stamp, `tests/test_installer.py`.)
 
 ## Published (20 October 2026)
 

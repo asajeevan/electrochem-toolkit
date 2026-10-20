@@ -381,6 +381,22 @@ def check_pure_python(py312: Path, app: Path) -> None:
 
 
 # ------------------------------------------------------------------ Windows
+def build_launcher(work: Path, ver: str) -> Path:
+    """Cyclara.exe, the launcher (installer/windows/launcher.c with its icon, manifest and version resource).
+    Linked with --no-insert-timestamp, so the same sources give the same bytes: without it the linker
+    writes the time of linking into the PE header, and with it the header checksum."""
+    work.mkdir(parents=True, exist_ok=True)
+    commas = ",".join((ver.split(".") + ["0", "0", "0"])[:4])
+    rc = (HERE / "windows" / "launcher.rc.in").read_text().replace("@COMMAS@", commas).replace("@VERSION@", ver)
+    (work / "launcher.rc").write_text(rc)
+    shutil.copy2(ROOT / "electrochem" / "studio" / "assets" / "cyclara.ico", work / "cyclara.ico")
+    shutil.copy2(HERE / "windows" / "Cyclara.exe.manifest", work / "Cyclara.exe.manifest")
+    run(["x86_64-w64-mingw32-windres", "launcher.rc", "-O", "coff", "-o", "launcher_res.o"], cwd=work)
+    run(["x86_64-w64-mingw32-gcc", "-municode", "-mwindows", "-O2", "-Wall", "-Wl,--no-insert-timestamp",
+         "-o", "Cyclara.exe", HERE / "windows" / "launcher.c", "launcher_res.o", "-lshell32", "-lole32"], cwd=work)
+    return work / "Cyclara.exe"
+
+
 def build_windows(ver: str, wine: bool) -> Path:
     stage = BUILD / "stage_win"
     if stage.exists():
@@ -407,17 +423,7 @@ def build_windows(ver: str, wine: bool) -> Path:
     check_pure_python(py312, stage / "app")
 
     # the launcher
-    work = BUILD / "launcher"
-    work.mkdir(parents=True, exist_ok=True)
-    commas = ",".join((ver.split(".") + ["0", "0", "0"])[:4])
-    rc = (HERE / "windows" / "launcher.rc.in").read_text().replace("@COMMAS@", commas).replace("@VERSION@", ver)
-    (work / "launcher.rc").write_text(rc)
-    shutil.copy2(ROOT / "electrochem" / "studio" / "assets" / "cyclara.ico", work / "cyclara.ico")
-    shutil.copy2(HERE / "windows" / "Cyclara.exe.manifest", work / "Cyclara.exe.manifest")
-    run(["x86_64-w64-mingw32-windres", "launcher.rc", "-O", "coff", "-o", "launcher_res.o"], cwd=work)
-    run(["x86_64-w64-mingw32-gcc", "-municode", "-mwindows", "-O2", "-Wall", "-o", "Cyclara.exe",
-         HERE / "windows" / "launcher.c", "launcher_res.o", "-lshell32", "-lole32"], cwd=work)
-    shutil.copy2(work / "Cyclara.exe", stage / "Cyclara.exe")
+    shutil.copy2(build_launcher(BUILD / "launcher", ver), stage / "Cyclara.exe")
     check_windows_tree(stage)
 
     # the pictures and the installer
