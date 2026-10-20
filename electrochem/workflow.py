@@ -372,9 +372,10 @@ def methods(s: Settings, dqde_mv: float, dqde_units: str, peak_pair_window_mV: f
         "charge": "sum of instrument dq increments over supported edges when available, else trapezoid of sampled current (M01 point-linear)",
         "energy": "dq times mean edge potential, or exact integral of point-linear I(t)E(t); requires the cell voltage or a potential against a stated reference",
         "coulombic_efficiency": "100 x Q_discharge / Q_charge for complete pairs; not given (nor the energy efficiency and "
-                                "the hysteresis) for a pair in which one branch spans one recorded interval and carries "
-                                "under 0.1 % of the other's charge, a step that ended at once",
-        "capacity_retention": f"100 x Q_discharge(n) / Q_discharge(cycle {s.reference_cycle})",
+                                "the hysteresis) for a pair in which one branch has at most two rows and carries under "
+                                "0.1 % of the other's charge, a step that ended at once",
+        "capacity_retention": f"100 x Q_discharge(n) / Q_discharge(cycle {s.reference_cycle}); not given for a cycle whose "
+                              "discharge ended at once, nor for any cycle when the reference cycle's discharge did",
         "average_voltage": "energy / charge of the same branch: the charge-weighted mean potential, which for several plateaus is the "
                            "capacity-weighted mean of the plateau potentials",
         "mid_capacity_voltage": "potential interpolated at half of the branch capacity",

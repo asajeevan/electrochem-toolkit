@@ -111,7 +111,7 @@ def test_the_tester_step_table_is_rebuilt(tmp_path):
     rows = meta["instrument_steps"]
     assert [r["step"] for r in rows] == list(range(1, 10)) and [r["tester_step"] for r in rows] == list(range(1, 10))
     assert [r["records"] for r in rows] == [tr.step.count(k) for k in range(1, 10)]
-    assert rows[0]["start_unix_s"] == cs.START and rows[0]["start_clock_utc"] == "2023-11-14 22:13:20"
+    assert rows[0]["start_unix_s"] == cs.START and rows[0]["start_clock"] == "2023-11-14 22:13:20"
     assert rows[4]["capacity_end_Ah"] == pytest.approx(tr.q_end[4], rel=0, abs=0)
 
 
@@ -192,6 +192,25 @@ def test_an_unverified_range_confirmed_by_the_counters_is_read(tmp_path):
     sc = meta["import_report"]["cex"]["scale_check"]
     assert sc["current_passed"] and not sc["current_range_verified"]
     assert "cex_range_confirmed" in codes(meta, "note")
+
+
+def test_a_check_that_cannot_be_made_is_said(tmp_path):
+    short = [cs.Step("rest", 0.0), cs.Step("cc_charge", 25.0, every=1.0, counts=8064, v0=3.30, v1=3.50),
+             cs.Step("cc_discharge", 25.0, every=1.0, counts=8064, v0=3.50, v1=3.30), cs.Step("rest", 2.0, every=1.0)]
+    p, _ = write(tmp_path, short, name="short.cex")              # every step start within a minute: no clock slope
+    _, meta = read(p)
+    notes = codes(meta, "note")
+    assert "cex_clock_not_checked" in notes and "cex_voltage_not_checked" not in notes
+    assert meta["import_report"]["cex"]["scale_check"]["current_passed"] is True
+    below = [cs.Step("rest", 0.0, v0=-0.30), cs.Step("cc_charge", 3600.0, counts=8064, v0=-0.50, v1=-0.10),
+             cs.Step("cc_discharge", 3000.0, counts=8064, v0=-0.10, v1=-0.60), cs.Step("rest", 600.0, every=60.0,
+                                                                                      v0=-0.40)]
+    p, _ = write(tmp_path, below, name="below.cex")              # no positive voltage: no energy check
+    _, meta = read(p)
+    notes = codes(meta, "note")
+    assert "cex_voltage_not_checked" in notes and "cex_clock_not_checked" not in notes
+    sc = meta["import_report"]["cex"]["scale_check"]
+    assert sc["current_passed"] is True and sc["voltage_passed"] is None
 
 
 def test_an_unverified_range_without_current_to_confirm_it_is_refused(tmp_path):

@@ -22,6 +22,16 @@ def test_the_figures_quoted_in_the_text_are_the_code_defaults():
     assert inspect.signature(workflow.analyse_file).parameters["dqde_mv"].default == methods_text.Context().dqde_mv
 
 
+def test_the_rule_for_a_step_that_ended_at_once_is_quoted_as_coded():
+    """Help and settings.json state the rule's two thresholds; they must be the ones cycling.degenerate uses."""
+    words = {1: "one row", 2: "two rows"}[cycling.DEGENERATE_ROWS]
+    pct = f"{cycling.DEGENERATE_FRACTION * 100:g} %"                    # 0.1 %
+    assert f"at most {words}" in TOPICS["efficiency"].detail and f"under {pct}" in TOPICS["efficiency"].detail
+    m = workflow.methods(Settings(), 10.0, "au")
+    assert f"at most {words}" in m["coulombic_efficiency"] and f"under {pct}" in m["coulombic_efficiency"]
+    assert "discharge ended at once" in m["capacity_retention"]
+
+
 def test_every_topic_is_complete_and_in_the_house_style():
     for t in methods_text.TOPICS:
         for part in ("short", "detail", "outputs", "spec"):

@@ -281,8 +281,9 @@ class Diagnostics(QListWidget):
         if sc.get("basis"):                # a .cex read natively: its scales against the tester's own counters
             items.append(("info", f"Import: the decoded current integrates to the tester's capacity counter within "
                                   f"{abs(sc['current_ratio'] - 1) * 100:.2g} %"
-                                  + (f", and the decoded voltage reproduces its energy counter within "
-                                     f"{abs(sc['voltage_ratio'] - 1) * 100:.2g} %" if sc.get("voltage_ratio") else "")
+                                  + (f", and the decoded voltage reproduces the mean voltage of its energy and "
+                                     f"capacity counters within {abs(sc['voltage_ratio'] - 1) * 100:.2g} %"
+                                     if sc.get("voltage_ratio") else "")
                                   + f" ({sc['intervals']} intervals of {sc['basis']})"))
         if tc.get("slope"):
             items.append(("info", f"Import: the record time follows the tester's clock between step starts "

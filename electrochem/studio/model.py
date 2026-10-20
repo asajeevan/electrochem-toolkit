@@ -101,8 +101,8 @@ def first_branch_direction(a: Answers, run: Run | None) -> str | None:
 
 
 def degenerate_start(run: Run | None) -> str | None:
-    """Words for a file whose first branch spans one recorded interval and carries under 0.1 % of the charge of
-    the branch after it, a step that ended at once (cycling.degenerate); None otherwise."""
+    """Words for a file whose first branch has at most two rows and carries under 0.1 % of the charge of the
+    branch after it, a step that ended at once (cycling.degenerate); None otherwise."""
     if run is None or len(run.seg.branches) < 2:
         return None
     b0, b1 = run.seg.branches[:2]
@@ -116,8 +116,8 @@ def degenerate_start(run: Run | None) -> str | None:
 def order_needed(a: Answers, run: Run | None) -> bool:
     """The cycle order is asked when the file starts with a discharge: the two groupings then pair
     different branches, so every efficiency and retention value depends on it (review finding 4). It is
-    asked too when the first branch is a step that ended at once (a charge begun above its voltage limit, in
-    a LANHE file of October 2026): the first branch of substance then decides the grouping."""
+    asked too when the first branch is a step that ended at once (for example a charge begun beyond its voltage
+    limit, cycling.degenerate): the first branch of substance then decides the grouping."""
     return first_branch_direction(a, run) == "discharge" or (a.charge is not None and degenerate_start(run) is not None)
 
 

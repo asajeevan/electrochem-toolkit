@@ -30,4 +30,4 @@ A user sent a LANHE `.cex` (private) and asked for every output to be checked. C
 - Compare the real `.cex` with LANHE's Excel export of the same run (Record, Step and Cycle sheets); more `.cex` files from other channels and protocols (other range codes, constant-voltage discharge, pauses).
 - A constant-voltage hold analysis (current against time on a log axis, the current at the end of the hold, charge passed in the hold, normalised by area or mass) would serve hold and stability tests; not started.
 - A way for the researcher to state that a run ended as programmed, so the last branch can count as complete; not started (M01 change).
-- 0.8.1 installers carrying these changes; not built.
+- Installers carrying these changes: released as 0.9.0, after an independent review whose findings are in `Project_Status_Addendum_2026-10-21.md`.

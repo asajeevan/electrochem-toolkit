@@ -1,4 +1,4 @@
-Cyclara (electrochem-toolkit 0.7): how to use it
+Cyclara (electrochem-toolkit 0.9): how to use it
 ================================================
 
 WHAT IT DOES
@@ -82,10 +82,12 @@ EVERY TIME
      column, check, and the profile moves on. docs/P08d_Instrument_Compatibility_Matrix.md says which
      instruments were checked on real files.
      A LANHE (LAND) .cex file is read directly: Cyclara checks its reading
-     against the tester's own capacity and energy counters and lists the
-     tester's steps in instrument_steps.csv. A .cex it cannot vouch for (a
-     layout or step type not yet seen) is refused with the reason; export that
-     run to Excel from LANHE's software, which is read.
+     against the tester's own capacity and energy counters and its clock
+     wherever the file holds enough records (a note says when it does not),
+     and lists the tester's steps in instrument_steps.csv. A .cex it cannot
+     vouch for (a layout, step type, status event or unit kind not yet seen,
+     or a range code its counters cannot confirm) is refused with the reason;
+     export that run to Excel from LANHE's software, which is read.
      Binary files from other makers (.res, .nda, .ndax) are not read: export
      them as text or Excel from the instrument's software first.
   4. On the right, answer the three questions:
@@ -95,8 +97,9 @@ EVERY TIME
           If the file then starts with a discharge, one more question appears: does each
           cycle start with a charge or a discharge? (Discharge first is usual for a cell
           assembled in the charged state.) It appears too when the file starts with a
-          step that ended at once (one recorded interval, under 0.1 % of the charge of
-          the branch after it), such as a charge to a voltage limit begun above it.
+          step that ended at once (at most one recorded interval, under 0.1 % of the
+          charge of the branch after it), such as a charge to a voltage limit begun
+          above it.
           For a LANHE .cex this first question is answered from the file: its step
           types name charge and discharge, and the current agrees with them.
        b. What does the potential column measure?
@@ -177,7 +180,11 @@ WHAT IS IN THE RESULTS FOLDER
                                   "appears from cycle k")
   dqde_pairs.csv                  one row per charge/discharge peak pair and cycle
   dqde_map.csv                    dQ/dE of every cycle on one potential grid (the evolution map)
-  metadata.json                   everything the EC-Lab header declares
+  metadata.json                   what the file declares (an EC-Lab header, with its step
+                                  table; for other cyclers, the reader's record of the import)
+  instrument_steps.csv            a LANHE .cex only: the tester's step table rebuilt from
+                                  the file (type, setpoint, start on the tester's clock,
+                                  records, voltage and counters at both ends)
   settings.json                   what was done, with which conventions (keep with the data)
   fig1_potential_capacity  .pdf .svg .png     potential vs. capacity, selected cycles
   fig2_capacity_efficiency .pdf .svg .png     capacity and coulombic efficiency vs. cycle

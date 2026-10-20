@@ -153,8 +153,9 @@ for line in ("<b>Journal figures that check themselves</b>: drawn at the exact c
              "figure checks and the cycles shown, so the analysis can be repeated."):
     S.append(P(f"&bull; {line}", bullet))
 S.append(Spacer(1, 6))
-S.append(note("<b>Nothing is guessed.</b> The current direction, the cycle order, what the potential column measures and the "
-              "active mass are asked, never assumed. A value that needs an answer you have not given is shown as "
+S.append(note("<b>Nothing is guessed.</b> What a file cannot say is asked: the current direction (unless the file's step "
+              "types name it, as a LANHE .cex does), what the potential column measures, the active mass, and the cycle "
+              "order when a file starts with a discharge. A value that needs an answer you have not given is shown as "
               "<i>withheld</i>, with the reason. Capacity agrees with EC-Lab's own counters to better than 10<super>-6</super>."))
 S.append(PageBreak())
 
@@ -245,9 +246,10 @@ S.append(P("The reading screen. The pictures in this handout use a synthetic dem
 S.append(PageBreak())
 
 S.append(P("A file from another cycler", h1))
-S.append(P("An EC-Lab file is recognised by its signature, and so is a LANHE (LAND) .cex, which is read directly: on "
-           "every file, its current and voltage are checked against the tester's own capacity and energy counters, and "
-           "the tester's steps are listed in instrument_steps.csv. Any other text or Excel export is matched against the "
+S.append(P("An EC-Lab file is recognised by its signature, and so is a LANHE (LAND) .cex, which is read directly: its "
+           "current and voltage are checked against the tester's own capacity and energy counters wherever the file "
+           "holds enough records (a note says when it does not), and the tester's steps are listed in "
+           "instrument_steps.csv. Any other text or Excel export is matched against the "
            "import profiles Cyclara knows (Arbin, Neware, Maccor and the ones you have saved). When none fits, this page "
            "opens instead of the plots:", body))
 S.append(Spacer(1, 4))
@@ -431,7 +433,8 @@ S.append(table([
     ["dqde_curves.csv, dqde_peaks.csv, dqde_pairs.csv, dqde_map.csv",
      "Differential capacity curves; every cycle's peaks with the capacity under each, the partner peak in the opposite "
      "branch (paired within 200 mV) or 'unpaired', and the cycles in which it is seen; the pairs; the evolution grid."],
-    ["metadata.json", "Everything the EC-Lab header declares."],
+    ["metadata.json", "What the file declares: an EC-Lab header with its step table, or another reader's record. A "
+                      "LANHE .cex adds instrument_steps.csv, the tester's step table."],
     ["settings.json", "Your answers, the methods, the figure checks and the cycles shown. Keep it with the data."],
     ["activity.txt", "Everything you did in the app, in time order."],
     ["fig1 to fig7, fig_summary", "The figures, each as .pdf, .svg and .png; fig6 and fig7 are the dQ/dE evolution map and surfaces."],

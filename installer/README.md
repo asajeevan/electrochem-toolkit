@@ -4,9 +4,9 @@ What a user receives:
 
 | File | For | Size | What it does |
 |---|---|---|---|
-| `Cyclara-<version>-Setup.exe` | Windows 10 (1903+) and 11, 64-bit | about 120 MB | Welcome, folder, install, open. Per user (`%LOCALAPPDATA%\Programs\Cyclara`), no administrator prompt, Start menu and Desktop shortcuts, "Open with" for .mpr/.mpt/.cex/.csv/.txt/.xlsx without taking any default, an uninstaller in Settings > Apps. Replaces an older Cyclara in the same folder. |
-| `Cyclara-<version>-macOS-AppleSilicon.zip` | macOS 14+ on M1 to M4 | about 140 MB | `Cyclara.app`: drag to Applications. |
-| `Cyclara-<version>-macOS-Intel.zip` | macOS 14+ on Intel | about 140 MB | the same, for Intel. |
+| `Cyclara-<version>-Setup.exe` | Windows 10 (1903+) and 11, 64-bit | about 105 MB | Welcome, folder, install, open. Per user (`%LOCALAPPDATA%\Programs\Cyclara`), no administrator prompt, Start menu and Desktop shortcuts, "Open with" for .mpr/.mpt/.cex/.csv/.txt/.xlsx without taking any default, an uninstaller in Settings > Apps. Replaces an older Cyclara in the same folder. |
+| `Cyclara-<version>-macOS-AppleSilicon.zip` | macOS 14+ on M1 to M4 | about 150 MB | `Cyclara.app`: drag to Applications. |
+| `Cyclara-<version>-macOS-Intel.zip` | macOS 14+ on Intel | about 155 MB | the same, for Intel. |
 
 Each carries its own CPython 3.12.15, the pinned scientific packages, Qt, and the
 toolkit (`app/`: `electrochem`, `eclab_import`, the demonstration and public

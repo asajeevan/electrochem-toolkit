@@ -54,13 +54,15 @@ from .table import Table
 
 F = 96485.33212  # C/mol
 
-# A branch that spans one recorded interval (two rows) and carries less than this fraction of the charge of the
-# branch it is paired with is a step that ended at once: in a real LANHE file (October 2026), a charge to a
-# voltage limit started on a cell already above that limit, and paired with the long discharge after it gave a
-# coulombic efficiency of millions of per cent. The ratio of such a pair describes that step, not the cell, so no
-# efficiency and no hysteresis are given for it; its capacities and the retention are (M01 section 6).
+# A branch of at most two rows (one recorded interval, or a single record) that carries less than this fraction
+# of the charge of the branch it is paired with is a step that ended at once, for example a charge to a voltage
+# limit started on a cell already beyond that limit. Found while checking a real file, where charge-first pairing
+# put such a step with the full discharge after it and gave a coulombic efficiency of millions of per cent. The
+# ratios of such a pair describe that step, not the cell: no efficiency, energy efficiency or hysteresis is given
+# for it, and when the discharge is the branch that ended at once, no retention either (M01 section 6).
 DEGENERATE_ROWS = 2
 DEGENERATE_FRACTION = 1e-3
+ENDED_AT_ONCE = "a step that ended at once"          # the words every such note carries
 
 
 def degenerate(b: Branch, q_mAh: float | None, partner_q_mAh: float | None) -> bool:
@@ -72,9 +74,11 @@ def degenerate(b: Branch, q_mAh: float | None, partner_q_mAh: float | None) -> b
 
 def degenerate_note(b: Branch, r, partner) -> str:
     """The words for a degenerate branch b (result r) paired with or followed by `partner` (a result)."""
-    return (f"the {r.direction} branch {r.branch} spans one recorded interval ({r.duration_s:.3g} s) and carries "
+    span = ("is a single record" if b.end == b.start else
+            f"spans one recorded interval ({r.duration_s:.3g} s)")
+    return (f"the {r.direction} branch {r.branch} {span} and carries "
             f"{100 * r.charge_mAh / partner.charge_mAh:.2g} % of the charge of {partner.direction} branch "
-            f"{partner.branch}: a step that ended at once")
+            f"{partner.branch}: {ENDED_AT_ONCE}")
 
 
 def integrate(t, i, e, supported, dq=None):
@@ -387,6 +391,20 @@ def _branch_result(tab, seg, b, s, rests_after, rests_before) -> BranchResult:
     )
 
 
+def ended_at_once(p: Pair, br: dict) -> str | None:
+    """"charge" or "discharge" when that branch of the pair is a step that ended at once (degenerate against its
+    partner), else None. Both cannot be: each would need under 0.1 % of the other's charge."""
+    c = br.get(p.charge.index) if p.charge else None
+    d = br.get(p.discharge.index) if p.discharge else None
+    if c is None or d is None:
+        return None
+    if degenerate(p.discharge, d.charge_mAh, c.charge_mAh):
+        return "discharge"
+    if degenerate(p.charge, c.charge_mAh, d.charge_mAh):
+        return "charge"
+    return None
+
+
 def _cycle_result(p: Pair, br: dict, reference) -> CycleResult:
     c = br.get(p.charge.index) if p.charge else None
     d = br.get(p.discharge.index) if p.discharge else None
@@ -405,11 +423,14 @@ def _cycle_result(p: Pair, br: dict, reference) -> CycleResult:
         if c.mid_capacity_voltage_V is not None and d.mid_capacity_voltage_V is not None:
             mid_h = c.mid_capacity_voltage_V - d.mid_capacity_voltage_V
     lead = ""
-    if c and d:
-        for b, x, y in ((p.charge, c, d), (p.discharge, d, c)):
-            if degenerate(b, x.charge_mAh, y.charge_mAh):
-                lead = degenerate_note(b, x, y) + ", so no efficiency or hysteresis is given for this pair"
-                ce = ee = hyst = mid_h = None
+    ended = ended_at_once(p, br)
+    if ended:
+        ce = ee = hyst = mid_h = None
+        if ended == "discharge":                     # not a measure of the cell's capacity: no retention either
+            ret = None
+            lead = degenerate_note(p.discharge, d, c) + ", so no efficiency, hysteresis or retention is given for this pair"
+        else:
+            lead = degenerate_note(p.charge, c, d) + ", so no efficiency or hysteresis is given for this pair"
     note = "; ".join(x for x in (p.note or ("" if ok else "incomplete pair: efficiency and retention unavailable"), lead) if x)
     return CycleResult(
         cycle=p.index, native_cycle=p.native_cycle, complete=ok,
@@ -435,7 +456,10 @@ def _cycle_result(p: Pair, br: dict, reference) -> CycleResult:
     )
 
 
-def _summary(cycles, s, tab) -> Summary:
+def _summary(cycles, s, tab, ended=None, reference_ended=False) -> Summary:
+    """ended: {cycle: "charge" or "discharge"} for the pairs with a step that ended at once (ended_at_once);
+    reference_ended: the reference cycle's discharge is such a step, so no retention is given at all."""
+    ended = ended or {}
     ok = [c for c in cycles if c.complete]
     total_h = float((tab.t[-1] - tab.t[0]) / 3600)
     if not ok:
@@ -452,18 +476,27 @@ def _summary(cycles, s, tab) -> Summary:
     c80 = next((int(c.cycle) for c in ok if c.capacity_retention_pct is not None and c.capacity_retention_pct < 80), None)
     ces = [c.coulombic_efficiency_pct for c in ok[1:] if c.coulombic_efficiency_pct is not None]
     ce10 = [c.coulombic_efficiency_pct for c in ok[-10:] if c.coulombic_efficiency_pct is not None]
-    av = [c.average_discharge_voltage_V for c in ok if c.average_discharge_voltage_V is not None]
+    av = [c.average_discharge_voltage_V for c in ok
+          if c.average_discharge_voltage_V is not None and ended.get(c.cycle) != "discharge"]
     hy = [c.average_voltage_hysteresis_V for c in ok if c.average_voltage_hysteresis_V is not None]
     qth = s.theoretical_capacity_mAh_g
-    util = 100 * first.discharge_specific_mAh_g / qth if (qth and first.discharge_specific_mAh_g) else None
+    util = (100 * first.discharge_specific_mAh_g / qth
+            if (qth and first.discharge_specific_mAh_g and ended.get(first.cycle) != "discharge") else None)
     notes = []
     if cycles and last.cycle != cycles[-1].cycle:
         notes.append(f"cycle {cycles[-1].cycle} incomplete and excluded from the summary")
-    odd = [c.cycle for c in ok if "a step that ended at once" in c.note]
+    odd = [c.cycle for c in ok if ended.get(c.cycle)]
     if odd:
+        odd_d = [k for k in odd if ended[k] == "discharge"]
         notes.append(f"cycle{'s' if len(odd) > 1 else ''} {', '.join(map(str, odd[:12]))} pair{'' if len(odd) > 1 else 's'} "
                      "a branch that ended at once with a full one: no efficiency or hysteresis for "
-                     f"{'them' if len(odd) > 1 else 'it'} (cycles.csv says which branch)")
+                     f"{'them' if len(odd) > 1 else 'it'}"
+                     + (f", and no retention for cycle{'s' if len(odd_d) > 1 else ''} {', '.join(map(str, odd_d[:12]))}, "
+                        f"whose discharge it is" if odd_d else "")
+                     + " (cycles.csv says which branch)")
+    if reference_ended:
+        notes.append(f"the discharge of reference cycle {s.reference_cycle} ended at once, so no retention is given; "
+                     "choose another reference cycle")
     return Summary(
         complete_cycles=len(ok), reference_cycle=s.reference_cycle,
         first_cycle_charge_mAh=first.charge_capacity_mAh, first_cycle_discharge_mAh=first.discharge_capacity_mAh,
@@ -499,12 +532,18 @@ def analyse(tab: Table, seg: Segmentation, s: Settings) -> Analysis:
     rests_before = {r.before_branch: r for r in rests if r.before_branch is not None}
     branch_results = [_branch_result(tab, seg, b, s, rests_after, rests_before) for b in seg.branches]
     by_index = {r.branch: r for r in branch_results}
+    ended = {p.index: ended_at_once(p, by_index) for p in seg.pairs}
+    ended = {k: v for k, v in ended.items() if v}
     reference = None
+    reference_ended = False
     for p in seg.pairs:
         if p.index == s.reference_cycle and p.complete and p.discharge is not None:
-            reference = by_index[p.discharge.index].charge_mAh
+            if ended.get(p.index) == "discharge":    # a discharge that ended at once is no reference capacity
+                reference_ended = True
+            else:
+                reference = by_index[p.discharge.index].charge_mAh
     cycles = [_cycle_result(p, by_index, reference) for p in seg.pairs]
-    return Analysis(branch_results, cycles, rests, _summary(cycles, s, tab))
+    return Analysis(branch_results, cycles, rests, _summary(cycles, s, tab, ended, reference_ended))
 
 
 def capacity_basis(s: Settings) -> str:

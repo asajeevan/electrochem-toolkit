@@ -1,9 +1,11 @@
 """LANHE (LAND) .cex files: the battery tester's own binary file, read natively.
 
 LANHE publishes no description of the .cex format. This reader reads what has been established on a
-real file and checks it again on every file it opens; anything it has not seen is refused with what it
-found, never read as a plausible measurement. docs/P08g_LANHE_cex_Reader.md gives the evidence for each
-fact below, the checks, and what is still unverified.
+real file and checks it again on each file it opens, wherever the file holds enough records for the check
+(a note says when it does not). A layout, step type, status event or unit kind it has not seen, or a range
+code the file's own counters cannot confirm, is refused with what it found, never read as a plausible
+measurement; block types it has not seen are skipped with a note. docs/P08g_LANHE_cex_Reader.md gives the
+evidence for each fact below, the checks, and what is still unverified.
 
 Layout (little-endian, offsets in bytes)
 
@@ -92,6 +94,7 @@ SCALE_TOLERANCE_CV = 1e-2         # the same when only constant-voltage steps ca
 SCALE_MIN_INTERVALS = 20          # intervals needed for the scale check to decide
 CLOCK_SLOPE_TOLERANCE = 1e-2      # record time against the step-start clock, over at least a minute
 CLOCK_OFFSET_S = 2.0              # a step's first record this far from its start on the clock is reported
+CLOCK_MIN_SPAN_S = 60.0           # the clock slope needs two step starts at least this far apart
 
 RECORD = np.dtype([("t", "<u4"), ("v", "<i2"), ("i", "<i2"), ("q", "<f4"), ("w", "<f4")])
 assert RECORD.itemsize == UNIT_BYTES
@@ -137,7 +140,9 @@ class _Step:
         return self.last - self.first + 1
 
 
-def _utc(unix: int | None) -> str | None:
+def _clock(unix: int | None) -> str | None:
+    """The tester's clock as a date and time. The file stores Unix-style seconds and no time zone, so none is
+    written: the digits are those of the clock, whether it kept UTC or local time."""
     if unix is None:
         return None
     return datetime.fromtimestamp(unix, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
@@ -219,7 +224,7 @@ def _controls(controls, fnd: Findings):
                 unknown_events.setdefault(w2, at)
                 continue
             events.append({"offset": at, "code": f"{w2:#010x}", "event": STATUS_EVENTS[code], "unix": w3,
-                           "clock_utc": _utc(w3)})
+                           "clock": _clock(w3)})
         elif kind == OPENING:
             opening.append({"offset": at, "words": [f"{w2:#010x}", f"{w3:#010x}"]})
         elif kind in RETENTION_REFERENCES:
@@ -390,7 +395,7 @@ def _clock_check(steps, t, start_unix) -> dict:
     rec = np.array([p[1] for p in pts], float)
     off = rec - wall
     span = float(wall.max() - wall.min())
-    slope = float(np.polyfit(wall, rec, 1)[0]) if len(pts) >= 2 and span >= 60 else None
+    slope = float(np.polyfit(wall, rec, 1)[0]) if len(pts) >= 2 and span >= CLOCK_MIN_SPAN_S else None
     return {"steps_compared": len(pts), "span_s": span, "slope": slope,
             "largest_offset_s": float(off[np.argmax(np.abs(off))])}
 
@@ -485,6 +490,10 @@ def read(path: str | Path, progress=None) -> tuple[RawTable, dict]:
     elif clock.get("steps_compared") and abs(clock["largest_offset_s"]) > CLOCK_OFFSET_S:
         fnd.warn("cex_clock_offset", f"a step's first record lies {clock['largest_offset_s']:.1f} s from the step's "
                  "start on the tester's clock (a clock change, or a pause the file does not mark)", **clock)
+    if clock.get("slope") is None:
+        fnd.note("cex_clock_not_checked", "the record time could not be checked against the tester's clock, which "
+                 f"needs two step starts at least {CLOCK_MIN_SPAN_S:g} s apart; the 0.01 s unit verified on a real "
+                 "file was used", **clock)
     scale = _scale_check(steps, t, i, e, q, w)
     scale.update(voltage_range_verified=v_ok, current_range_verified=i_ok)
     if scale["current_passed"] is False or scale["voltage_passed"] is False:
@@ -510,6 +519,10 @@ def read(path: str | Path, progress=None) -> tuple[RawTable, dict]:
     elif scale["current_passed"] is None:
         fnd.note("cex_scale_not_checked", "too few intervals carry current for the scales to be checked against the "
                  "tester's counters in this file; the verified scales of its range codes were used")
+    elif scale["voltage_passed"] is None:
+        fnd.note("cex_voltage_not_checked", "the decoded voltage could not be checked against the tester's energy "
+                 f"counter, which needs {SCALE_MIN_INTERVALS} intervals with a positive voltage in current-carrying "
+                 "steps; the verified scale of its range code was used")
     fnd.raise_if_refused(path.name)
     if steps[0].unix != start_unix:
         fnd.note("cex_start_time", "the header's start time and the first step's start differ by "
@@ -557,9 +570,9 @@ def read(path: str | Path, progress=None) -> tuple[RawTable, dict]:
         "cex": {
             "bytes": len(blob), "units": int(n_units), "records": n, "steps": len(steps), "step_types": kinds,
             "counter_starts": starts, "blocks": blocks, "cycle_markers": len(markers), "status_events": events,
-            "opening_units": opening, "start_unix_s": start_unix, "start_clock_utc": _utc(start_unix),
-            "clock": "Unix seconds from the tester's clock, shown as UTC; whether that clock kept UTC or local time "
-                     "is not stated in the file",
+            "opening_units": opening, "start_unix_s": start_unix, "start_clock": _clock(start_unix),
+            "clock": "seconds on the tester's clock, written as a date and time without a time zone: whether that "
+                     "clock kept UTC or local time is not recorded in the file",
             "active_mass_g_in_header": float(mass_g) if math.isfinite(mass_g) else None,
             "scale_check": scale, "time_check": clock, "truncated_tail_bytes": tail,
         },
@@ -567,7 +580,7 @@ def read(path: str | Path, progress=None) -> tuple[RawTable, dict]:
     evidence = ("Read natively. The record layout, the 0.01 s time unit and the voltage and current scales were "
                 "established on a real LANHE file from its own statements in physical units (the step-start times, "
                 "the capacity counter in Ah, the energy counter in Wh and the programmed setpoints), and each file "
-                "is checked again: " + _scale_sentence(scale) + ".")
+                "is checked again where it holds enough records: " + _scale_sentence(scale) + ".")
     meta = {"instrument": INSTRUMENT, "profile": READER, "profile_version": READER_VERSION,
             "profile_evidence": evidence, "import_report": report, "import_findings": fnd.as_list(),
             "import_profile": description, "header_source": None, "instrument_steps": rows}
@@ -609,7 +622,7 @@ def _step_rows(steps, t, e, q, w, sv, si) -> list[dict]:
             setpoint *= s.direction                         # charge positive, as the current column
         out.append({
             "step": s.seq, "tester_step": s.code & 0x7FFF, "type": s.name, "type_code": f"{s.type:#04x}",
-            "setpoint": setpoint, "setpoint_unit": unit, "start_unix_s": s.unix, "start_clock_utc": _utc(s.unix),
+            "setpoint": setpoint, "setpoint_unit": unit, "start_unix_s": s.unix, "start_clock": _clock(s.unix),
             "cycle_marker": s.marker["cycle"] if s.marker else None,
             "first_record": a + 1 if has else None, "last_record": b + 1 if has else None, "records": s.records,
             "t_start_s": float(t[a]) if has else None, "t_end_s": float(t[b]) if has else None,

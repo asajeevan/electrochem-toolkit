@@ -1,10 +1,11 @@
-"""A step that ended at once, paired with a full branch (M01 section 6, amended 20 October 2026).
+"""A step that ended at once, paired with a full branch (M01 section 6, amended October 2026).
 
-The case met in a real LANHE file: a charge to a voltage limit, started on a cell already above it, ran for one
-recorded interval, and charge-first pairing put it with the long discharge after it, giving a coulombic
-efficiency of millions of per cent. Such a pair keeps its capacities and its retention; its efficiency, energy
-efficiency and hysteresis are not given, and the app asks which branch each cycle starts with. Synthetic data
-only, with values of its own: hand-made tables for the rule's edges, and a synthetic .cex for the whole path.
+For example a charge to a voltage limit started on a cell already beyond that limit runs for one recorded
+interval; paired with the full discharge after it, it gives a coulombic efficiency of millions of per cent (found
+while checking a real file). Such a pair keeps the capacities, energies and potentials of both branches; its
+efficiency, energy efficiency and hysteresis are not given, nor its retention when the discharge is the branch that
+ended at once, and the app asks which branch each cycle starts with when a file opens with such a step.
+Synthetic data only: hand-made tables for the rule's edges, and a synthetic .cex for the whole path.
 """
 import sys
 from pathlib import Path
@@ -87,7 +88,73 @@ def test_a_degenerate_discharge_is_treated_the_same_way():
     assert c.complete and c.coulombic_efficiency_pct is None and "discharge branch 2" in c.note
 
 
-# ---------------------------------------------------------------------- the whole path, as in the real file
+# ------------------------------------------------- a discharge that ended at once: no retention, no 80 %, no fit
+def cycles_of(discharge_rows, reference_cycle=1, **settings):
+    """Cycles of a 1 mA charge of 200 rows (199 s) and a 1 mA discharge of the given number of rows, 1 s apart;
+    a discharge of 2 rows is 0.1 s long. Charge-positive current, cell voltage."""
+    rows, t, step = [], 0.0, 1
+    for n_d in discharge_rows:
+        rows += [(t + k, 1e-3, 3.5 + 0.001 * k, step) for k in range(200)]
+        t = rows[-1][0] + 1.0; step += 1
+        dt = 0.1 if n_d == 2 else 1.0
+        rows += [(t + k * dt, -1e-3, 3.6 - 0.001 * k, step) for k in range(n_d)]
+        t = rows[-1][0] + 1.0; step += 1
+    rows += [(t + 10, 0.0, 3.4, step)]
+    tab = table(rows)
+    s = Settings(charge="positive", terminal_voltage=True, reference_cycle=reference_cycle, **settings)
+    return analyse(tab, segment(tab, charge="positive", order="charge-first"), s)
+
+
+def test_a_discharge_that_ended_at_once_has_no_retention_and_stays_out_of_the_fade():
+    an = cycles_of([200, 2, 190, 180, 150])
+    r = {c.cycle: c for c in an.cycles}
+    assert r[2].complete and r[2].capacity_retention_pct is None and r[2].coulombic_efficiency_pct is None
+    assert "no efficiency, hysteresis or retention" in r[2].note
+    assert r[2].discharge_capacity_mAh == pytest.approx(1e-3 * 0.1 / 3.6)            # the capacity is kept
+    assert r[3].capacity_retention_pct == pytest.approx(100 * 189 / 199)
+    sm = an.summary
+    assert sm.cycle_reaching_80pct_retention == 5                                  # not cycle 2
+    n = np.array([1, 3, 4, 5]); ret = 100 * np.array([199, 189, 179, 149]) / 199
+    assert sm.capacity_fade_pct_per_cycle == pytest.approx(-np.polyfit(n, ret, 1)[0])
+    assert "no retention for cycle 2, whose discharge it is" in sm.notes
+    vd = [c.average_discharge_voltage_V for c in an.cycles if c.cycle != 2]
+    assert sm.mean_average_discharge_voltage_V == pytest.approx(np.mean(vd))       # cycle 2's one interval left out
+
+
+def test_a_reference_discharge_that_ended_at_once_gives_no_retention_at_all():
+    an = cycles_of([2, 200, 190])
+    assert all(c.capacity_retention_pct is None for c in an.cycles)
+    assert an.summary.cycle_reaching_80pct_retention is None and an.summary.capacity_fade_pct_per_cycle is None
+    assert "the discharge of reference cycle 1 ended at once, so no retention is given" in an.summary.notes
+    an = cycles_of([2, 200, 190], reference_cycle=2)                               # another reference: retention
+    assert an.cycles[2].capacity_retention_pct == pytest.approx(100 * 189 / 199)
+
+
+def test_no_utilisation_is_given_from_a_first_discharge_that_ended_at_once():
+    q = dict(active_mass_mg=1.0, molar_mass_g_mol=100.0, electrons=1.0)
+    assert cycles_of([2, 200], **q).summary.first_cycle_utilisation_pct is None
+    sm = cycles_of([200, 2], **q).summary
+    assert sm.first_cycle_utilisation_pct == pytest.approx(100 * (1e-3 * 199 / 3.6) / 1e-3 / sm.theoretical_capacity_mAh_g)
+
+
+def test_a_one_row_branch_is_called_a_single_record():
+    rows = [(k, 1e-3, 3.5 + 0.001 * k, 1) for k in range(200)]
+    rows += [(rows[-1][0] + 1.0, -1e-3, 3.0, 2), (rows[-1][0] + 11.0, 0.0, 3.4, 3)]
+    c = first_cycle(rows).cycles[0]
+    assert "discharge branch 2 is a single record" in c.note and "(0 s)" not in c.note
+
+
+def test_help_names_a_withheld_hysteresis_instead_of_failing(hold_file):
+    from electrochem import methods_text
+    p, _ = hold_file
+    run = workflow.analyse_file(workflow.open_file(p), Settings(charge="ox", terminal_voltage=True))
+    ctx = methods_text.Context(settings=run.settings, run=run, profile_name="lanhe-cex")
+    lines = {t.key: methods_text.for_file(t.key, ctx) for t in methods_text.TOPICS}      # none may raise
+    assert any("hysteresis not given" in x for x in lines["energy"])
+    assert "Cycling data were analysed with Cyclara" in methods_text.paragraph(ctx)
+
+
+# ------------------------------------------------------------- the whole path, on a synthetic .cex file
 HOLD = [
     cs.Step("rest", 0.0, v0=3.50),
     cs.Step("cc_charge", 0.05, every=1.0, counts=8064, v0=4.40),                      # ended at once

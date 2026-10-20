@@ -57,7 +57,10 @@ TOPICS: list[Topic] = [
             "charge branch and the discharge branch that follows it (or the reverse, when the protocol starts with a "
             "discharge). A branch with no partner (a first discharge, a run that was interrupted) is kept in the "
             "tables with its capacity, but has no efficiency and no retention.</p>"
-            "<p>Which current sign is the charge of the cell is your answer, never a guess: for a positive-electrode "
+            "<p>Which current sign is the charge of the cell is never guessed. You answer it, unless the file was read "
+            "through an import that settles it (a LANHE .cex whose step types name the direction, or a profile that "
+            "declares its sign convention with evidence): then the import answers it, shows why, and the answer is "
+            "one step you can undo. As a guide: for a positive-electrode "
             "material against lithium metal, charge is the positive (oxidation) current; for a negative-electrode "
             "material against lithium, charge is the negative (reduction) current; for a full cell the instrument's "
             "sign for charge applies. The instrument's own cycle number is listed beside the cycle number used here, "
@@ -240,10 +243,14 @@ TOPICS: list[Topic] = [
             "a comparison of protocols, not a measure of degradation: that judgement is yours.</p>"
             "<h4>Not produced when</h4><p>The pair is incomplete, the charge capacity is zero, the reference cycle "
             "is missing or incomplete, or fewer than three cycles are available for the fit. Nor for a pair in "
-            "which one branch spans one recorded interval and carries under 0.1 % of the other's charge, a step "
-            "that ended at once (a charge to a voltage limit begun above that limit): its efficiency, energy "
-            "efficiency and hysteresis would describe that step, not the cell, so the cycle's note says so and only "
-            "its capacities and retention are given (M01 section 6).</p>"),
+            "which one branch has at most two rows (one recorded interval, or a single record) and carries under "
+            "0.1 % of the other's charge, a step that ended at once (for example a charge to a voltage limit begun "
+            "beyond that limit): the efficiency, energy efficiency and hysteresis of such a pair would describe "
+            "that step, not the cell, so they are not given and the cycle's note says why; the capacities, "
+            "energies and potentials of both branches are kept. When the discharge is the branch that ended at "
+            "once, the cycle has no retention either and takes no part in the cycle reaching 80 % or the fade "
+            "line; when it is the reference cycle's discharge, no retention is given for any cycle (M01 section "
+            "6).</p>"),
         outputs="cycles.csv: coulombic_efficiency_pct, coulombic_inefficiency_pct, capacity_retention_pct; "
                 "summary.json: mean_coulombic_efficiency_pct (from cycle 2), mean_coulombic_efficiency_last10_pct, "
                 "retention_at_last_cycle_pct, cycle_reaching_80pct_retention, capacity_fade_pct_per_cycle, "
@@ -530,14 +537,17 @@ def for_file(key: str, ctx: Context) -> list[str]:
         if an is not None and an.cycles:
             c = next((c for c in an.cycles if c.complete and c.average_charge_voltage_V is not None), None)
             if c is not None:
-                out.append(f"Cycle {c.cycle}: average charge potential {c.average_charge_voltage_V:.4g} V, discharge "
-                           f"{c.average_discharge_voltage_V:.4g} V, hysteresis {c.average_voltage_hysteresis_V * 1000:.3g} mV.")
+                out.append(f"Cycle {c.cycle}: average charge potential {_fmt(c.average_charge_voltage_V, 'V')}, discharge "
+                           f"{_fmt(c.average_discharge_voltage_V, 'V')}, hysteresis "
+                           + (f"{c.average_voltage_hysteresis_V * 1000:.3g} mV." if c.average_voltage_hysteresis_V
+                              is not None else "not given (see the cycle's note).")
+                           )
     elif key == "midpoint":
         if an is not None and an.cycles:
             c = next((c for c in an.cycles if c.complete and c.mid_capacity_charge_voltage_V is not None), None)
             if c is not None:
-                out.append(f"Cycle {c.cycle}: mid-capacity potential {c.mid_capacity_charge_voltage_V:.4g} V on charge, "
-                           f"{c.mid_capacity_discharge_voltage_V:.4g} V on discharge.")
+                out.append(f"Cycle {c.cycle}: mid-capacity potential {_fmt(c.mid_capacity_charge_voltage_V, 'V')} on charge, "
+                           f"{_fmt(c.mid_capacity_discharge_voltage_V, 'V')} on discharge.")
     elif key == "efficiency":
         out.append(f"Reference cycle for retention: {s.reference_cycle}.")
         if an is not None:
@@ -587,8 +597,8 @@ def for_file(key: str, ctx: Context) -> list[str]:
                    "with every export.")
     if ctx.profile_name == "lanhe-cex":
         out.append("Read natively from the tester's .cex file (reader lanhe-cex); its scales, their check against the "
-                   "tester's own capacity and energy counters, and the tester's step table are in settings.json and "
-                   "instrument_steps.csv.")
+                   "tester's own capacity and energy counters (or why the check could not be made), and the tester's "
+                   "step table are in settings.json and instrument_steps.csv.")
     elif ctx.profile_name:
         out.append(f"Read with the import profile '{ctx.profile_name}'; its conventions (current sign, direction "
                    "source, capacity semantics, cycle base) are in settings.json.")

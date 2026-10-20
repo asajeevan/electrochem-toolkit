@@ -17,9 +17,9 @@ from that instrument is then recognised automatically.
 The validated EC-Lab path (eclab_import) is never routed through here: bridge.is_eclab
 decides from the file's own signature.
 
-One instrument's own binary file is read natively, because a real one was decoded and its
-reading can be checked against the tester's own counters on every file: the LANHE (LAND)
-.cex (lanhe_cex.py, chosen by its signature).
+One instrument's own binary file is read natively, because a real one was decoded and the
+reading of each file can be checked against the tester's own counters and clock wherever the
+file holds enough records: the LANHE (LAND) .cex (lanhe_cex.py, chosen by its signature).
 """
 from . import lanhe_cex
 from .bridge import is_eclab, native_table, to_table
