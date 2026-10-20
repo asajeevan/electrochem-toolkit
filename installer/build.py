@@ -65,6 +65,7 @@ APP_FILES = ["electrochem", "eclab_import", "data/demo", "data/public", "data/ex
              "docs/Cyclara_handout.pdf", "docs/U02_Cyclara.md", "docs/M01_Cycling_Method_Specification.md",
              "docs/Cycling_Source_Register.md", "docs/P08_Multi_Instrument_Import_Specification.md",
              "docs/P08a_Import_Failure_Mode_Register.md", "docs/P08d_Instrument_Compatibility_Matrix.md",
+             "docs/P08g_LANHE_cex_Reader.md",
              "docs/images", "scripts/capture_reader_reference.py",      # imported by tests/test_readers_reference.py
              "scripts/studio_images.py"]                                 # the Wine harness renders every view with it
 SKIP_NAMES = {"__pycache__", ".pytest_cache", ".DS_Store"}
@@ -503,7 +504,7 @@ def build_macos(ver: str, arch: str) -> Path:
         "NSHumanReadableCopyright": "GPL-3.0-or-later",
         "CFBundleDocumentTypes": [{"CFBundleTypeName": "Cycling measurement", "CFBundleTypeRole": "Viewer",
                                    "LSHandlerRank": "Alternate",
-                                   "CFBundleTypeExtensions": ["mpr", "mpt", "csv", "txt", "xlsx"]}],
+                                   "CFBundleTypeExtensions": ["mpr", "mpt", "cex", "csv", "txt", "xlsx"]}],
     }))
     launcher = macos / "Cyclara"
     launcher.write_text((HERE / "macos" / "Cyclara.sh").read_text())

@@ -4,7 +4,7 @@ What a user receives:
 
 | File | For | Size | What it does |
 |---|---|---|---|
-| `Cyclara-<version>-Setup.exe` | Windows 10 (1903+) and 11, 64-bit | about 120 MB | Welcome, folder, install, open. Per user (`%LOCALAPPDATA%\Programs\Cyclara`), no administrator prompt, Start menu and Desktop shortcuts, "Open with" for .mpr/.mpt/.csv/.txt/.xlsx without taking any default, an uninstaller in Settings > Apps. Replaces an older Cyclara in the same folder. |
+| `Cyclara-<version>-Setup.exe` | Windows 10 (1903+) and 11, 64-bit | about 120 MB | Welcome, folder, install, open. Per user (`%LOCALAPPDATA%\Programs\Cyclara`), no administrator prompt, Start menu and Desktop shortcuts, "Open with" for .mpr/.mpt/.cex/.csv/.txt/.xlsx without taking any default, an uninstaller in Settings > Apps. Replaces an older Cyclara in the same folder. |
 | `Cyclara-<version>-macOS-AppleSilicon.zip` | macOS 14+ on M1 to M4 | about 140 MB | `Cyclara.app`: drag to Applications. |
 | `Cyclara-<version>-macOS-Intel.zip` | macOS 14+ on Intel | about 140 MB | the same, for Intel. |
 
@@ -16,7 +16,7 @@ folder is touched.
 
 ## Building
 
-From Linux (as done for the 0.7.0 and 0.8.0 releases) or macOS:
+From Linux (as done for the 0.7.0, 0.8.0 and 0.9.0 releases) or macOS:
 
 ```sh
 python installer/build.py --windows --wine     # Setup.exe, then the Wine run

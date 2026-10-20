@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ASSETS = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "docs" / "images" / "app"
 OUT = sys.argv[2] if len(sys.argv) > 2 else str(ROOT / "docs" / "Cyclara_handout.pdf")
 MARK = ROOT / "electrochem" / "studio" / "assets" / "cyclara_mark_1024.png"
-VERSION = "0.8.0"
+VERSION = "0.9.0"
 
 INK = colors.HexColor("#16202B")
 NIGHT = colors.HexColor("#0A101A")
@@ -141,7 +141,8 @@ S = []
 # ---------------------------------------------------------------- cover page
 S.append(Spacer(1, 114 * mm))
 S.append(P("What it does", h1))
-S.append(P("Open a BioLogic EC-Lab galvanostatic cycling file (.mpr or .mpt), or a whole experiment folder. Answer the few "
+S.append(P("Open a BioLogic EC-Lab galvanostatic cycling file (.mpr or .mpt), a LANHE .cex, another cycler's export, or a "
+           "whole experiment folder. Answer the few "
            "things only you can tell. Look through every cycle. Export:"))
 for line in ("<b>Journal figures that check themselves</b>: drawn at the exact column width of Nature or Elsevier, type "
              "within the journal's limits (sub- and superscripts too), nothing cut off or overlapping, legends and labels "
@@ -223,7 +224,8 @@ S.append(steps([
                       "segmented. A text or Excel export from another cycler opens straight through when its header is "
                       "recognised; otherwise the review page on the next page opens."),
     ("Answer the questions", "On the right. <b>Which current direction charges the cell</b>; <b>whether each cycle starts with a "
-                             "charge or a discharge</b> (asked when the file starts with a discharge); <b>what the potential "
+                             "charge or a discharge</b> (asked when the file starts with a discharge, or with a step that ended at "
+                             "once); <b>what the potential "
                              "column measures</b>, a half-cell against a reference you name or the cell voltage; and the "
                              "<b>active-material mass</b>, or <b>No mass</b> for capacities in mAh."),
     ("Check the pill", "Top right. It counts the answers still needed and turns green, <b>Ready to export</b>, with a short "
@@ -243,9 +245,11 @@ S.append(P("The reading screen. The pictures in this handout use a synthetic dem
 S.append(PageBreak())
 
 S.append(P("A file from another cycler", h1))
-S.append(P("An EC-Lab file is recognised by its signature. Any other text or Excel export is matched against the import "
-           "profiles Cyclara knows (Arbin, Neware, Maccor and the ones you have saved). When none fits, this page opens "
-           "instead of the plots:", body))
+S.append(P("An EC-Lab file is recognised by its signature, and so is a LANHE (LAND) .cex, which is read directly: on "
+           "every file, its current and voltage are checked against the tester's own capacity and energy counters, and "
+           "the tester's steps are listed in instrument_steps.csv. Any other text or Excel export is matched against the "
+           "import profiles Cyclara knows (Arbin, Neware, Maccor and the ones you have saved). When none fits, this page "
+           "opens instead of the plots:", body))
 S.append(Spacer(1, 4))
 S.append(img("light_mapping.png", 169))
 S.append(Spacer(1, 4))

@@ -10,7 +10,7 @@ WHAT IT DOES
 
 
 INSTALLING ON WINDOWS (one click; Windows 10 version 1903 or later, or Windows 11, 64-bit)
-  1. Double-click  Cyclara-0.8.0-Setup.exe  and click Next, Install, Finish.
+  1. Double-click  Cyclara-0.9.0-Setup.exe  and click Next, Install, Finish.
      No administrator password is asked for and nothing else on the PC is changed:
      Cyclara, its own Python and everything it needs go into your user folder
      (about 450 MB), with a Cyclara icon on the Desktop and in the Start menu.
@@ -29,8 +29,8 @@ INSTALLING ON WINDOWS (one click; Windows 10 version 1903 or later, or Windows 1
 
 
 INSTALLING ON A MAC (macOS 14 Sonoma or later)
-  1. Download the zip for your Mac: Cyclara-0.8.0-macOS-AppleSilicon.zip for an
-     M1, M2, M3 or M4 Mac, Cyclara-0.8.0-macOS-Intel.zip for an Intel Mac.
+  1. Download the zip for your Mac: Cyclara-0.9.0-macOS-AppleSilicon.zip for an
+     M1, M2, M3 or M4 Mac, Cyclara-0.9.0-macOS-Intel.zip for an Intel Mac.
      (Apple menu > About This Mac says which.) Safari unzips it by itself;
      otherwise double-click the zip.
   2. Drag Cyclara.app into Applications (or leave it in Downloads).
