@@ -77,6 +77,10 @@ can cite a DOI that resolves to the exact version; the one-time Windows and macO
   repository is switched on, so 0.8.0 has no DOI; the next release will have one if Zenodo is switched on first
   (0.8.0 itself could still be uploaded to Zenodo by hand).
 - Decision 4 (signing) stays open.
+- 0.9.0 (21 October 2026) followed the same route: built and checked here, drafted and published by the author from
+  his own account (from his phone, using a link that filled in the tag, title and notes), the draft checked before
+  publishing (it caught the checksum file renamed `SHA256SUMS-2.txt` by the phone) and the release after (immutable,
+  tag `v0.9.0` on f20082f, digests and attestation as for 0.8.0). Evidence: `docs/evidence/p13_installers/0.9.0/`.
 
 ## Sources (inspected 20 October 2026)
 

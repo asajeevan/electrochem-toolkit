@@ -1,0 +1,31 @@
+Release v0.9.0 of asajeevan/electrochem-toolkit: published, id 418973748, published 2026-10-20T23:30:45Z
+  ok   release immutability is enabled for the repository
+  ok   title is 'Cyclara 0.9.0'
+  ok   not marked as a pre-release
+  ok   the description equals the notes file
+  ok   all 5 release files are attached
+  ok   no other files are attached
+  ok   Cyclara-0.9.0-Setup.exe: 105,361,326 bytes
+  ok   Cyclara-0.9.0-Setup.exe: SHA-256 d7dfbb78a4cc6ccf... matches (GitHub's digest)
+  ok   Cyclara-0.9.0-macOS-AppleSilicon.zip: 147,517,492 bytes
+  ok   Cyclara-0.9.0-macOS-AppleSilicon.zip: SHA-256 96364ec97722daba... matches (GitHub's digest)
+  ok   Cyclara-0.9.0-macOS-Intel.zip: 153,918,600 bytes
+  ok   Cyclara-0.9.0-macOS-Intel.zip: SHA-256 c4a31f3025822b23... matches (GitHub's digest)
+  ok   Cyclara_handout_v0.9.0.pdf: 2,745,089 bytes
+  ok   Cyclara_handout_v0.9.0.pdf: SHA-256 3edcf3b823791b66... matches (GitHub's digest)
+  ok   SHA256SUMS.txt: 382 bytes
+  ok   SHA256SUMS.txt: SHA-256 d8fd5d33dd5fb7d7... matches (GitHub's digest)
+  ok   the published release is immutable
+  ok   tag v0.9.0 is on f20082f
+  ok   GitHub's release attestation exists
+  ok   attestation type https://in-toto.io/attestation/release/v0.2
+  ok   the attestation names asajeevan/electrochem-toolkit and v0.9.0
+  ok   the attestation names the commit f20082f
+  ok   the attestation names Cyclara-0.9.0-Setup.exe with its SHA-256
+  ok   the attestation names Cyclara-0.9.0-macOS-AppleSilicon.zip with its SHA-256
+  ok   the attestation names Cyclara-0.9.0-macOS-Intel.zip with its SHA-256
+  ok   the attestation names Cyclara_handout_v0.9.0.pdf with its SHA-256
+  ok   the attestation names SHA256SUMS.txt with its SHA-256
+  record written to docs/evidence/p13_installers/0.9.0/github_release_v0.9.0.json
+
+PUBLISHED AND VERIFIED (the attestation's signature: gh release verify).

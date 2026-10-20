@@ -34,3 +34,21 @@ inside the installers.
 
 Not run: a physical Windows PC or Mac; the macOS bundles are checked statically only (every library resolves inside
 the bundle or macOS), not launched.
+
+## The GitHub release
+
+Published 20 October 2026 at 23:30:45 UTC (21 October, 01:30 in Zurich) by the author from his own account, from
+his phone: https://github.com/asajeevan/electrochem-toolkit/releases/tag/v0.9.0, release id 418973748. The build
+environment may not create releases, so the author drafted it from a link carrying the tag, title and notes, and
+attached the five files. Before it was published the draft was checked twice with `scripts/check_github_release.py`:
+the first check found the checksum file attached as `SHA256SUMS-2.txt` (the phone had renamed its download because
+0.8.0's file of the same name was already there; same bytes), which an immutable release could never have shed; the
+author removed it and attached it under its own name, and the second check found nothing wrong (READY TO PUBLISH).
+After publishing the script found the release immutable, the tag `v0.9.0` on f20082f, GitHub's SHA-256 digest of
+each file equal to the tested file's, and GitHub's release attestation (in-toto `release/v0.2`) naming the commit and
+all five files with those digests: `github_release_v0.9.0_check.txt`, and the record with the attestation bundle in
+`github_release_v0.9.0.json`. Not checked here: the attestation's signature (`gh release verify v0.9.0 -R
+asajeevan/electrochem-toolkit` on any connected computer; this environment's network policy blocks the hosts it
+needs). Every download link of the release answered with a redirect to GitHub's file store, and the web page
+https://asajeevan.github.io/cyclara/ was deployed with the 0.9.0 links, sizes and checksums (Pages build of 9dd70ab,
+23:32 UTC).

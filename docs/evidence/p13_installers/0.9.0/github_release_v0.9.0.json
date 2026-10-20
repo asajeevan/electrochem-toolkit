@@ -1,0 +1,177 @@
+{
+ "assets": [
+  {
+   "browser_download_url": "https://github.com/asajeevan/electrochem-toolkit/releases/download/v0.9.0/Cyclara-0.9.0-Setup.exe",
+   "created_at": "2026-10-20T23:17:59Z",
+   "digest": "sha256:d7dfbb78a4cc6ccfe2926a55ef167986a0a83ba5054b67e0e1644d62244f8eb1",
+   "name": "Cyclara-0.9.0-Setup.exe",
+   "size": 105361326,
+   "state": "uploaded",
+   "updated_at": "2026-10-20T23:19:58Z"
+  },
+  {
+   "browser_download_url": "https://github.com/asajeevan/electrochem-toolkit/releases/download/v0.9.0/Cyclara-0.9.0-macOS-AppleSilicon.zip",
+   "created_at": "2026-10-20T23:20:09Z",
+   "digest": "sha256:96364ec97722dabafbdc80aa7a6729af087a20dce8ba04af0f27d56bd08b274b",
+   "name": "Cyclara-0.9.0-macOS-AppleSilicon.zip",
+   "size": 147517492,
+   "state": "uploaded",
+   "updated_at": "2026-10-20T23:22:46Z"
+  },
+  {
+   "browser_download_url": "https://github.com/asajeevan/electrochem-toolkit/releases/download/v0.9.0/Cyclara-0.9.0-macOS-Intel.zip",
+   "created_at": "2026-10-20T23:22:46Z",
+   "digest": "sha256:c4a31f3025822b23fd5cba37a5e336bc4a97e84013ff2023888be54bf32fb2e0",
+   "name": "Cyclara-0.9.0-macOS-Intel.zip",
+   "size": 153918600,
+   "state": "uploaded",
+   "updated_at": "2026-10-20T23:25:28Z"
+  },
+  {
+   "browser_download_url": "https://github.com/asajeevan/electrochem-toolkit/releases/download/v0.9.0/Cyclara_handout_v0.9.0.pdf",
+   "created_at": "2026-10-20T23:16:52Z",
+   "digest": "sha256:3edcf3b823791b6613f9275f85a62caf150f4bcfe6c2e341f215fd405ac37a68",
+   "name": "Cyclara_handout_v0.9.0.pdf",
+   "size": 2745089,
+   "state": "uploaded",
+   "updated_at": "2026-10-20T23:16:55Z"
+  },
+  {
+   "browser_download_url": "https://github.com/asajeevan/electrochem-toolkit/releases/download/v0.9.0/SHA256SUMS.txt",
+   "created_at": "2026-10-20T23:29:22Z",
+   "digest": "sha256:d8fd5d33dd5fb7d72304f72c50ca5c521e2bf9d66402e7e83466fa122e043980",
+   "name": "SHA256SUMS.txt",
+   "size": 382,
+   "state": "uploaded",
+   "updated_at": "2026-10-20T23:29:23Z"
+  }
+ ],
+ "attestation": {
+  "bundle": {
+   "dsseEnvelope": {
+    "payload": "eyJfdHlwZSI6Imh0dHBzOi8vaW4tdG90by5pby9TdGF0ZW1lbnQvdjEiLCJzdWJqZWN0IjpbeyJ1cmkiOiJwa2c6Z2l0aHViL2FzYWplZXZhbi9lbGVjdHJvY2hlbS10b29sa2l0QHYwLjkuMCIsImRpZ2VzdCI6eyJzaGExIjoiZjIwMDgyZjAzZWU2ZTM1NDZhOWYzOWIyNGY2MGRkOGZiN2ZjOWJlOSJ9fSx7Im5hbWUiOiJDeWNsYXJhLTAuOS4wLW1hY09TLUFwcGxlU2lsaWNvbi56aXAiLCJkaWdlc3QiOnsic2hhMjU2IjoiOTYzNjRlYzk3NzIyZGFiYWZiZGM4MGFhN2E2NzI5YWYwODdhMjBkY2U4YmEwNGFmMGYyN2Q1NmJkMDhiMjc0YiJ9fSx7Im5hbWUiOiJDeWNsYXJhLTAuOS4wLW1hY09TLUludGVsLnppcCIsImRpZ2VzdCI6eyJzaGEyNTYiOiJjNGEzMWYzMDI1ODIyYjIzZmQ1Y2JhMzdhNWUzMzZiYzRhOTdlODQwMTNmZjIwMjM4ODhiZTU0YmYzMmZiMmUwIn19LHsibmFtZSI6IkN5Y2xhcmEtMC45LjAtU2V0dXAuZXhlIiwiZGlnZXN0Ijp7InNoYTI1NiI6ImQ3ZGZiYjc4YTRjYzZjY2ZlMjkyNmE1NWVmMTY3OTg2YTBhODNiYTUwNTRiNjdlMGUxNjQ0ZDYyMjQ0ZjhlYjEifX0seyJuYW1lIjoiQ3ljbGFyYV9oYW5kb3V0X3YwLjkuMC5wZGYiLCJkaWdlc3QiOnsic2hhMjU2IjoiM2VkY2YzYjgyMzc5MWI2NjEzZjkyNzVmODVhNjJjYWYxNTBmNGJjZmU2YzJlMzQxZjIxNWZkNDA1YWMzN2E2OCJ9fSx7Im5hbWUiOiJTSEEyNTZTVU1TLnR4dCIsImRpZ2VzdCI6eyJzaGEyNTYiOiJkOGZkNWQzM2RkNWZiN2Q3MjMwNGY3MmM1MGNhNWM1MjFlMmJmOWQ2NjQwMmU3ZTgzNDY2ZmExMjJlMDQzOTgwIn19XSwicHJlZGljYXRlVHlwZSI6Imh0dHBzOi8vaW4tdG90by5pby9hdHRlc3RhdGlvbi9yZWxlYXNlL3YwLjIiLCJwcmVkaWNhdGUiOnsiZGF0YWJhc2VJZCI6IjQxODk3Mzc0OCIsIm93bmVySWQiOiIxNTgwNzI4MTAiLCJwYWNrYWdlSWQiOiIxMzY0NjE4MDY3IiwicHVybCI6InBrZzpnaXRodWIvYXNhamVldmFuL2VsZWN0cm9jaGVtLXRvb2xraXRAdjAuOS4wIiwicmVwb3NpdG9yeSI6ImFzYWplZXZhbi9lbGVjdHJvY2hlbS10b29sa2l0IiwicmVwb3NpdG9yeUlkIjoiMTM2NDYxODA2NyIsInRhZyI6InYwLjkuMCJ9fQ==",
+    "payloadType": "application/vnd.in-toto+json",
+    "signatures": [
+     {
+      "sig": "MEQCIBVclwBhJyGdG+Db/LdoZQB51kg2Ut42wUm1aWbE5LSIAiAB7h1P2+E8RuXNOdizXkmPBygl8Ofgjmhd8xupSdimxA=="
+     }
+    ]
+   },
+   "mediaType": "application/vnd.dev.sigstore.bundle.v0.3+json",
+   "verificationMaterial": {
+    "certificate": {
+     "rawBytes": "MIICKzCCAbCgAwIBAgIUFEsbikF1pCGydxjUbs+jmoS800MwCgYIKoZIzj0EAwMwODEVMBMGA1UEChMMR2l0SHViLCBJbmMuMR8wHQYDVQQDExZGdWxjaW8gSW50ZXJtZWRpYXRlIGwxMB4XDTI2MDYxMjAwMDAwMFoXDTI3MDYxMjAwMDAwMFowKjEVMBMGA1UEChMMR2l0SHViLCBJbmMuMREwDwYDVQQDEwhBdHRlc3RlcjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABGUVEVNqcSQmA0J45gqVHzCQkSWaZn4DucVDFhO4Q5OWgVdOP4WF44OUvFXQm9lDfRrHMsIVHEbvMfL7SHOVuVWjgaUwgaIwDgYDVR0PAQH/BAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUFBwMDMAwGA1UdEwEB/wQCMAAwHQYDVR0OBBYEFDrgKNmcXl2HuRedxYt9HulXf/9IMB8GA1UdIwQYMBaAFMDhuFKkS08+3no4EQbPSY6hRZszMC0GA1UdEQQmMCSGImh0dHBzOi8vZG90Y29tLnJlbGVhc2VzLmdpdGh1Yi5jb20wCgYIKoZIzj0EAwMDaQAwZgIxAJnC2khPGWJqZiEFvgyv0rktYBinUh6AkDn43wYSgUhzm8aRUa+rF25Qk1ZeoGi3IAIxAIgIBMwOkMqDQ1DVCJydaIZu1bxtvgX9Anva7kRDZrboNxsAllbdnorYRTm9mxkZaQ=="
+    },
+    "timestampVerificationData": {
+     "rfc3161Timestamps": [
+      {
+       "signedTimestamp": "MIIC0DADAgEAMIICxwYJKoZIhvcNAQcCoIICuDCCArQCAQMxDTALBglghkgBZQMEAgIwgbsGCyqGSIb3DQEJEAEEoIGrBIGoMIGlAgEBBgkrBgEEAYO/MAIwMTANBglghkgBZQMEAgEFAAQgMJHR/CVKcTfmN5cE9Pba8QauIwztX2jgtBowzzV+UY0CFHS2axJ0NM+irNp3a2XvW0h9DnVUGA8yMDI2MTAyMDIzMzA0NlowAwIBAaA2pDQwMjEVMBMGA1UEChMMR2l0SHViLCBJbmMuMRkwFwYDVQQDExBUU0EgVGltZXN0YW1waW5noAAxggHeMIIB2gIBATBKMDIxFTATBgNVBAoTDEdpdEh1YiwgSW5jLjEZMBcGA1UEAxMQVFNBIGludGVybWVkaWF0ZQIUFzPb1un+DvofqFPzAXiB5slHM1IwCwYJYIZIAWUDBAICoIIBBTAaBgkqhkiG9w0BCQMxDQYLKoZIhvcNAQkQAQQwHAYJKoZIhvcNAQkFMQ8XDTI2MTAyMDIzMzA0NlowPwYJKoZIhvcNAQkEMTIEMCDy+Mu3vlkW5CFsZeWGhAv2kI80c6T4QLhsqyNWl+q8/E5ppMVhlkx1SPDZVAkDXzCBhwYLKoZIhvcNAQkQAi8xeDB2MHQwcgQgRBbIrnMUamOhN8LlW+jecOPJrzBzvzmLqrqo2wgXztcwTjA2pDQwMjEVMBMGA1UEChMMR2l0SHViLCBJbmMuMRkwFwYDVQQDExBUU0EgaW50ZXJtZWRpYXRlAhQXM9vW6f4O+h+oU/MBeIHmyUczUjAKBggqhkjOPQQDAwRnMGUCMA79LoyQ2Krt4PJduEl3Vda1UHpht8fBj3X6X/E0SNxYZ2pj9ibpqJYjfGzv2tPe2wIxAKC1EKhzwUMM5/JhUCzxlIFQBNXFhUMOgmfXP++RwmrlwZ5v7yskrFGAneBpHB3pwQ=="
+      }
+     ]
+    }
+   }
+  },
+  "bundle_media_type": "application/vnd.dev.sigstore.bundle.v0.3+json",
+  "rfc3161_timestamps": 1,
+  "signature_checked_here": false,
+  "signed_with": [
+   "certificate",
+   "timestampVerificationData"
+  ],
+  "statement": {
+   "_type": "https://in-toto.io/Statement/v1",
+   "predicate": {
+    "databaseId": "418973748",
+    "ownerId": "158072810",
+    "packageId": "1364618067",
+    "purl": "pkg:github/asajeevan/electrochem-toolkit@v0.9.0",
+    "repository": "asajeevan/electrochem-toolkit",
+    "repositoryId": "1364618067",
+    "tag": "v0.9.0"
+   },
+   "predicateType": "https://in-toto.io/attestation/release/v0.2",
+   "subject": [
+    {
+     "digest": {
+      "sha1": "f20082f03ee6e3546a9f39b24f60dd8fb7fc9be9"
+     },
+     "uri": "pkg:github/asajeevan/electrochem-toolkit@v0.9.0"
+    },
+    {
+     "digest": {
+      "sha256": "96364ec97722dabafbdc80aa7a6729af087a20dce8ba04af0f27d56bd08b274b"
+     },
+     "name": "Cyclara-0.9.0-macOS-AppleSilicon.zip"
+    },
+    {
+     "digest": {
+      "sha256": "c4a31f3025822b23fd5cba37a5e336bc4a97e84013ff2023888be54bf32fb2e0"
+     },
+     "name": "Cyclara-0.9.0-macOS-Intel.zip"
+    },
+    {
+     "digest": {
+      "sha256": "d7dfbb78a4cc6ccfe2926a55ef167986a0a83ba5054b67e0e1644d62244f8eb1"
+     },
+     "name": "Cyclara-0.9.0-Setup.exe"
+    },
+    {
+     "digest": {
+      "sha256": "3edcf3b823791b6613f9275f85a62caf150f4bcfe6c2e341f215fd405ac37a68"
+     },
+     "name": "Cyclara_handout_v0.9.0.pdf"
+    },
+    {
+     "digest": {
+      "sha256": "d8fd5d33dd5fb7d72304f72c50ca5c521e2bf9d66402e7e83466fa122e043980"
+     },
+     "name": "SHA256SUMS.txt"
+    }
+   ]
+  },
+  "transparency_log_entries": 0
+ },
+ "checked": {
+  "expected_commit": "f20082f",
+  "files": {
+   "Cyclara-0.9.0-Setup.exe": {
+    "sha256": "d7dfbb78a4cc6ccfe2926a55ef167986a0a83ba5054b67e0e1644d62244f8eb1",
+    "size": 105361326
+   },
+   "Cyclara-0.9.0-macOS-AppleSilicon.zip": {
+    "sha256": "96364ec97722dabafbdc80aa7a6729af087a20dce8ba04af0f27d56bd08b274b",
+    "size": 147517492
+   },
+   "Cyclara-0.9.0-macOS-Intel.zip": {
+    "sha256": "c4a31f3025822b23fd5cba37a5e336bc4a97e84013ff2023888be54bf32fb2e0",
+    "size": 153918600
+   },
+   "Cyclara_handout_v0.9.0.pdf": {
+    "sha256": "3edcf3b823791b6613f9275f85a62caf150f4bcfe6c2e341f215fd405ac37a68",
+    "size": 2745089
+   },
+   "SHA256SUMS.txt": {
+    "sha256": "d8fd5d33dd5fb7d72304f72c50ca5c521e2bf9d66402e7e83466fa122e043980",
+    "size": 382
+   }
+  },
+  "notes": [],
+  "problems": [],
+  "repo": "asajeevan/electrochem-toolkit",
+  "tag": "v0.9.0"
+ },
+ "release": {
+  "author": "asajeevan",
+  "created_at": "2026-10-20T23:07:27Z",
+  "draft": false,
+  "html_url": "https://github.com/asajeevan/electrochem-toolkit/releases/tag/v0.9.0",
+  "id": 418973748,
+  "immutable": true,
+  "name": "Cyclara 0.9.0",
+  "prerelease": false,
+  "published_at": "2026-10-20T23:30:45Z",
+  "tag_name": "v0.9.0",
+  "target_commitish": "main"
+ },
+ "tag_commit": "f20082f03ee6e3546a9f39b24f60dd8fb7fc9be9"
+}

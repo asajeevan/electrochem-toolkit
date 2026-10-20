@@ -25,4 +25,10 @@ Each fix was checked by undoing it in a copy of the repository: ten such changes
 
 ## The release
 
-The released build, the release itself and the web page are recorded in `STATUS.md` (Released: 0.9.0) and `docs/evidence/p13_installers/0.9.0/` once published.
+| Item | Status | Evidence |
+|---|---|---|
+| Installers from a clean checkout of 36be5dd | built; 1002 tests pass on Linux; the Windows program under Wine opens every view and passes its own 981 tests; installed over 0.8.0 under Wine, the tree equals the tested one byte for byte, and it uninstalls cleanly; macOS bundles checked statically | `docs/evidence/p13_installers/0.9.0/` |
+| GitHub release v0.9.0 | published 20 October 2026, 23:30 UTC, by the author from his phone; immutable; tag on f20082f; digests and attestation verified | `docs/evidence/p13_installers/0.9.0/github_release_v0.9.0*` |
+| Web page | 0.9.0 downloads, sizes, checksums, citation; the cycler table and claims name the `.cex` reader with its conditions; new screenshots (version 0.9.0 in the status bar) | https://asajeevan.github.io/cyclara/ (site commit 9dd70ab) |
+
+The draft check caught one fault the author's phone introduced (the checksum file renamed `SHA256SUMS-2.txt`); it was corrected before publishing. Not done: the attestation's signature (`gh release verify v0.9.0 -R asajeevan/electrochem-toolkit` on a connected computer), a physical Windows PC or Mac, and LANHE's own Excel export of the real `.cex` for comparison.

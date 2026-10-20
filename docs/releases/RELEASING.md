@@ -49,7 +49,9 @@ How a version reaches other people, as done for 0.8.0 (20 October 2026) and 0.9.
    ```
 
    It must end with READY TO PUBLISH. It needs the GitHub CLI (`gh`) signed in with read access, and it only
-   reads. For 0.8.0 it caught the two macOS archives not yet attached and the notes file attached by mistake.
+   reads. For 0.8.0 it caught the two macOS archives not yet attached and the notes file attached by mistake; for
+   0.9.0, the checksum file renamed `SHA256SUMS-2.txt` by the phone it was uploaded from (a device that already holds
+   a file of that name renames the new download: rename it back before attaching).
 7. **Publish**, then run the same command with `--record docs/evidence/p13_installers/X.Y.Z/github_release_vX.Y.Z.json`.
    It must end with PUBLISHED AND VERIFIED: immutable, the tag on the expected commit, GitHub's digest of every
    file equal to the tested one, and the attestation naming each of them.
