@@ -1,0 +1,25 @@
+{
+  "comment": "Relocatable CPython builds from python-build-standalone (astral-sh), the install_only variant. The release tag pins the exact build; the checksums come from the release's SHA256SUMS file and are verified before anything is extracted.",
+  "release": "20261013",
+  "python": "3.12.15",
+  "base_url": "https://github.com/astral-sh/python-build-standalone/releases/download/20261013/",
+  "files": {
+    "windows-x86_64": {
+      "name": "cpython-3.12.15+20261013-x86_64-pc-windows-msvc-install_only.tar.gz",
+      "sha256": "bbc902d4d187ac4914915bf538196a064b49109a33a104965b5164ced5b80a1e"
+    },
+    "macos-arm64": {
+      "name": "cpython-3.12.15+20261013-aarch64-apple-darwin-install_only.tar.gz",
+      "sha256": "ba32036ad8f4c434d97a1ee7feef8b7edc0fac16777639b97e39c74a108e4440"
+    },
+    "macos-x86_64": {
+      "name": "cpython-3.12.15+20261013-x86_64-apple-darwin-install_only.tar.gz",
+      "sha256": "9686ddd8639b855905447ea4a16eb54a804a9ef12afbe7c9ecb1412d9c1fbc98"
+    },
+    "linux-x86_64": {
+      "name": "cpython-3.12.15+20261013-x86_64-unknown-linux-gnu-install_only.tar.gz",
+      "sha256": "5d546fc004fc2435fa142eb8f42ed8de5eb4725963dc22f7e6671014a80eb560",
+      "comment": "Only used on the build machine, to write .pyc files with Python 3.12's magic number and to run the packaged pure-Python code under 3.12."
+    }
+  }
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "file": "NJK_CC_156_C30_C_x30.xlsx",
+    "sha256": "c8c2f4b32060d5465d71ccd24905108e9896fc6307f8d571e1747286f18d474a",
+    "bytes": 2360950,
+    "source_repository": "https://github.com/be-smith/navani",
+    "commit": "d9892a3c982285173143aaab71c237869255e450",
+    "source_path": "Example_data/NJK_CC_156_C30_C_x30.xlsx",
+    "source_sha256": "c8c2f4b32060d5465d71ccd24905108e9896fc6307f8d571e1747286f18d474a",
+    "source_bytes": 2360950,
+    "license": "MIT",
+    "license_file": "LICENSE-navani.txt",
+    "modification": "unmodified copy",
+    "readable_by_this_version": true
+  }
+]

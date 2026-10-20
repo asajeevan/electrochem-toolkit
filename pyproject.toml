@@ -4,19 +4,29 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "electrochem-toolkit"
-version = "0.2.0"
+version = "0.8.0"
 description = "Traceable import, records and calculations for BioLogic EC-Lab battery measurements"
+authors = [{name = "Aswadh Shyma Sajeevan"}]
 readme = "README.md"
 license = "GPL-3.0-or-later"
 requires-python = ">=3.11,<3.13"
-dependencies = ["pydantic==2.13.5"]
+dependencies = ["pydantic==2.13.5", "numpy>=1.26", "scipy>=1.11", "matplotlib>=3.8", "openpyxl>=3.1"]
 
 [project.optional-dependencies]
 native = ["numpy==2.3.5", "galvani @ git+https://github.com/echemdata/galvani.git@d4a5f444b16eae57d2edfad6df774ead95c92fd6"]
 dev = ["pytest>=8"]
+gui = ["PySide6-Essentials==6.12.0", "shiboken6==6.12.0", "pyqtgraph==0.14.0"]
 
 [project.scripts]
 eclab-import = "eclab_import.__main__:main"
+eclab-analyze = "electrochem.analyze:main"
+
+[project.gui-scripts]
+cyclara = "electrochem.studio.app:main"
+
+[tool.setuptools.package-data]
+"electrochem.studio" = ["fonts/*", "assets/*"]
+"electrochem" = ["project.schema.json"]
 
 [tool.setuptools.packages.find]
 include = ["electrochem*", "eclab_import*"]

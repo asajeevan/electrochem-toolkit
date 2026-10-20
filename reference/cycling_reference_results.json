@@ -1,7 +1,7 @@
 {
   "package": "P00 M01 reference audit / seed for P02",
   "version": "0.1",
-  "python_version": "3.12.14",
+  "python_version": "3.13.16",
   "script_sha256": "0cabb62c5b78b053fbb6a47ff83eb99e58367dc37aac81687f741140e8f473c1",
   "evidence": "Arithmetic and synthetic integration checks only; no production engine or EC-Lab data.",
   "checks": [

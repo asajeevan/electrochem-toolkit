@@ -1,0 +1,250 @@
+Cyclara (electrochem-toolkit 0.7): how to use it
+================================================
+
+WHAT IT DOES
+  Opens a battery cycling file in Cyclara, a desktop app for Windows and macOS:
+  an EC-Lab .mpr or .mpt, or the text or Excel export of another cycler (Arbin,
+  Neware, Maccor and the rest). You answer three questions only you can answer,
+  look at every cycle, pick the cycles you want, and export journal-sized figures
+  that pass their checks, every calculated quantity as tables, and an Origin folder.
+
+
+INSTALLING ON WINDOWS (one click; Windows 10 version 1903 or later, or Windows 11, 64-bit)
+  1. Double-click  Cyclara-0.8.0-Setup.exe  and click Next, Install, Finish.
+     No administrator password is asked for and nothing else on the PC is changed:
+     Cyclara, its own Python and everything it needs go into your user folder
+     (about 450 MB), with a Cyclara icon on the Desktop and in the Start menu.
+  2. Windows may show "Windows protected your PC" the first time, because the
+     installer is not signed with a paid certificate. Click "More info", then
+     "Run anyway". That happens once.
+  3. To remove it later: Settings > Apps > Cyclara > Uninstall. Your files and
+     settings are left alone.
+  Optional, for Origin projects: with Origin 2021 or later on this PC, open Cyclara
+  once and choose Help > Set up the Origin link (it installs OriginLab's originpro
+  bridge into Cyclara's own Python; internet needed once). After every export the
+  message then offers "Build Origin project": Origin opens, imports every table,
+  draws the graphs and saves the .opju next to the figures. This works for every
+  cycler's file, not only EC-Lab's. Without the link, the origin folder of each
+  export still holds the tables in Origin's import layout and the build script.
+
+
+INSTALLING ON A MAC (macOS 14 Sonoma or later)
+  1. Download the zip for your Mac: Cyclara-0.8.0-macOS-AppleSilicon.zip for an
+     M1, M2, M3 or M4 Mac, Cyclara-0.8.0-macOS-Intel.zip for an Intel Mac.
+     (Apple menu > About This Mac says which.) Safari unzips it by itself;
+     otherwise double-click the zip.
+  2. Drag Cyclara.app into Applications (or leave it in Downloads).
+  3. First launch only: double-click Cyclara.app. macOS says it "cannot verify"
+     the app, because it is not signed with a paid Apple certificate. Click Done,
+     open System Settings > Privacy & Security, scroll to Security, and click
+     "Open Anyway" next to the Cyclara message. Then open Cyclara.app again and
+     click "Open Anyway" once more. That happens once.
+     (On an older macOS: right-click Cyclara.app and choose Open, then Open.)
+  4. To keep it in the Dock, drag it there. To remove it, drag it to the Bin.
+
+
+INSTALLING FROM THE SOURCE FOLDER INSTEAD (any system with Python 3.12)
+  Unzip the toolkit folder and double-click Setup.bat (Windows) or
+  "Setup (Mac).command" (macOS). This needs Python 3.12 from python.org first
+  and takes about ten minutes; it installs everything into a .venv folder, runs
+  the self-tests and creates the same shortcuts. README.md has the details.
+
+
+EVERY TIME
+  1. Open Cyclara: the Desktop or Start-menu shortcut on Windows, Cyclara.app on
+     a Mac. A short start-up animation plays; click anywhere to skip it.
+     "Try the demonstration" on the home page opens a synthetic 50-cycle cell
+     that shows every step (nothing in it was measured).
+  2. Drag your file onto the window, or click "Open a file". A whole experiment
+     folder works too: every measurement in it is opened, notes and logs are
+     left alone, and a text export whose .mpr is in the same folder is skipped
+     in favour of the .mpr.
+  3. While the file is read, the screen lists each step as it really happens: rows
+     read, columns found, branches segmented, cycles paired.
+     A FILE FROM ANOTHER CYCLER (Arbin, Neware, Maccor, Land, Basytec...): an
+     EC-Lab file is recognised by its signature. Any other text or Excel export
+     is matched against the import profiles Cyclara knows. If one fits, the file
+     opens straight through and the reading screen names the profile. If none
+     fits, a review page shows the first rows of the file and Cyclara's proposal
+     for which column is the time, the current, the potential, the step and the
+     cycle, with the unit it read from each header. You confirm or correct the
+     columns, then answer what no file can state about itself: which sign of the
+     current means charging (or that the current is unsigned and the step type
+     says), what the capacity columns accumulate, and a line of evidence (where
+     you checked). "Check" reads the whole file with those settings and reports
+     whether the instrument's own capacity counter agrees with the integral of
+     the current; only a passing check unlocks "Use these settings". Tick
+     "Remember this instrument" and every later file from it opens without
+     questions, whatever columns, order, units or sheet name the next export
+     dialog chose: only the time, current and potential columns need to keep
+     their names. If one of those three was renamed, the review page opens
+     again with everything filled in from the saved profile; choose that one
+     column, check, and the profile moves on. docs/P08d_Instrument_Compatibility_Matrix.md says which
+     instruments were checked on real files.
+     Binary files from other makers (.res, .nda, .ndax) are not read: export
+     them as text or Excel from the instrument's software first.
+  4. On the right, answer the three questions:
+       a. Which current direction charges the cell?
+          Positive current charges = oxidation at the working electrode (usual for a
+          positive electrode against Li metal).
+          If the file then starts with a discharge, one more question appears: does each
+          cycle start with a charge or a discharge? (Discharge first is usual for a cell
+          assembled in the charged state.)
+       b. What does the potential column measure?
+          Half-cell: type the reference, for example  Li+/Li
+          Full cell: the two-electrode cell voltage.
+       c. The active-material mass in mg (active material only, not the whole electrode).
+          If the EC-Lab header holds a mass, click "Use ... mg from the header".
+          EC-Lab's empty-field default of 0.001 mg is never offered.
+          No mass (a full cell, for example): click "No mass". Capacities then stay in
+          mAh, or per cm2 if you give the electrode area under "Optional details".
+     Each card says what the answer unlocks. Ctrl+Z undoes any answer.
+  5. The pill at the top right says how many answers are still needed. When it says
+     "Ready to export", every value is available.
+  6. Look around: Overview, Profiles, Capacity, dQ/dE, Evolution (every cycle's dQ/dE as a
+     colour map or a waterfall), Voltage, Timeline, Data.
+     Hover any curve: the measured point is read out under the plot.
+  7. Pick cycles on the strip under the plots (one bar per cycle, height = discharge
+     capacity, the coloured bars are the selected cycles in their curve colours):
+       click a bar        add or remove that cycle
+       drag across bars   select a range
+       double-click       focus a cycle (drawn thicker, its values on the right)
+       or type in the box:  1, 2, 5:10, -1     (-1 is the last cycle)
+  8. Click "Figures". Each figure is drawn at its real journal size, with its checks
+     beside it (size, type size, nothing cut or overlapping, legends clear of data,
+     line weights, colour contrast, font). Choose Nature or Elsevier rules.
+  9. Click "Export". Choose where; a new folder <file name>_analysis is created
+     there. Nothing is ever overwritten: a second export goes to _analysis_2.
+  10. When it finishes, click "Open folder". If Origin is installed, click
+      "Build Origin project" too (the first time it says "Set up Origin link":
+      one click, once, then export again).
+
+  Large files: an EC-Lab export of a million rows opens in a few seconds (the data block
+  is read by numpy; the token-by-token reader is used only when a file holds something
+  unusual, and gives the same numbers). Exports from other cyclers are read in chunks with
+  the progress shown on the reading screen; a million-row CSV takes about ten seconds, a
+  million-row Excel workbook about two minutes (Excel parsing is the limit: export CSV when
+  you can). Files up to 2 GB are accepted; the memory needed is about the file's size plus
+  the columns in use. Plots of more than 100 000 rows are drawn downsampled on screen;
+  every number is calculated from the full data.
+  Help > How the numbers are calculated explains every quantity Cyclara reports
+  (capacity, energy, average potential, efficiency, retention, dQ/dE, peaks and
+  plateaus, C-rate, the basis...) in plain words and then in full, with the
+  settings of the open file filled in; "Copy a methods paragraph" gives a
+  paragraph for a manuscript written from those settings, ending with the
+  reference. Help > Cite Cyclara copies the citation as a reference-list entry,
+  BibTeX, CITATION.cff or a methods sentence.
+  Help > Check this installation runs the toolkit's own self-tests on this
+  computer (a few minutes) and says in plain words whether everything passed.
+  Help > Show the error log opens the file Cyclara writes to when it has no
+  console (%LOCALAPPDATA%\Cyclara\cyclara.log on Windows,
+  ~/Library/Logs/Cyclara/cyclara.log on a Mac); send it with a problem report.
+  Ctrl+K (Command+K on a Mac) searches every action by name. F1 shows a short guide.
+  Ctrl+J (Command+J), or the chevron at the right of the table tabs, folds the tables under
+  the plots away and back. On a small screen (a laptop at 150 % scaling) they start folded and
+  the Overview shows its panels side by side; nothing is cut off from 1024 x 600 points up.
+  Animations follow your system's "reduce motion" setting; View > Motion turns them
+  down or off.
+  The app remembers your answers for the same file (the same bytes) next time.
+
+
+THE OLD ONE-WINDOW VERSION
+  Analyse.bat still opens the simple window from version 0.5, if you prefer it.
+
+
+WHAT IS IN THE RESULTS FOLDER
+  summary.json                    headline numbers (first-cycle capacity, CE, retention,
+                                  fade per cycle, mean CE, hysteresis, utilisation...)
+  cycles.csv                      one row per cycle: capacities, CE, retention, average
+                                  potentials, hysteresis, energy, C-rate, Δx, OCVs...
+  branches.csv                    one row per charge or discharge half-cycle
+  rests.csv                       every rest: duration, potential drift
+  curves_potential_capacity.csv   the plotted curves at full resolution
+  dqde_curves.csv                 differential capacity of the plotted cycles
+  dqde_peaks.csv                  every cycle's dQ/dE peaks: potential, height, width, the capacity
+                                  under each peak and its share, the partner peak in the opposite
+                                  branch (pairing within 200 mV, separation, mid-point) or "unpaired",
+                                  and the cycles in which the peak is seen ("first cycle only",
+                                  "appears from cycle k")
+  dqde_pairs.csv                  one row per charge/discharge peak pair and cycle
+  dqde_map.csv                    dQ/dE of every cycle on one potential grid (the evolution map)
+  metadata.json                   everything the EC-Lab header declares
+  settings.json                   what was done, with which conventions (keep with the data)
+  fig1_potential_capacity  .pdf .svg .png     potential vs. capacity, selected cycles
+  fig2_capacity_efficiency .pdf .svg .png     capacity and coulombic efficiency vs. cycle
+  fig3_dqde                .pdf .svg .png     dQ/dE, potential on the vertical axis
+  fig4_average_voltage     .pdf .svg .png     average potentials and hysteresis
+  fig5_overview_time       .pdf .svg .png     potential and current vs. time
+  fig6_dqde_map            .pdf .svg .png     dQ/dE of every cycle as a colour map, charge and discharge
+  fig7_dqde_surface        .pdf .svg .png     the same as two 3D surfaces, cycle number as depth
+  fig_summary              .pdf .svg .png     four-panel figure (a to d), double column
+  origin\<filename>.opju            the Origin project (if Origin is installed)
+  origin\*.csv                      the same tables in Origin's import layout
+
+  The PDF and SVG figures are vector files with editable text: open in Illustrator,
+  Inkscape or Origin. The .opju opens in Origin like any project: double-click an
+  axis, curve or legend to change it.
+
+
+COMMAND LINE (optional, same result)
+  Open PowerShell in the toolkit folder and run, for example:
+    .\.venv\Scripts\python.exe -m electrochem.analyze data\demo\cyclara_demo_synthetic.mpt --charge ox --reference "Li+/Li" --mass-mg 5 --molar-mass 214.4 --electrons 1 --cycles 1,2,5,10,50 --plots all
+  With the one-click installation the same command is
+    & "$env:LOCALAPPDATA\Programs\Cyclara\Cyclara.exe" -m electrochem.analyze <file> ...
+  Add --profile NAME for a file from another cycler, or --propose to see the mapping it would use.
+  (that file is synthetic, made for trying the toolkit: data\demo\README.txt). Add
+  --build-origin for the Origin project.
+  Type  .\.venv\Scripts\python.exe -m electrochem.analyze --help  for all options.
+
+
+IF SOMETHING GOES WRONG
+  - "... is impedance spectroscopy" / "no galvanostatic step" / "recorded with 'Cyclic
+    Voltammetry'": the file is not a cycling measurement. This version analyses GCPL/CC/CCCV
+    only.
+  - "The .mpr reader is not installed": only with the source-folder installation, when Git
+    was missing when Setup.bat ran. Install Git and run Setup.bat again, or export the
+    measurement as .mpt from EC-Lab. The one-click installers carry the reader.
+  - "Cyclara stopped with an error": the message names the log file; Help > Show the error
+    log opens it. Send it with Help > Report a problem.
+  - A file from a remembered cycler opens the review page again: one of its time, current or
+    potential columns was renamed by the export dialog (other columns, units and sheet names
+    do not matter). The page is filled in from the saved profile; choose that one column, check
+    and tick "Remember this instrument" once more.
+  - "No EC-Lab header found next to this file": an .mpr alone does not carry the mass. Keep
+    the .mpt export in the same folder, or type the mass yourself.
+  - Decimal commas (French or German Windows exports) are detected automatically.
+  - "Run Setup.bat first": Analyse.bat was started before Setup.bat, or from a copy of
+    the folder without the .venv folder.
+  - The Origin step says originpro is not installed: Origin is missing, or run
+        py -3.12 -m pip install originpro
+    The figures and tables are complete regardless; only the .opju is affected.
+  - Origin opens and closes by itself during the build: that is normal. It opens,
+    builds, saves and quits. Open the .opju afterwards.
+  - Wrong capacities: check the mass field against the header value shown in the window.
+  - The mass, reference and charge sign are never guessed from the file. If they are
+    wrong, the numbers are wrong. Keep settings.json with the results so the
+    conventions are recorded.
+
+
+CREDIT
+  electrochem-toolkit was created by Aswadh Shyma Sajeevan and is released under the
+  GPL-3.0-or-later licence. Please keep this notice when sharing it and cite it
+  (Help > Cite Cyclara, or CITATION.cff) if it contributes to a publication.
+
+
+CONVENTIONS USED
+  capacity              charge passed in one branch (mAh); specific = per gram of active material
+  coulombic efficiency  100 x Q_discharge / Q_charge of the same cycle
+  capacity retention    100 x Q_discharge(n) / Q_discharge(reference cycle)
+  average voltage       energy / charge of the branch
+  hysteresis            average charge voltage minus average discharge voltage
+  dQ/dE                 finite difference on a 10 mV potential grid; charge positive, discharge negative
+  dQ/dE peaks           prominence >= 5 % of the branch maximum, up to 6 per branch; the capacity under a
+                        peak runs from valley to valley; a charge peak is paired with the nearest discharge
+                        peak of the same cycle within 200 mV (--peak-pair-window-mv); a peak with no partner
+                        is reported as unpaired, never as "irreversible": that conclusion is yours
+  several plateaus      the average potential of a branch is the capacity-weighted mean of its plateau
+                        potentials (energy / charge); each plateau's own potential and capacity are in
+                        dqde_peaks.csv
+  C-rate                current / (theoretical capacity x mass), with your electron count
+  half-cell energies    per gram of active material, vs. the reference electrode (not a cell energy)

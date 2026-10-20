@@ -1,4 +1,4 @@
-# M01 — Battery cycling: scientific and numerical contract
+# M01: battery cycling, scientific and numerical contract
 
 Version 0.1 | 10 September 2026 | P00 cycling subset
 
@@ -158,3 +158,87 @@ Evidence now: source sections inspected; R01–R14 reference checks executed, as
 | Matched MPR/MPT with EC-Lab settings | Declared parser matrix, pairing checks and explained counter discrepancies |
 
 No native-file compatibility, real-data segmentation, end-to-end application tests, Windows packaging, or experimental validation has occurred in this package.
+
+## 9. dQ/dE peaks, pairing and plateau descriptors (P14, 20 October 2026)
+
+**Status:** implemented in `electrochem/differential.py` (`peak_search`, `peak_windows`, `peak_charges`, `pair_peaks`, `track_peaks`, `plateau_analysis`), wired into `workflow.Run.plateaus()` and the export; tested against a synthetic cell whose answers are known by construction (`tests/plateau_cell.py`, `tests/test_plateaus.py`) and smoke-tested on the demonstration file and the public formation file. Not experimentally validated: no measured cell with independently established plateau capacities has been analysed.
+
+### 9.1 Purpose
+
+Describe the measured dQ/dE curve of each branch when it has several plateaus (for example three or four that return on discharge and two or three that do not): where each peak sits, how much charge it holds, which charge and discharge peaks of a cycle lie close together, and in which cycles a peak is present. These are descriptors of the measured curve at the applied current, temperature and state of the cell. The software never infers a mechanism from them and never labels a peak "reversible" or "irreversible"; it states what the data show.
+
+### 9.2 Symbols and units
+
+| Symbol | Meaning | Unit |
+|---|---|---|
+| Δ | bin width of the potential grid (`dqde_mv`, default 10 mV) | V |
+| E_j | grid node j of one branch, E_j = E_min,b + jΔ, inside the measured range of the branch | V |
+| Q_j | branch capacity interpolated at E_j, on the capacity basis of `cycling.capacity_basis` (mAh, mAh/g or mAh/cm2) | mAh, mAh g⁻¹, mAh cm⁻² |
+| y_j | (dQ/dE)_j; charge branches positive, discharge branches negative | basis per V |
+| f | prominence threshold as a fraction of max_j abs(y_j) (`MIN_PROMINENCE_FRACTION`, 0.05) | 1 |
+| N_max | peaks kept per branch, the most prominent (`MAX_PEAKS`, 6) | 1 |
+| w | pairing and tracking window (`Settings.peak_pair_window_mV`, default 200 mV; `analyse_file(..., peak_pair_window_mV=)` overrides it in the run's copy of the settings) | mV |
+| E_p,k | potential of peak k (a grid node) | V |
+| Q_k | capacity under peak k | basis |
+| s_k | share of the branch, 100 Q_k / Q_curve | % |
+| Q_curve | capacity spanned by the dQ/dE curve, abs(Q_J − Q_0): the branch capacity outside constant-voltage stages | basis |
+| ΔE_pair | separation of a pair, E_p(charge) − E_p(discharge) | mV |
+| E_mid | apparent mid-point of a pair, (E_p(charge) + E_p(discharge)) / 2 | V |
+
+### 9.3 Equations and numerical procedure
+
+1. **dQ/dE** (unchanged from 0.7.0): within one branch, rows recorded in constant-voltage mode are removed (dE is zero there), the remaining rows are sorted by potential, Q is linearly interpolated at E_j, and y_j is `numpy.gradient(Q, E)`: (Q_(j+1) − Q_(j−1)) / (2Δ) inside, one-sided differences at the two ends. The bin width is the only smoothing.
+2. **Peaks:** `scipy.signal.find_peaks` on abs(y_j) with prominence ≥ f · max abs(y) and width ≥ 1 node; the N_max most prominent are kept and numbered in order of potential. The number found before the cap is kept (`peaks_found`); a capped branch is marked (`capped`, `peaks_note`).
+3. **Charge under a peak:** Q_k = abs(Q(E_hi,k) − Q(E_lo,k)), with Q the interpolated grid capacity of step 1 (so the shares of all peaks never exceed 100 %). Boundary rule: between two neighbouring reported peaks, the node of lowest abs(y) between them (the first such node on a tie), shared by both peaks, so windows neither overlap nor leave a gap; outside the outermost peaks, the node of lowest abs(y) between the peak and the curve end (the node nearest the peak on a tie). Capacity before the first boundary or after the last belongs to no peak and is not reported as one. s_k = 100 Q_k / Q_curve.
+4. **Pairing within a cycle:** every combination of a charge peak c and a discharge peak d of the same cycle with abs(E_p,c − E_p,d) ≤ w (inclusive) is a candidate; candidates are taken in order of increasing abs(E_p,c − E_p,d) (ties: lower charge potential, then lower discharge potential) and kept when neither peak is already used. ΔE_pair = E_p,c − E_p,d; E_mid = (E_p,c + E_p,d) / 2. Pairing by proximity is a convention: it does not establish that two peaks belong to one process, and E_mid is not a formal or equilibrium potential.
+5. **Presence across cycles:** for each direction, cycles are visited in increasing order; a peak joins the track whose most recent potential is nearest, within w, greedy by smallest shift, one peak per track per cycle; a peak that joins none starts a new track; tracks survive cycles in which they have no peak. Each peak is then described by its track over the analysed cycles: "seen in cycles a-b" (ranges run through consecutive analysed cycles), "first cycle only" (in the first analysed cycle and in no later one), "appears from cycle k" (the track starts after the first analysed cycle), or "one cycle analysed".
+6. **Branch mean potential (unchanged):** Ē_b = W_b / Q_b = ∫E dQ / ∫dQ over the whole branch (M01.05), the charge-weighted mean potential. When a branch consists of plateaus i at E_i with capacities Q_i, Ē_b = Σ Q_i E_i / Σ Q_i; sloping regions enter with their own capacity. No other mean is formed from the peak potentials: averaging peak potentials, with or without weights, is not a substitute for Ē_b, and the software does not report one.
+
+### 9.4 How several plateaus are reported
+
+- **Each plateau's potential:** the peak potential E_p,k of its branch, a descriptor at the applied rate. A per-plateau "mean potential" is not computed: within a plateau the potential is the peak region of dQ/dE, and the branch mean of item 6 already weights every plateau by its capacity.
+- **Peaks that do not return:** a charge peak with no discharge peak within w in the same cycle is reported `unpaired` with the note "no counterpart within 200 mV in the discharge of the same cycle"; a peak present only in the first analysed cycle is reported "first cycle only"; the `summary.json` block `plateaus` lists both for the reference cycle. These words are what the data show. Possible reasons include a process that does not reverse, a counterpart shifted beyond w by polarisation, a counterpart merged with a neighbour, a counterpart inside a constant-voltage stage (no dQ/dE there) or below the prominence threshold; the researcher decides.
+
+### 9.5 Settings and outputs
+
+Settings: `dqde_mv` (Run, default 10 mV), `Settings.peak_pair_window_mV` (default 200 mV), `MIN_PROMINENCE_FRACTION` 0.05, `MAX_PEAKS` 6; all four are written to `settings.json` under `differential`, the window also under `settings`, and the rules under `methods` (`dqde_peaks`, `dqde_peak_charge`, `dqde_pairs`, `dqde_presence`, `average_voltage`).
+
+Tables (every cycle; `dqde_curves.csv` keeps the plotted cycles):
+
+- `dqde_peaks.csv`: cycle, branch, direction, peak, voltage_V, dqdv, prominence, width_V, basis, bin_mV (the 0.7.0 columns, first), then charge, charge_unit, share_of_branch_pct, curve_capacity, window_low_V, window_high_V, partner_voltage_V, separation_mV, midpoint_V, pairing, pairing_note, pair_window_mV, track, cycles_seen, evolution, peaks_found, peaks_reported, capped, peaks_note.
+- `dqde_pairs.csv`: cycle, pair, charge_peak, discharge_peak, charge_voltage_V, discharge_voltage_V, separation_mV, midpoint_V, charge_capacity, discharge_capacity, capacity_unit, pair_window_mV, bin_mV.
+- `summary.json` → `plateaus`: cycle, pair_window_mV, bin_mV, pairs, pair_potentials_V, unpaired_peaks, first_cycle_only_peaks, peaks_appearing_later, capped_branches, note (and notes when the analysis has any).
+- `origin/dqde_peaks.csv`, `origin/dqde_pairs.csv`: the same tables in Origin's three-header layout.
+
+### 9.6 Assumptions, failure conditions and limitations
+
+- Peak potentials depend on current, temperature, electrode polarisation and state of health; ΔE_pair contains ohmic, kinetic and any thermodynamic hysteresis together and is not a kinetic parameter.
+- Pairing by proximity is a convention. With w larger than the spacing of neighbouring peaks, a peak can pair with, or be followed into, the wrong neighbour; with w smaller than the hysteresis nothing pairs (the notes then say "no charge peak has a discharge peak within w mV in any analysed cycle").
+- A plateau split by a rest, a current change or a step boundary appears as two peaks; constant-voltage stages carry no dQ/dE, so capacity passed there has no peak.
+- Plateaus closer than about two bins merge into one peak; peak potentials are grid nodes, so they are known to within half a bin.
+- The charge under a peak includes the sloping (background) capacity inside its window; for a small peak on a large background this can be several per cent of its value (5 % for the 0.04 mAh plateau of the test cell).
+- The cap N_max drops the least prominent peaks; their capacity then falls into a neighbouring peak's window. A capped branch is marked in the table and in the summary.
+- "First cycle only" and "appears from cycle k" are judged over the analysed cycles: the tables cover every cycle of the file so that this is the whole record.
+- Failure conditions: a branch with fewer than four points outside constant-voltage stages, or a grid of fewer than three nodes, has no curve and so no peaks; a file whose charging direction is not stated has no cycles and no peak tables.
+
+### 9.7 Verification (software tests, not experimental validation)
+
+`tests/plateau_cell.py` builds Q(E) as a sum of logistic steps (Q_i at E_i, scale 12 mV) plus a linear background, with plateau centres between grid nodes, samples it at constant current with instrument-like time stamps and a partial last interval, and writes an EC-Lab text export. Checked in `tests/test_plateaus.py`: one peak per plateau within one bin; pair separations of 60 mV within one bin and mid-points at the constructed centres; the 4.10 V first-charge plateau unpaired with the exact note and "first cycle only"; the 2.65 V plateau "appears from cycle 3" in both directions; each Q_k equal to Q_i plus the background in its window within 1 % (main plateaus within 3 % of Q_i); branch means equal to the constructed ∫E dQ / Q within 0.2 mV and to Σ Q_i E_i / Σ Q_i within 3 mV; the reported Q_k and E_p,k reproduce the branch mean within 3 mV; a 50 mV window pairs nothing and says so; a cap of two peaks is stated; the exported tables, summary block, settings and Origin tables. Pure functions are checked on hand-made inputs (greedy pairing order and tie rule, inclusive window, peak areas of two Gaussians, tracking through drift and a gap). Two deliberate mutations (pairing order, charge scaled by 4 %) were confirmed to fail these tests.
+
+## 10. dQ/dE evolution map and surface (P14)
+
+**Status:** implemented (`differential.evolution_grid`, `plotting.fig6_dqde_map`, `plotting.fig7_dqde_surface`, `studio.views.EvolutionView`, `dqde_map.csv`) and tested; display only, no new quantity.
+
+**Purpose:** show how the dQ/dE curves change from cycle to cycle: peaks that persist, drift, grow, fade, appear or disappear.
+
+**Grid (equation):** for one direction, nodes E'_j = jΔ (integer multiples of the bin width) from the lowest to the highest potential of any curve; for each cycle n, D_n(E'_j) = linear interpolation of that branch's dQ/dE curve at E'_j when E'_j lies inside the branch's own grid, and NaN otherwise. A branch's own nodes start at its lowest measured potential, so the common grid moves each value by less than one bin; that is the only change. Rows are cycles in increasing order; `DqdeGrid.filled()` inserts NaN rows for missing cycles so every row sits at its cycle number. Peak tables never use this grid.
+
+**Figures:** figure 6 (`fig6_dqde_map`, 1.5 column) draws abs(D) as cells one cycle high and one bin wide, charge (a) and discharge (b) on one shared colour scale and one shared potential scale (the union of the two directions' ranges, so a pair lines up vertically; beyond a direction's measured range the panel is grey, as not measured; main session, same day), colour map `magma_r` (sequential; CIELAB lightness falls monotonically from 98 to 0, so zero is paper-light and readable in greyscale and with colour-vision deficiencies), grey (#D9D9D9) where a branch was not measured. Figure 7 (`fig7_dqde_surface`, double column) draws the same values as two 3D surfaces with cycle number as the depth axis, height and colour both abs(D), on the same potential range in both panels, the height named on the first panel and by the colour bar, elevation 26°, azimuth −58°: charge and discharge are separate panels because, in one box, the flat zero region of one surface hides the peaks of the other. Every potential node is drawn; above 120 cycles every k-th cycle is drawn and the figure says so. Values in a.u. are divided by the common maximum of both directions; "real" keeps mAh/V per g or per cm2. Surfaces and meshes are rasterised at 600 dpi inside vector PDF/SVG; text stays editable. Option `ExportOptions.evolution_cycles`: "all" (default) or "selected".
+
+**Table:** `dqde_map.csv`: a header row (cycle, direction, basis, then one column per node potential in V) and one row per cycle and direction, signed real units (discharge negative), empty where not measured.
+
+**App:** `EvolutionView` shows the map of every cycle for the chosen direction (colour bar in real units, the focused cycle as a dashed line, a click focuses a cycle) or a waterfall of the selected cycles' own curves offset by rank; the readout under the cursor gives the stored value (the grid node in map mode, the curve point in waterfall mode), never a display-derived number.
+
+**Figure checks for 3D axes:** `check_figure` keeps its twelve checks. For a 3D axes, tick labels are read where the 3D axis drew them (calling `Axis._update_ticks()` would move them back to 2D positions and corrupt their extents); "data inside the axes" compares the recorded data limits with the x, y and z limits (a 3D axes does not clip); "line weights" includes 3D axis lines, pane edges, grid and tick strokes; text and legend checks act on the projected drawing in display space (depth occlusion is not considered). "Colour contrast" now also checks every colour map in the figure: lightness monotonic for a sequential scale, monotonic outwards from zero on both sides for a diverging one (warn otherwise). Overlap of obliquely rotated labels is tested on their own rotated rectangles, not their axis-aligned boxes. A check that cannot be evaluated returns status "skip" with "not evaluated: reason" (none does with matplotlib 3.11).
+
+**Limitations:** the colour scale is linear, so small peaks are faint beside large ones (read them in the tables); a 3D view hides what lies behind a ridge and makes values hard to read, so numbers come from the tables, the map readout or `dqde_map.csv`; a cycle drawn as a row of cells does not imply anything about unrecorded cycles (they stay grey).

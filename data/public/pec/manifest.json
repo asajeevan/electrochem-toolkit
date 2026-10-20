@@ -1,0 +1,30 @@
+[
+  {
+    "file": "pec_first_cycle.csv",
+    "sha256": "b70026d7f0057f04e430a2e0833609cd5ed6b6e00d7a04af02e0e44954efd4ef",
+    "bytes": 1988193,
+    "source_repository": "https://github.com/jepegit/cellpy",
+    "commit": "29d916cb08e919a8bcd80f90892b906e8db49f2e",
+    "source_path": "testdata/data/pec.csv",
+    "source_sha256": "afaf1ed3fa66bb4ef0722cfe143a76061918aaed39399b7060f9654d7fde094d",
+    "source_bytes": 2798037,
+    "license": "MIT",
+    "license_file": "LICENSE-cellpy.txt",
+    "modification": "truncated: the first 11411 lines of 16288 kept byte for byte, nothing else changed",
+    "readable_by_this_version": true
+  },
+  {
+    "file": "Test25205.csv",
+    "sha256": "0c563462285bdac43e383bd43004a9c2ae89d62ea959befd1b184cde15d7ed77",
+    "bytes": 113316,
+    "source_repository": "https://github.com/jepegit/cellpy",
+    "commit": "29d916cb08e919a8bcd80f90892b906e8db49f2e",
+    "source_path": "testdata/data/pec_multiple_tests/Test25205.csv",
+    "source_sha256": "0c563462285bdac43e383bd43004a9c2ae89d62ea959befd1b184cde15d7ed77",
+    "source_bytes": 113316,
+    "license": "MIT",
+    "license_file": "LICENSE-cellpy.txt",
+    "modification": "unmodified copy",
+    "readable_by_this_version": true
+  }
+]

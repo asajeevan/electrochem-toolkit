@@ -4,7 +4,7 @@ Revision 0.1 | Inspected 10 September 2026 | Scope: M01, not a full electrochemi
 
 The identifiers C01–C06 are new and do not overwrite S01–S19 in the earlier theory document. “Inspected” below means the specified material was actually accessed, not that the complete work was read. Numerical reconstruction and software policies in M01 are explicitly project derivations/decisions, not quotations from these sources.
 
-## C01 — Current, charge and nonfaradaic contributions
+## C01: Current, charge and nonfaradaic contributions
 
 Allen J. Bard, Larry R. Faulkner and Henry S. White, *Electrochemical Methods: Fundamentals and Applications*, third edition, Wiley, 2022. User-supplied PDF, 1107 PDF pages.
 
@@ -16,7 +16,7 @@ Allen J. Bard, Larry R. Faulkner and Henry S. White, *Electrochemical Methods: F
 - Source identity: `libfile_430c6b1487488191ba663c27bcc64dd8`.
 - Update check: a targeted errata search did not resolve an authoritative errata list. Do not claim that no corrections exist. Selected elementary relations were also checked algebraically and against C02. Book-wide review remains outside this package.
 
-## C02 — Battery descriptor definitions and an identified source error
+## C02: Battery descriptor definitions and an identified source error
 
 BioLogic, [Battery science: Interactive glossary of terms](https://www.biologic.net/topics/interactive-battery-science-glossary-of-terms/). Page states updated 15 November 2024.
 
@@ -26,31 +26,31 @@ BioLogic, [Battery science: Interactive glossary of terms](https://www.biologic.
 - The variable-current/voltage energy integral is used; isolated constant-signal product expressions do not justify multiplying unrelated means.
 - No full-page endorsement: other glossary statements and examples were not independently validated. No correction notice for C02-D1 was established in this review.
 
-## C03 — Instrument quantities versus saved observations
+## C03: Instrument quantities versus saved observations
 
 BioLogic, [Data of interest – work more efficiently](https://www.biologic.net/topics/data-of-interest-getting-the-most-out-of-your-blue-box/). Page states updated 18 November 2024.
 
 Inspected “Accuracy and autonomy,” the variable-process table and cycle-processing discussion. It distinguishes the instrument calculation time base from the recording rate and describes per-cycle charge counters. This supports retaining instrument and reconstructed quantities independently. It does not establish counter fields, endpoint semantics or timing for every instrument/firmware/technique. TN38 is referenced by the page but was not obtained; record it as identified only. Do not use its abbreviated constant-power energy table as a universal integration algorithm.
 
-## C04 — Recording information loss, corroborating manufacturer context
+## C04: Recording information loss, corroborating manufacturer context
 
 BioLogic, [What is a battery cycler?](https://www.biologic.net/topics/what-is-a-battery-cycler/). Page states updated 6 June 2025.
 
 Inspected “Value of interest calculation” and surrounding analysis discussion. Describes hardware calculation before software sampling. Use only as corroboration of recording information loss, not as an accuracy guarantee for a user's instrument or a fixed internal sampling rate for all devices. The difference in example time bases between C03 and C04 reinforces the need for device-specific verification.
 
-## C05 — Numerical integration interface
+## C05: Numerical integration interface
 
 [SciPy integrate.trapezoid documentation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.trapezoid.html), fetched page identifies SciPy 1.18.0.
 
 Inspected API definition, treatment of supplied coordinates, and decreasing-coordinate example. The function processes coordinates in their supplied order without sorting. It does not validate electrochemical continuity. M01's segmentation/gap rules must run before integration. This review does not select or install that SciPy release; the reference-audit script uses only Python's standard library. The product-of-linear-signals energy expression is independently derived in M01 rather than attributed to SciPy.
 
-## C06 — Measurement uncertainty
+## C06: Measurement uncertainty
 
 NIST, [Technical Note 1297, Appendix A: Law of Propagation of Uncertainty](https://www.nist.gov/pml/nist-technical-note-1297/nist-tn-1297-appendix-law-propagation-uncertainty). Page states updated 11 September 2025.
 
 Inspected A.1–A.3, especially equation A-3 and its first-order approximation/covariance qualification. M01 applies this to integrated charge and ratios; the explicit ratio gradients and common-mass cancellation are derived here. No uncertainty is invented when measurement information is absent. This source does not supply an EC-Lab calibration budget.
 
-## C07 — Supplied voltammetry article, reserved for a later package
+## C07: Supplied voltammetry article, reserved for a later package
 
 Rafael A. L. Chioquetti, João V. S. Vital and Silvia H. P. Serrano, [Understanding the mathematics of voltammetry: a step-by-step guide](https://link.springer.com/article/10.1007/s40828-026-00224-y), *ChemTexts* 12, 14 (2026), DOI 10.1007/s40828-026-00224-y.
 

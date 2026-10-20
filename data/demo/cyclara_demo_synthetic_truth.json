@@ -1,0 +1,307 @@
+{
+ "note": "Per-cycle charges of the synthetic file: sums of its dq/mA.h column. Not a measurement.",
+ "mass_mg": 5.0,
+ "theoretical_capacity_mAh_g": 125.0069083229685,
+ "cycles": [
+  {
+   "cycle": 1,
+   "charge_mAh": 0.6677338616787206,
+   "discharge_mAh": 0.5864474656451922,
+   "coulombic_efficiency_pct": 87.82652779819047
+  },
+  {
+   "cycle": 2,
+   "charge_mAh": 0.5898518549836641,
+   "discharge_mAh": 0.5865370332312981,
+   "coulombic_efficiency_pct": 99.43802469647946
+  },
+  {
+   "cycle": 3,
+   "charge_mAh": 0.5882497108930588,
+   "discharge_mAh": 0.5851698098718523,
+   "coulombic_efficiency_pct": 99.47642965832814
+  },
+  {
+   "cycle": 4,
+   "charge_mAh": 0.5862268200380174,
+   "discharge_mAh": 0.5833425441474881,
+   "coulombic_efficiency_pct": 99.50799318762962
+  },
+  {
+   "cycle": 5,
+   "charge_mAh": 0.5822037718391094,
+   "discharge_mAh": 0.5796223518498284,
+   "coulombic_efficiency_pct": 99.55661228694437
+  },
+  {
+   "cycle": 6,
+   "charge_mAh": 0.5838300613399418,
+   "discharge_mAh": 0.5810610874558206,
+   "coulombic_efficiency_pct": 99.52572262590144
+  },
+  {
+   "cycle": 7,
+   "charge_mAh": 0.5816583669535369,
+   "discharge_mAh": 0.5794378729103699,
+   "coulombic_efficiency_pct": 99.6182477259294
+  },
+  {
+   "cycle": 8,
+   "charge_mAh": 0.5794110006662588,
+   "discharge_mAh": 0.5770869343795332,
+   "coulombic_efficiency_pct": 99.59889158403045
+  },
+  {
+   "cycle": 9,
+   "charge_mAh": 0.5821877265515069,
+   "discharge_mAh": 0.5797132430729042,
+   "coulombic_efficiency_pct": 99.5749681132476
+  },
+  {
+   "cycle": 10,
+   "charge_mAh": 0.5793389086951106,
+   "discharge_mAh": 0.5771827815965054,
+   "coulombic_efficiency_pct": 99.6278297441714
+  },
+  {
+   "cycle": 11,
+   "charge_mAh": 0.577439449729326,
+   "discharge_mAh": 0.5754050130430008,
+   "coulombic_efficiency_pct": 99.64767965069258
+  },
+  {
+   "cycle": 12,
+   "charge_mAh": 0.5768791264161381,
+   "discharge_mAh": 0.5749768063188464,
+   "coulombic_efficiency_pct": 99.6702393950168
+  },
+  {
+   "cycle": 13,
+   "charge_mAh": 0.5742497489145781,
+   "discharge_mAh": 0.572647596983204,
+   "coulombic_efficiency_pct": 99.72100084773176
+  },
+  {
+   "cycle": 14,
+   "charge_mAh": 0.5741994615401704,
+   "discharge_mAh": 0.5723174339399555,
+   "coulombic_efficiency_pct": 99.67223452366765
+  },
+  {
+   "cycle": 15,
+   "charge_mAh": 0.5735074128452077,
+   "discharge_mAh": 0.5715999169526896,
+   "coulombic_efficiency_pct": 99.66739821494986
+  },
+  {
+   "cycle": 16,
+   "charge_mAh": 0.5726677204288153,
+   "discharge_mAh": 0.5706331279690591,
+   "coulombic_efficiency_pct": 99.64471675507872
+  },
+  {
+   "cycle": 17,
+   "charge_mAh": 0.5737613387305567,
+   "discharge_mAh": 0.5719740099106513,
+   "coulombic_efficiency_pct": 99.6884891505831
+  },
+  {
+   "cycle": 18,
+   "charge_mAh": 0.5681987557237507,
+   "discharge_mAh": 0.5665022580059972,
+   "coulombic_efficiency_pct": 99.70142530220916
+  },
+  {
+   "cycle": 19,
+   "charge_mAh": 0.5692753499828721,
+   "discharge_mAh": 0.5673692530027651,
+   "coulombic_efficiency_pct": 99.66517134807184
+  },
+  {
+   "cycle": 20,
+   "charge_mAh": 0.5681127998976351,
+   "discharge_mAh": 0.5661369192908209,
+   "coulombic_efficiency_pct": 99.65220276551237
+  },
+  {
+   "cycle": 21,
+   "charge_mAh": 0.5674667508669117,
+   "discharge_mAh": 0.565824597288074,
+   "coulombic_efficiency_pct": 99.71061677599103
+  },
+  {
+   "cycle": 22,
+   "charge_mAh": 0.5649559517739776,
+   "discharge_mAh": 0.5632314885715479,
+   "coulombic_efficiency_pct": 99.69476147706474
+  },
+  {
+   "cycle": 23,
+   "charge_mAh": 0.5656334237157109,
+   "discharge_mAh": 0.5640790864157471,
+   "coulombic_efficiency_pct": 99.72520412783369
+  },
+  {
+   "cycle": 24,
+   "charge_mAh": 0.564380848454776,
+   "discharge_mAh": 0.5626555088304583,
+   "coulombic_efficiency_pct": 99.69429515033306
+  },
+  {
+   "cycle": 25,
+   "charge_mAh": 0.5635327570745092,
+   "discharge_mAh": 0.5618003210493925,
+   "coulombic_efficiency_pct": 99.69257580799555
+  },
+  {
+   "cycle": 26,
+   "charge_mAh": 0.5616279924657791,
+   "discharge_mAh": 0.559996047118375,
+   "coulombic_efficiency_pct": 99.70942592440254
+  },
+  {
+   "cycle": 27,
+   "charge_mAh": 0.5589425848246485,
+   "discharge_mAh": 0.5572640947938524,
+   "coulombic_efficiency_pct": 99.69970260338587
+  },
+  {
+   "cycle": 28,
+   "charge_mAh": 0.5598116335603888,
+   "discharge_mAh": 0.5579187941424892,
+   "coulombic_efficiency_pct": 99.66187922786436
+  },
+  {
+   "cycle": 29,
+   "charge_mAh": 0.5611715563581368,
+   "discharge_mAh": 0.5594789311129459,
+   "coulombic_efficiency_pct": 99.69837650785874
+  },
+  {
+   "cycle": 30,
+   "charge_mAh": 0.558270159657468,
+   "discharge_mAh": 0.5563260726389188,
+   "coulombic_efficiency_pct": 99.65176590850888
+  },
+  {
+   "cycle": 31,
+   "charge_mAh": 0.5563549654996165,
+   "discharge_mAh": 0.5545029978728397,
+   "coulombic_efficiency_pct": 99.6671248139012
+  },
+  {
+   "cycle": 32,
+   "charge_mAh": 0.5556316200642536,
+   "discharge_mAh": 0.5538266209766727,
+   "coulombic_efficiency_pct": 99.67514464216917
+  },
+  {
+   "cycle": 33,
+   "charge_mAh": 0.55498950378405,
+   "discharge_mAh": 0.5529295582368453,
+   "coulombic_efficiency_pct": 99.62883162056949
+  },
+  {
+   "cycle": 34,
+   "charge_mAh": 0.5553557337385888,
+   "discharge_mAh": 0.5536428046498956,
+   "coulombic_efficiency_pct": 99.6915618252175
+  },
+  {
+   "cycle": 35,
+   "charge_mAh": 0.5522754821884287,
+   "discharge_mAh": 0.5501089421671645,
+   "coulombic_efficiency_pct": 99.60770664439437
+  },
+  {
+   "cycle": 36,
+   "charge_mAh": 0.5536314958656402,
+   "discharge_mAh": 0.5514358632591484,
+   "coulombic_efficiency_pct": 99.60341262683063
+  },
+  {
+   "cycle": 37,
+   "charge_mAh": 0.5500312195840714,
+   "discharge_mAh": 0.5482149301127982,
+   "coulombic_efficiency_pct": 99.6697842946721
+  },
+  {
+   "cycle": 38,
+   "charge_mAh": 0.5487474261607937,
+   "discharge_mAh": 0.547095342899245,
+   "coulombic_efficiency_pct": 99.69893557895892
+  },
+  {
+   "cycle": 39,
+   "charge_mAh": 0.5505427535345895,
+   "discharge_mAh": 0.5485740550449526,
+   "coulombic_efficiency_pct": 99.64240770094648
+  },
+  {
+   "cycle": 40,
+   "charge_mAh": 0.5475759883607872,
+   "discharge_mAh": 0.5454385953935544,
+   "coulombic_efficiency_pct": 99.60966276596035
+  },
+  {
+   "cycle": 41,
+   "charge_mAh": 0.5454757263869923,
+   "discharge_mAh": 0.5437021458440794,
+   "coulombic_efficiency_pct": 99.67485619302249
+  },
+  {
+   "cycle": 42,
+   "charge_mAh": 0.542668235120978,
+   "discharge_mAh": 0.5409702934998244,
+   "coulombic_efficiency_pct": 99.68711239920373
+  },
+  {
+   "cycle": 43,
+   "charge_mAh": 0.5430002953243899,
+   "discharge_mAh": 0.5409607784778941,
+   "coulombic_efficiency_pct": 99.62439857509152
+  },
+  {
+   "cycle": 44,
+   "charge_mAh": 0.5404374684830079,
+   "discharge_mAh": 0.5384574304967557,
+   "coulombic_efficiency_pct": 99.63362311058665
+  },
+  {
+   "cycle": 45,
+   "charge_mAh": 0.5424558132735279,
+   "discharge_mAh": 0.5408025201095801,
+   "coulombic_efficiency_pct": 99.69522067540012
+  },
+  {
+   "cycle": 46,
+   "charge_mAh": 0.5400089708388844,
+   "discharge_mAh": 0.5381371760626962,
+   "coulombic_efficiency_pct": 99.65337709607296
+  },
+  {
+   "cycle": 47,
+   "charge_mAh": 0.5407945722933759,
+   "discharge_mAh": 0.5387928458881822,
+   "coulombic_efficiency_pct": 99.62985456812096
+  },
+  {
+   "cycle": 48,
+   "charge_mAh": 0.5375572253440879,
+   "discharge_mAh": 0.5357911638299482,
+   "coulombic_efficiency_pct": 99.67146539365939
+  },
+  {
+   "cycle": 49,
+   "charge_mAh": 0.5350125687584055,
+   "discharge_mAh": 0.5332462396782707,
+   "coulombic_efficiency_pct": 99.66985278790105
+  },
+  {
+   "cycle": 50,
+   "charge_mAh": 0.5360776365977482,
+   "discharge_mAh": 0.5345127315946738,
+   "coulombic_efficiency_pct": 99.70808239399686
+  }
+ ]
+}

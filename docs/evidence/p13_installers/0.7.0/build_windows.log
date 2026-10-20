@@ -1,0 +1,50 @@
+02:33:11 Cyclara 0.7.0, build dir /home/claude/work/build
+02:33:13 cpython-3.12.15+20261013-x86_64-pc-windows-msvc-install_only.tar.gz: checksum verified
+02:33:16 $ /usr/bin/python -m pip  download -q --no-deps --only-binary=:all: --platform win_am ... (pins in installer/requirements-bundle.txt)
+02:33:22 $ /usr/bin/python -m pip  install -q --no-deps --no-index --only-binary=:all: --platf ... (pins in installer/requirements-bundle.txt)
+02:33:31 cpython-3.12.15+20261013-x86_64-unknown-linux-gnu-install_only.tar.gz: checksum verified
+02:33:36 $ /home/claude/work/build/linux/python/bin/python3.12 -m compileall -q -j 0 --invalidation-mode unchecked-hash /home/claude/work/build/stage_win/python/Lib /home/claude/work/build/stage_win/app
+02:33:47 $ /home/claude/work/build/linux/python/bin/python3.12 -I -c import sys; sys.path[:0] = ['/home/claude/work/build/stage_win/app', '/home/claude/work/build/pure312']
+assert sys.version_info[:2] == (3, 12), sys.version
+import electrochem, eclab_import, electrochem.readers, electrochem.workflow, electrochem.analyze
+from electrochem.readers import BUILTIN; assert BUILTIN
+print('pure-python import under', sys.version.split()[0], 'ok')
+pure-python import under 3.12.15 ok
+02:33:50 $ x86_64-w64-mingw32-windres launcher.rc -O coff -o launcher_res.o
+02:33:50 $ x86_64-w64-mingw32-gcc -municode -mwindows -O2 -Wall -o Cyclara.exe /home/claude/work/tk2/installer/windows/launcher.c launcher_res.o -lshell32 -lole32
+02:33:52 Windows tree: 256 binaries, every import resolves
+02:33:52 $ /usr/bin/python /home/claude/work/tk2/installer/windows/bitmaps.py /home/claude/work/build/art
+{'welcome.bmp': PosixPath('/home/claude/work/build/art/welcome.bmp'), 'header.bmp': PosixPath('/home/claude/work/build/art/header.bmp')}
+02:33:53 $ makensis -V2 -DVERSION=0.7.0 -DSTAGE=/home/claude/work/build/stage_win -DART=/home/claude/work/build/art -DOUT=/home/claude/work/tk2/installer/dist/Cyclara-0.7.0-Setup.exe -DSIZE_KB=423240 -DSIZE_MB=413 /home/claude/work/tk2/installer/windows/cyclara.nsi
+02:39:53 wrote /home/claude/work/tk2/installer/dist/Cyclara-0.7.0-Setup.exe (95.8 MB; installed 413 MB)
+02:39:53 $ bash /home/claude/work/tk2/installer/winetest/run.sh /home/claude/work/build/stage_win
+1. the launcher in Python mode
+Traceback (most recent call last):
+  File "Z:\home\claude\work\tk2\installer\winetest\wine_run.py", line 23, in <module>
+    runpy.run_path(rest[0], run_name="__main__")
+  File "<frozen runpy>", line 286, in run_path
+  File "<frozen runpy>", line 254, in _get_code_from_file
+FileNotFoundError: [Errno 2] No such file or directory: 'Z:\\home\\claude\\work\\tk2\\-c'
+wine_run done, code 1
+FAILED: imports
+Traceback (most recent call last):
+  File "/home/claude/work/tk2/installer/build.py", line 618, in <module>
+    info.external_attr = (stat.S_IFLNK | 0o755) << 16
+    ^^^
+  File "/home/claude/work/tk2/installer/build.py", line 608, in main
+    def zip_bundle(app: Path, out: Path) -> None:
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/work/tk2/installer/build.py", line 426, in build_windows
+    f"-DSIZE_KB={size_kb}", f"-DSIZE_MB={size_kb // 1024}", HERE / "windows" / "cyclara.nsi"])
+    ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/work/tk2/installer/build.py", line 435, in wine_smoke_test
+    """The staged tree under Wine: Cyclara.exe hosts the bundled Python, imports the app and renders
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/work/tk2/installer/build.py", line 115, in run
+    log("$ " + " ".join(str(c) for c in cmd))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['bash', '/home/claude/work/tk2/installer/winetest/run.sh', '/home/claude/work/build/stage_win']' returned non-zero exit status 1.
+exit=1

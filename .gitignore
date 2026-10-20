@@ -10,3 +10,6 @@ dist/
 !data/examples/*.ecproj
 .DS_Store
 Thumbs.db
+Cyclara.app/
+installer/build/
+installer/dist/

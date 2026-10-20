@@ -10,7 +10,7 @@ from electrochem.units import unit as unit_definition
 from electrochem.models import (Record,Source,Column,RawRow,RowRef,Channel,Observation,Sample,
     Experiment,Interval,MetadataRevision,Project,Provenance,canonical_bytes,normalize)
 VERSION='0.1.0'
-MAX_BYTES=10*1024*1024
+MAX_BYTES=256*1024*1024  # raised from the 10 MiB P03 profile; a 100-cycle GCPL export is 30 MB+
 class ImportFailure(ValueError):
     def __init__(self,code,message,line=None):
         self.code,self.line=code,line
@@ -54,7 +54,7 @@ class Mapping(Record):
 
 def parse(data:bytes,name:str,options:Options=Options())->Parsed:
     if not isinstance(data,bytes):raise TypeError('Input must be original bytes')
-    if len(data)>MAX_BYTES:raise ImportFailure('size_limit','P03 text limit is 10 MiB')
+    if len(data)>MAX_BYTES:raise ImportFailure('size_limit','Text input exceeds 256 MiB')
     options=Options.model_validate_json(options.model_dump_json())
     if data.startswith(b'BIO-LOGIC MODULAR FILE') or Path(name).suffix.lower()=='.mpr':
         raise ImportFailure('native_mpr_not_enabled','Retain native file; a validated native adapter is still required')

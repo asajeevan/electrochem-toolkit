@@ -1,0 +1,72 @@
+[
+  {
+    "file": "neware_uio.csv",
+    "sha256": "ff60f5e074f0af643f7ce174aaad006cee0d5d5bca2726f9d3e90dd57363b413",
+    "bytes": 1922549,
+    "source_repository": "https://github.com/jepegit/cellpy",
+    "commit": "29d916cb08e919a8bcd80f90892b906e8db49f2e",
+    "source_path": "testdata/data/neware_uio.csv",
+    "source_sha256": "ff60f5e074f0af643f7ce174aaad006cee0d5d5bca2726f9d3e90dd57363b413",
+    "source_bytes": 1922549,
+    "license": "MIT",
+    "license_file": "LICENSE-cellpy.txt",
+    "modification": "unmodified copy",
+    "readable_by_this_version": true
+  },
+  {
+    "file": "sample_data_neware_rows_2_25001.xlsx",
+    "sha256": "ee8d6f3710a0a1a0aa7058882f696e03648476432432a923c4d6efe263d04c95",
+    "bytes": 1219490,
+    "source_repository": "https://github.com/ImperialCollegeLondon/PyProBE",
+    "commit": "b5a789ebfceba4d68caa2f77322ea657c0e3422e",
+    "source_path": "tests/sample_data/neware/sample_data_neware.xlsx",
+    "source_sha256": "b5812e8372f3b4d28a2245552bd0e5d012cdb8892cd0a1fe235ac5ee5b8a6035",
+    "source_bytes": 50280170,
+    "license": "BSD-3-Clause",
+    "license_file": "LICENSE-PyProBE.txt",
+    "modification": "derived: the header row and worksheet rows 2 to 25001 of sheet 'record' kept, cell XML unchanged except that kept rows are renumbered from 2 and the sheet dimension and selection are updated; every other part of the workbook copied unchanged",
+    "readable_by_this_version": true
+  },
+  {
+    "file": "sample_data_neware_rows_80001_90000.xlsx",
+    "sha256": "62069298fdd56111914cc5e27bd6fdd5f3e453f57050f4765191b665b17432bd",
+    "bytes": 545791,
+    "source_repository": "https://github.com/ImperialCollegeLondon/PyProBE",
+    "commit": "b5a789ebfceba4d68caa2f77322ea657c0e3422e",
+    "source_path": "tests/sample_data/neware/sample_data_neware.xlsx",
+    "source_sha256": "b5812e8372f3b4d28a2245552bd0e5d012cdb8892cd0a1fe235ac5ee5b8a6035",
+    "source_bytes": 50280170,
+    "license": "BSD-3-Clause",
+    "license_file": "LICENSE-PyProBE.txt",
+    "modification": "derived: the header row and worksheet rows 80001 to 90000 of sheet 'record' kept, cell XML unchanged except that kept rows are renumbered from 2 and the sheet dimension and selection are updated; every other part of the workbook copied unchanged",
+    "readable_by_this_version": true
+  },
+  {
+    "file": "test.nda",
+    "sha256": "97d49971a3c243e9e8f1b5e1574026de4417e371ad733677cd1b2f2711c48516",
+    "bytes": 123655,
+    "source_repository": "https://github.com/be-smith/navani",
+    "commit": "d9892a3c982285173143aaab71c237869255e450",
+    "source_path": "Example_data/test.nda",
+    "source_sha256": "97d49971a3c243e9e8f1b5e1574026de4417e371ad733677cd1b2f2711c48516",
+    "source_bytes": 123655,
+    "license": "MIT",
+    "license_file": "LICENSE-navani.txt",
+    "modification": "unmodified copy",
+    "readable_by_this_version": false
+  },
+  {
+    "file": "test.ndax",
+    "sha256": "2b1e53cff126b54c8c85026068e0d0de72fdde6428fc58771eca59b7e21eaef0",
+    "bytes": 39718,
+    "source_repository": "https://github.com/be-smith/navani",
+    "commit": "d9892a3c982285173143aaab71c237869255e450",
+    "source_path": "Example_data/test.ndax",
+    "source_sha256": "2b1e53cff126b54c8c85026068e0d0de72fdde6428fc58771eca59b7e21eaef0",
+    "source_bytes": 39718,
+    "license": "MIT",
+    "license_file": "LICENSE-navani.txt",
+    "modification": "unmodified copy",
+    "readable_by_this_version": false
+  }
+]

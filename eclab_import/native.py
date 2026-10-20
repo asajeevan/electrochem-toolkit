@@ -12,7 +12,7 @@ VERSION='0.1.0'
 COMMIT='d4a5f444b16eae57d2edfad6df774ead95c92fd6'
 BACKEND_HASHES={'BioLogic.py':'4a2e5bf35ad101c519b90175a599cc16c27893707cbd20b54dedee2775ebfb1d',
  '__init__.py':'56c3b67156f7ad4cac929b33a0f2552981b7d272864fe714f395218d5844f041'}
-MAX_BYTES=10*1024*1024
+MAX_BYTES=256*1024*1024  # raised from the 10 MiB P03 profile; a 100-cycle GCPL export is 30 MB+
 class NativeField(Record):
     backend_label:str
     dtype:str
@@ -56,14 +56,14 @@ def backend():
     except ImportError as exc:raise ImportFailure('native_dependency_missing','Install requirements-native.txt (pip install -r requirements-native.txt) in the research environment') from exc
     root=Path(mod.__file__).parent
     for name,digest in BACKEND_HASHES.items():
-        if hashlib.sha256((root/name).read_bytes()).hexdigest()!=digest:
+        if hashlib.sha256((root/name).read_bytes().replace(b'\r\n',b'\n')).hexdigest()!=digest:  # line endings normalised: Git on Windows checks out CRLF
             raise ImportFailure('native_backend_unverified','Reader source differs from the evaluated revision; review before updating pin')
     if np.__version__!='2.3.5':raise ImportFailure('native_numpy_unverified','This adapter was tested with NumPy 2.3.5')
     return mod,np
 
 def inspect_native(data:bytes,name:str)->NativeTable:
     if not isinstance(data,bytes):raise TypeError('Original binary bytes required')
-    if len(data)>MAX_BYTES:raise ImportFailure('size_limit','Native input exceeds 10 MiB profile')
+    if len(data)>MAX_BYTES:raise ImportFailure('size_limit','Native input exceeds 256 MiB')
     mod,np=backend()
     if not data.startswith(mod.MPR_MAGIC):raise ImportFailure('native_signature','Not a supported MPR signature')
     # Fixed private filename prevents directory-dependent LOOP/MPL lookup and backend BytesIO fallback bugs.
@@ -74,7 +74,7 @@ def inspect_native(data:bytes,name:str)->NativeTable:
     except (ValueError,IOError,AssertionError,NotImplementedError,IndexError,UnboundLocalError,RuntimeError) as exc:
         raise ImportFailure('native_decode_failed',type(exc).__name__+': '+str(exc)) from exc
     array=obj.data
-    if len(array)>100000 or len(array.dtype.names)>128:raise ImportFailure('native_table_limit','Record/field count outside evaluated in-memory limits')
+    if len(array)>5_000_000 or len(array.dtype.names)>128:raise ImportFailure('native_table_limit','Record/field count outside evaluated in-memory limits')
     declared=int(obj.npts.item())
     if declared!=len(array):raise ImportFailure('native_record_count','Declared record count differs from decoded count')
     modules=[];previous_end=0

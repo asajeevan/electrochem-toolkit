@@ -1,0 +1,72 @@
+[
+  {
+    "file": "arbin_example.csv",
+    "sha256": "2c32d4c479104e42f1ae26d30dc2660c890856a171aa1aa5c2d6004916fb1caa",
+    "bytes": 284095,
+    "source_repository": "https://github.com/ROVI-org/battery-data-toolkit",
+    "commit": "19961e6bbb2d0cfe0bff9c129144fcf8f3dd3be6",
+    "source_path": "tests/files/arbin_example.csv",
+    "source_sha256": "2c32d4c479104e42f1ae26d30dc2660c890856a171aa1aa5c2d6004916fb1caa",
+    "source_bytes": 284095,
+    "license": "Apache-2.0",
+    "license_file": "LICENSE-battery-data-toolkit.txt",
+    "modification": "unmodified copy",
+    "readable_by_this_version": true
+  },
+  {
+    "file": "sample_data_arbin.csv",
+    "sha256": "7ec1c7688890515bdf66821cf56908b20495013f809a58e4946baebf04151524",
+    "bytes": 1996,
+    "source_repository": "https://github.com/ImperialCollegeLondon/PyProBE",
+    "commit": "b5a789ebfceba4d68caa2f77322ea657c0e3422e",
+    "source_path": "tests/sample_data/arbin/sample_data_arbin.csv",
+    "source_sha256": "7ec1c7688890515bdf66821cf56908b20495013f809a58e4946baebf04151524",
+    "source_bytes": 1996,
+    "license": "BSD-3-Clause",
+    "license_file": "LICENSE-PyProBE.txt",
+    "modification": "unmodified copy",
+    "readable_by_this_version": true
+  },
+  {
+    "file": "arbin.csv",
+    "sha256": "5346bebd1968e9110a5987e814e67525c96c825ae1beb452b900a1bd0ef5711e",
+    "bytes": 4226,
+    "source_repository": "https://github.com/Battery-Intelligence-Lab/galv-harvester",
+    "commit": "f790d1d45f5460336992e4334b58db19e9ab0d0d",
+    "source_path": ".test-data/test-suite-small/arbin.csv",
+    "source_sha256": "5346bebd1968e9110a5987e814e67525c96c825ae1beb452b900a1bd0ef5711e",
+    "source_bytes": 4226,
+    "license": "BSD-2-Clause",
+    "license_file": "LICENSE-galv-harvester.txt",
+    "modification": "unmodified copy",
+    "readable_by_this_version": true
+  },
+  {
+    "file": "bs542_004_gr_li_50ua_50mv_1v_191020_Channel_11.xlsx",
+    "sha256": "3de6f679f763a94c11c5af1bb6a502fe7ecd6d6ae9784d4eff5fa8f970160b0e",
+    "bytes": 558853,
+    "source_repository": "https://github.com/be-smith/navani",
+    "commit": "d9892a3c982285173143aaab71c237869255e450",
+    "source_path": "Example_data/bs542_004_gr_li_50ua_50mv_1v_191020_Channel_11.xlsx",
+    "source_sha256": "3de6f679f763a94c11c5af1bb6a502fe7ecd6d6ae9784d4eff5fa8f970160b0e",
+    "source_bytes": 558853,
+    "license": "MIT",
+    "license_file": "LICENSE-navani.txt",
+    "modification": "unmodified copy",
+    "readable_by_this_version": true
+  },
+  {
+    "file": "arbin_example.res",
+    "sha256": "298ffcc60acb4f04614ce7fbaa87b5923857a3d7462bb25447026134ace37154",
+    "bytes": 532480,
+    "source_repository": "https://github.com/be-smith/navani",
+    "commit": "d9892a3c982285173143aaab71c237869255e450",
+    "source_path": "Example_data/arbin_example.res",
+    "source_sha256": "298ffcc60acb4f04614ce7fbaa87b5923857a3d7462bb25447026134ace37154",
+    "source_bytes": 532480,
+    "license": "MIT",
+    "license_file": "LICENSE-navani.txt",
+    "modification": "unmodified copy",
+    "readable_by_this_version": false
+  }
+]

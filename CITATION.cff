@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If this software contributed to a publication, please cite it with its version."
+title: "Cyclara: traceable analysis of battery cycling data"
+abstract: "Free software (GNU GPL v3 or later) that reads BioLogic EC-Lab files and the text or spreadsheet exports of other battery cyclers and produces journal figures, every table, an Origin folder and a settings record for each analysis. Cyclara is the window of the electrochem-toolkit package."
+type: software
+authors:
+  - family-names: "Shyma Sajeevan"
+    given-names: "Aswadh"
+version: 0.8.0
+date-released: 2026-10-20
+license: GPL-3.0-or-later
+url: "https://github.com/asajeevan/electrochem-toolkit"
+repository-code: "https://github.com/asajeevan/electrochem-toolkit"
+keywords:
+  - battery cycling
+  - electrochemistry
+  - BioLogic EC-Lab
+  - differential capacity
+  - data analysis

@@ -1,0 +1,28 @@
+Build A (16:02, the tested build: imports, every view, the whole suite with the bundled interpreter)
+imports ok Z:\home\claude\work\build\stage_win\Cyclara.exe 0.8.0
+wine_run done, code 0
+written to Z:\home\claude\work\build\winetest\shots
+wine_run done, code 0
+......uuuuuuuu.uuuu.uuuuu..........uuuu...............uuuuuuuuuuuuuuuuuu [  3%]
+uuu..................................................................... [ 11%]
+..............uuu...........................s....s...................... [ 18%]
+........................................................................ [ 26%]
+........................................................................ [ 34%]
+........................................................................ [ 41%]
+........................................................................ [ 49%]
+........................................................................ [ 57%]
+........................................................................ [ 65%]
+........................................................................ [ 73%]
+........................................................................ [ 81%]
+........................................................................ [ 88%]
+........................................................................ [ 96%]
+.........uuuuu.uuu..........uuu...........                               [100%]
+920 passed, 3 skipped, 56 subtests passed in 772.14s (0:12:52)
+wine_run done, code 0
+
+Build B (16:31, the delivered build: the same code; STATUS.md and docs/U02_Cyclara.md updated with A's results,
+Cyclara.exe differing from A's only in its PE time stamp and header checksum): imports and every view
+imports ok Z:\home\claude\work\build\stage_win\Cyclara.exe 0.8.0
+wine_run done, code 0
+written to Z:\home\claude\work\build\winetest\shots
+wine_run done, code 0

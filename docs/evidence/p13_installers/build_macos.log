@@ -1,0 +1,31 @@
+16:29:30 cpython-3.12.15+20261013-aarch64-apple-darwin-install_only.tar.gz: checksum verified
+16:29:31 $ /usr/bin/python -m pip  download -q --no-deps --only-binary=:all: --platform macosx ... (pins in installer/requirements-bundle.txt)
+16:29:37 $ /usr/bin/python -m pip  install -q --no-deps --no-index --only-binary=:all: --platf ... (pins in installer/requirements-bundle.txt)
+16:29:44 cpython-3.12.15+20261013-x86_64-unknown-linux-gnu-install_only.tar.gz: checksum verified
+16:29:47 $ /home/claude/work/build/linux/python/bin/python3.12 -m compileall -q -j 0 --invalidation-mode unchecked-hash /home/claude/work/build/stage_mac_arm64/Cyclara.app/Contents/lib/python3.12 /home/claude/work/build/stage_mac_arm64/Cyclara.app/Contents/Resources/app
+16:29:56 $ /home/claude/work/build/linux/python/bin/python3.12 -I -c import sys; sys.path[:0] = ['/home/claude/work/build/stage_mac_arm64/Cyclara.app/Contents/Resources/app', '/home/claude/work/build/pure312']
+assert sys.version_info[:2] == (3, 12), sys.version
+import electrochem, eclab_import, electrochem.readers, electrochem.workflow, electrochem.analyze
+from electrochem.readers import BUILTIN; assert BUILTIN
+print('pure-python import under', sys.version.split()[0], 'ok')
+pure-python import under 3.12.15 ok
+16:29:59 universal files thinned to arm64: 43
+16:29:59 macOS bundle: 212 binaries, every library resolves inside the bundle or macOS
+16:30:14 wrote /home/claude/work/tk2/installer/dist/Cyclara-0.8.0-macOS-AppleSilicon.zip (147.4 MB)
+16:30:17 cpython-3.12.15+20261013-x86_64-apple-darwin-install_only.tar.gz: checksum verified
+16:30:18 $ /usr/bin/python -m pip  download -q --no-deps --only-binary=:all: --platform macosx ... (pins in installer/requirements-bundle.txt)
+16:30:25 $ /usr/bin/python -m pip  install -q --no-deps --no-index --only-binary=:all: --platf ... (pins in installer/requirements-bundle.txt)
+16:30:31 cpython-3.12.15+20261013-x86_64-unknown-linux-gnu-install_only.tar.gz: checksum verified
+16:30:36 $ /home/claude/work/build/linux/python/bin/python3.12 -m compileall -q -j 0 --invalidation-mode unchecked-hash /home/claude/work/build/stage_mac_x86_64/Cyclara.app/Contents/lib/python3.12 /home/claude/work/build/stage_mac_x86_64/Cyclara.app/Contents/Resources/app
+16:30:45 $ /home/claude/work/build/linux/python/bin/python3.12 -I -c import sys; sys.path[:0] = ['/home/claude/work/build/stage_mac_x86_64/Cyclara.app/Contents/Resources/app', '/home/claude/work/build/pure312']
+assert sys.version_info[:2] == (3, 12), sys.version
+import electrochem, eclab_import, electrochem.readers, electrochem.workflow, electrochem.analyze
+from electrochem.readers import BUILTIN; assert BUILTIN
+print('pure-python import under', sys.version.split()[0], 'ok')
+pure-python import under 3.12.15 ok
+16:30:47 universal files thinned to x86_64: 37
+16:30:48 macOS bundle: 212 binaries, every library resolves inside the bundle or macOS
+16:31:05 wrote /home/claude/work/tk2/installer/dist/Cyclara-0.8.0-macOS-Intel.zip (153.8 MB)
+16:31:05 Cyclara-0.8.0-Setup.exe  105.3 MB  sha256 452cde748b782b79…
+16:31:06 Cyclara-0.8.0-macOS-AppleSilicon.zip  147.4 MB  sha256 586dca1bc55f903e…
+16:31:06 Cyclara-0.8.0-macOS-Intel.zip  153.8 MB  sha256 3cf8b09bacb10592…

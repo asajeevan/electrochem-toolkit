@@ -1,0 +1,16 @@
+[
+  {
+    "file": "sample_data_basytec.txt",
+    "sha256": "48c698c2a6ec2b216e2d42749f75662ad2ca184690007ede6cb9e2b74065d3d4",
+    "bytes": 13255,
+    "source_repository": "https://github.com/ImperialCollegeLondon/PyProBE",
+    "commit": "b5a789ebfceba4d68caa2f77322ea657c0e3422e",
+    "source_path": "tests/sample_data/basytec/sample_data_basytec.txt",
+    "source_sha256": "48c698c2a6ec2b216e2d42749f75662ad2ca184690007ede6cb9e2b74065d3d4",
+    "source_bytes": 13255,
+    "license": "BSD-3-Clause",
+    "license_file": "LICENSE-PyProBE.txt",
+    "modification": "unmodified copy",
+    "readable_by_this_version": true
+  }
+]

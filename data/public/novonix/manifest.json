@@ -1,0 +1,16 @@
+[
+  {
+    "file": "sample_data_novonix.csv",
+    "sha256": "ba5d0e3bb90e8eeadaaff5d0be956fb1a0144cc485f7d0a58007c36f4d03de38",
+    "bytes": 42575,
+    "source_repository": "https://github.com/ImperialCollegeLondon/PyProBE",
+    "commit": "b5a789ebfceba4d68caa2f77322ea657c0e3422e",
+    "source_path": "tests/sample_data/novonix/sample_data_novonix.csv",
+    "source_sha256": "ba5d0e3bb90e8eeadaaff5d0be956fb1a0144cc485f7d0a58007c36f4d03de38",
+    "source_bytes": 42575,
+    "license": "BSD-3-Clause",
+    "license_file": "LICENSE-PyProBE.txt",
+    "modification": "unmodified copy",
+    "readable_by_this_version": true
+  }
+]

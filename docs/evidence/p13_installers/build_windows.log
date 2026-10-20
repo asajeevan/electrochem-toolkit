@@ -1,0 +1,19 @@
+16:23:14 Cyclara 0.8.0, build dir /home/claude/work/build
+16:23:17 cpython-3.12.15+20261013-x86_64-pc-windows-msvc-install_only.tar.gz: checksum verified
+16:23:19 $ /usr/bin/python -m pip  download -q --no-deps --only-binary=:all: --platform win_am ... (pins in installer/requirements-bundle.txt)
+16:23:25 $ /usr/bin/python -m pip  install -q --no-deps --no-index --only-binary=:all: --platf ... (pins in installer/requirements-bundle.txt)
+16:23:31 cpython-3.12.15+20261013-x86_64-unknown-linux-gnu-install_only.tar.gz: checksum verified
+16:23:35 $ /home/claude/work/build/linux/python/bin/python3.12 -m compileall -q -j 0 --invalidation-mode unchecked-hash /home/claude/work/build/stage_win/python/Lib /home/claude/work/build/stage_win/app
+16:23:45 $ /home/claude/work/build/linux/python/bin/python3.12 -I -c import sys; sys.path[:0] = ['/home/claude/work/build/stage_win/app', '/home/claude/work/build/pure312']
+assert sys.version_info[:2] == (3, 12), sys.version
+import electrochem, eclab_import, electrochem.readers, electrochem.workflow, electrochem.analyze
+from electrochem.readers import BUILTIN; assert BUILTIN
+print('pure-python import under', sys.version.split()[0], 'ok')
+pure-python import under 3.12.15 ok
+16:23:47 $ x86_64-w64-mingw32-windres launcher.rc -O coff -o launcher_res.o
+16:23:47 $ x86_64-w64-mingw32-gcc -municode -mwindows -O2 -Wall -o Cyclara.exe /home/claude/work/tk2/installer/windows/launcher.c launcher_res.o -lshell32 -lole32
+16:23:49 Windows tree: 259 binaries, every import resolves
+16:23:49 $ /usr/bin/python /home/claude/work/tk2/installer/windows/bitmaps.py /home/claude/work/build/art
+{'welcome.bmp': PosixPath('/home/claude/work/build/art/welcome.bmp'), 'header.bmp': PosixPath('/home/claude/work/build/art/header.bmp')}
+16:23:49 $ makensis -V2 -DVERSION=0.8.0 -DSTAGE=/home/claude/work/build/stage_win -DART=/home/claude/work/build/art -DOUT=/home/claude/work/tk2/installer/dist/Cyclara-0.8.0-Setup.exe -DSIZE_KB=444670 -DSIZE_MB=434 /home/claude/work/tk2/installer/windows/cyclara.nsi
+16:29:27 wrote /home/claude/work/tk2/installer/dist/Cyclara-0.8.0-Setup.exe (105.3 MB; installed 434 MB)

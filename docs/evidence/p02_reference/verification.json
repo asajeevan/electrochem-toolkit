@@ -1,8 +1,8 @@
 {
   "package": "P02",
   "version": "0.1.0",
-  "python": "3.12.3",
-  "platform": "Linux-6.18.44-fc-v24-x86_64-with-glibc2.39",
+  "python": "3.13.16",
+  "platform": "Linux-6.18.44-fc-v139-x86_64-with-glibc2.39",
   "observation_fixtures": 21,
   "passed_checks": 268,
   "checks": [
