@@ -1,6 +1,6 @@
 # Releasing Cyclara
 
-How a version reaches other people, as done for 0.8.0 (20 October 2026) and 0.9.0 (21 October 2026). Why this way, and what was compared:
+How a version reaches other people, as done for 0.8.0 (20 October 2026), 0.9.0 and 0.9.1 (21 October 2026). Why this way, and what was compared:
 `docs/adr/ADR-006_Distribution.md`. Share the link to the release page
 (`https://github.com/asajeevan/electrochem-toolkit/releases/latest`), never the files themselves.
 
@@ -26,7 +26,9 @@ How a version reaches other people, as done for 0.8.0 (20 October 2026) and 0.9.
    the new code compare every statement the release makes about it (README, `HOW_TO_USE.txt`, the handout,
    `STATUS.md`, the method documents, the release notes, the web page) with the code. For 0.9.0 this found a defect
    and several claims larger than the code, and the first build was discarded
-   (`docs/handoffs/Project_Status_Addendum_2026-10-21.md`). Commit and push to `main`. From a clean checkout of that
+   (`docs/handoffs/Project_Status_Addendum_2026-10-21.md`). For 0.9.1 five reviews ran in turn, each on the fixes
+   of the one before, and the three builds started while a review was still open were discarded when it changed
+   the code (`docs/handoffs/Project_Status_Addendum_2026-10-21b.md`). Commit and push to `main`. From a clean checkout of that
    commit run the whole suite and build the installers (`installer/README.md`), then the Wine harness with the
    self-tests (`installer/winetest/run.sh STAGE --tests`) and the install check on the Windows build. The self-tests
    write pytest caches into the staged tree; run the install check after them and compare the installed tree with
