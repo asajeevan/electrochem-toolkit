@@ -127,3 +127,69 @@ def test_nothing_is_computed_while_the_view_is_hidden(app, rec):
     app.processEvents()
     assert v._cache_run is rec.run and v.grid is not None
     v.close()
+
+
+# ------------------------------------------------------------------ branches without a curve (0.9.1)
+
+def _cex_record(tmp_path, changes):
+    """A synthetic LANHE file (tests/cex_synthetic.py) with the given step changes, as the app holds it."""
+    import sys
+    from dataclasses import replace
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent))
+    import cex_synthetic as cs
+    steps = cs.two_cycles()
+    for k, fields in changes.items():
+        steps[k] = replace(steps[k], **fields)
+    p = tmp_path / "run.cex"
+    p.write_bytes(cs.write(steps)[0])
+    loaded = workflow.open_file(p)
+    run = workflow.analyse_file(loaded, Settings(charge="ox", terminal_voltage=True))
+    return Record(path=p, loaded=loaded, run=run)
+
+
+def test_the_evolution_view_says_when_a_direction_has_no_curve_and_drops_its_note(app, tmp_path):
+    """Both discharges paused partway: the charge map has its note; the discharge map and the discharge waterfall say
+    there is no curve, with the axis's symbol (a cell voltage: dQ/dV), and no note of the charge map stays above."""
+    from electrochem.studio.views import EvolutionView
+    rec = _cex_record(tmp_path, {4: {"pause": (1500.0, 120)}, 7: {"pause": (3000.0, 120)}})
+    v = EvolutionView()
+    v.resize(900, 600)
+    v.show()
+    try:
+        v.show_record(rec, [1, 2], None)
+        app.processEvents()
+        assert v.grid is not None and v.grid.direction == "charge" and not v.note.isHidden()
+        assert "too few points or too narrow a range" in v.note.text() and "dQ/dV curve" in v.note.text()
+        v.direction.setCurrentIndex(1)
+        app.processEvents()
+        assert v.empty.text() == "No discharge branch has a dQ/dV curve." and v.note.isHidden()
+        v.mode.setCurrentIndex(1)
+        app.processEvents()
+        assert v.empty.text() == "None of the selected cycles has a discharge dQ/dV curve." and v.note.isHidden()
+        v.direction.setCurrentIndex(0)
+        app.processEvents()
+        assert v.empty.isHidden() and not v.note.isHidden()
+    finally:
+        v.close()
+        v.deleteLater()
+
+
+def test_the_dqde_view_gives_each_missing_curve_its_reason(app, tmp_path):
+    """Cycle 1's charge restarted in its constant-current part (interrupted) and its discharge a step of one
+    interval (too few points): the note names both with their reasons; cycle 2 is drawn."""
+    from electrochem.studio.views import DifferentialView
+    rec = _cex_record(tmp_path, {1: {"restart": (1495.0, 30.0, 600)}, 4: {"duration": 1.0}})
+    assert [cv.branch for _, cv in rec.run.dqde_curves([1, 2])] == [3, 4]
+    v = DifferentialView()
+    v.resize(900, 600)
+    v.show()
+    try:
+        v.show_record(rec, [1, 2], None)
+        app.processEvents()
+        assert v.empty.isHidden()
+        assert ("No dQ/dV curve for cycle 1 charge (interrupted), cycle 1 discharge (too few points or too narrow a "
+                "range outside constant-voltage stages).") in v.note.text()
+    finally:
+        v.close()
+        v.deleteLater()

@@ -598,7 +598,8 @@ def for_file(key: str, ctx: Context) -> list[str]:
                            + ("; first cycle only: " + ", ".join(
                                f"{u['direction']} {u['voltage_V']:.3f} V"
                                + (f" (cycle {u['cycle']}, the first with a {u['direction']} dQ/dE curve)"
-                                  if u.get("cycle", sm["cycle"]) != sm["cycle"] else "") for u in fco)
+                                  if u.get("cycle", 1) != 1 else " (cycle 1)" if sm["cycle"] != 1 else "")
+                               for u in fco)
                               if fco else "") + ".")
     elif key == "rate":
         out.append(f"Molar mass {_fmt(s.molar_mass_g_mol, 'g mol⁻¹')}, electrons per formula unit "
@@ -644,6 +645,51 @@ def _interrupted(seg, branches) -> dict:
         i = bisect_right(starts, int(k)) - 1
         if i >= 0 and branches[i].start <= int(k) < branches[i].end:
             out.setdefault(branches[i].index, set()).add(why)
+    return out
+
+
+def _interruption_sentences(seg, branches) -> list[str]:
+    """What the interruptions and pauses did, in the methods paragraph: an interval of a curve-break reason
+    anywhere in a branch leaves it partial (no efficiency or retention for its cycle); one inside its dQ/dE
+    curve (Branch.curve_breaks), or a pause there (Branch.pauses), means no dQ/dE; one outside the curve, in a
+    constant-voltage stage, does not affect the curve. A pause changes neither capacities nor efficiencies."""
+    def many(k, one, more):
+        return one if k == 1 else more
+    out = []
+    interrupted = _interrupted(seg, branches)
+    broken = [b for b in branches if b.index in interrupted]
+    in_curve = [b for b in branches if getattr(b, "curve_breaks", 0)]
+    paused = [b for b in branches if getattr(b, "pauses", 0) and not getattr(b, "curve_breaks", 0)]
+    outside = [b for b in broken if not getattr(b, "curve_breaks", 0)]
+    n = len(broken)
+    if broken:
+        words = {"time reset or invalid time": "the time went back or was invalid",
+                 "missing or invalid current": "the current was missing",
+                 "instrument error flag": "the instrument flagged an error"}
+        found = [words[r] for r in words if any(r in interrupted[b.index] for b in broken)]
+        what = found[0] if len(found) == 1 else ", ".join(found[:-1]) + " or " + found[-1]
+        out.append(f"{n} {many(n, 'branch', 'branches')} contained an interval where {what}: "
+                   f"{many(n, 'its capacity is', 'their capacities are')} given over the integrated intervals, and "
+                   f"{many(n, 'its cycle has', 'their cycles have')} no coulombic efficiency or retention.")
+    if outside:
+        h = len(outside)
+        where = (f"lay in {many(h, 'a constant-voltage stage', 'constant-voltage stages')}, outside the dQ/dE "
+                 f"{many(h, 'curve, and does not affect it', 'curves, and do not affect them')}.")
+        out.append((f"The {many(h, 'interval', 'intervals')} " if h == n else
+                    f"In {h} of them the {many(h, 'interval', 'intervals')} ") + where)
+    if in_curve or paused:
+        items = []
+        if in_curve:
+            k = len(in_curve)
+            items.append(f"{k} {many(k, 'branch', 'branches')} with such an interval inside "
+                         f"{many(k, 'its curve', 'their curves')}")
+        if paused:
+            k = len(paused)
+            items.append(f"{k} {many(k, 'branch', 'branches')} paused partway by the instrument (the potential relaxes "
+                         "while the current is off)")
+        out.append("No dQ/dE was calculated for " + " and ".join(items) + ".")
+    if paused:
+        out.append("A pause leaves the capacities and efficiencies of a branch as they are.")
     return out
 
 
@@ -709,33 +755,7 @@ def paragraph(ctx: Context) -> str:
                  + ". Peak potentials are descriptors of the measured curves at the applied rate.")
     seg = getattr(run, "seg", None)
     branches = getattr(seg, "branches", None) or []
-    interrupted = _interrupted(seg, branches)
-    broken = [b for b in branches if b.index in interrupted]
-    paused = [b for b in branches if getattr(b, "pauses", 0) and not getattr(b, "curve_breaks", 0)]
-    if broken:
-        words = {"time reset or invalid time": "the time went back or was invalid",
-                 "missing or invalid current": "the current was missing",
-                 "instrument error flag": "the instrument flagged an error"}
-        found = [words[r] for r in words if any(r in interrupted[b.index] for b in broken)]
-        what = found[0] if len(found) == 1 else ", ".join(found[:-1]) + " or " + found[-1]
-        n, m = len(broken), sum(1 for b in broken if getattr(b, "curve_breaks", 0))
-        text = (f"{n} branch{'es' if n > 1 else ''} contained an interval where {what}; "
-                f"{'their capacities are' if n > 1 else 'its capacity is'} given over the integrated intervals, but "
-                f"{'their cycles have' if n > 1 else 'its cycle has'} no coulombic efficiency or retention")
-        if m == n:
-            text += f" and {'the branches' if n > 1 else 'the branch'} no dQ/dE."
-        elif m == 0:
-            text += (f"; the interval{'s' if n > 1 else ''} lay in a constant-voltage stage, outside the dQ/dE curve, "
-                     f"which {'they leave' if n > 1 else 'it leaves'} unchanged.")
-        else:
-            text += (f"; {m} of them {'have' if m > 1 else 'has'} no dQ/dE, and in the other{'s' if n - m > 1 else ''} "
-                     "the interval lay in a constant-voltage stage, outside the dQ/dE curve, which it leaves unchanged.")
-        parts.append(text)
-    if paused:
-        parts.append(f"{len(paused)} branch{'es were' if len(paused) > 1 else ' was'} paused partway by the instrument; "
-                     f"{'they keep their' if len(paused) > 1 else 'it keeps its'} capacities and efficiencies, but "
-                     "no dQ/dE was calculated for "
-                     f"{'them' if len(paused) > 1 else 'it'}, because the potential relaxes while the current is off.")
+    parts.extend(_interruption_sentences(seg, branches))
     parts.append("No smoothing, resampling or baseline correction was applied; the complete settings of the analysis "
                  "are recorded in the settings.json file written with the results.")
     return " ".join(parts) + "\n\nReference: " + citation.plain()

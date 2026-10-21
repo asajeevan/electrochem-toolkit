@@ -455,7 +455,11 @@ class DifferentialView(View):
         run, s, tab = rec.run, rec.run.settings, rec.run.tab
         sym = "V" if s.terminal_voltage else "E"
         unit = f"{capacity_unit(s)} V{SUP_M1}"
-        self.set_empty(None if run.seg.pairs else NO_CYCLES)
+        if not run.seg.pairs:
+            self.set_note([])
+            self.set_empty(NO_CYCLES)
+            return
+        self.set_empty(None)
         theme.style_plot(self.plot, xlabel=(f"dQ/d{sym} ({unit})", f"dQ/d{sym}"), ylabel=potential_titles(tab, s))
         t = theme.tokens()
         pi.addItem(pg.InfiniteLine(0, angle=90, pen=pg.mkPen(t.line_strong, width=1)))
@@ -894,6 +898,7 @@ class EvolutionView(View):
         self._dirty = False
         run, s, tab = rec.run, rec.run.settings, rec.run.tab
         if not run.seg.pairs:
+            self.set_note([])
             self.set_empty(NO_CYCLES)
             self._show_cbar(False)
             return
@@ -906,7 +911,8 @@ class EvolutionView(View):
         if self.mode.currentData() == "map":
             g = self.grid_for(run, direction)
             if g is None:
-                self.set_empty(f"No {direction} branch has a dQ/dE curve.")
+                self.set_note([])
+                self.set_empty(f"No {direction} branch has a dQ/d{sym} curve.")
                 self._show_cbar(False)
                 return
             self.set_empty(None)
@@ -944,15 +950,16 @@ class EvolutionView(View):
                 pi.addItem(pg.InfiniteLine(self.focus, angle=0, pen=pg.mkPen(t.selection, width=1, style=Qt.DashLine)))
             self.set_note([f"|dQ/d{sym}| of every cycle on one grid of {g.bin_mV:g} mV nodes (each curve resampled by "
                            "less than one bin); grey where the branch was not measured or has no dQ/d" + sym +
-                           " curve (interrupted or paused inside it, as its cycle note says, or too few points "
-                           "outside constant-voltage stages). Peak tables use each branch's own grid. The dashed "
-                           "line marks the focused cycle."])
+                           " curve (interrupted or paused inside it, as its cycle note says, or too few points or "
+                           "too narrow a range outside constant-voltage stages). Peak tables use each branch's own "
+                           "grid. The dashed line marks the focused cycle."])
         else:
             self._show_cbar(False)
             curves = {c: cv for c, cv in self.curves_for(run) if cv.direction == direction}
             cyc = [c for c in sorted(set(self.drawn())) if c in curves]
             if not cyc:
-                self.set_empty(f"None of the selected cycles has a {direction} dQ/dE curve.")
+                self.set_note([])
+                self.set_empty(f"None of the selected cycles has a {direction} dQ/d{sym} curve.")
                 return
             self.set_empty(None)
             theme.style_plot(self.plot, xlabel=potential_titles(tab, s),

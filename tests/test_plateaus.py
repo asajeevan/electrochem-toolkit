@@ -392,3 +392,16 @@ def test_a_first_cycle_only_peak_after_a_branch_without_a_curve_names_its_cycle(
     ctx = methods_text.Context(settings=Settings(charge="ox", reference="Li/Li+"), run=SimpleNamespace(plateaus=lambda: rep))
     line = next(x for x in methods_text.for_file("peaks", ctx) if x.startswith("Cycle 1:"))
     assert line.endswith("first cycle only: charge 3.600 V (cycle 2, the first with a charge dQ/dE curve).")
+    ctx2 = methods_text.Context(settings=Settings(charge="ox", reference="Li/Li+", reference_cycle=2),
+                                run=SimpleNamespace(plateaus=lambda: rep))
+    line = next(x for x in methods_text.for_file("peaks", ctx2) if x.startswith("Cycle 2:"))
+    assert line.endswith("first cycle only: charge 3.600 V (cycle 2, the first with a charge dQ/dE curve).")
+
+
+def test_the_methods_window_names_cycle_1_on_another_cycles_line(run):
+    """The plateau cell with reference cycle 3: the first-charge-only plateau is listed on cycle 3's line as cycle 1's."""
+    from dataclasses import replace
+    from electrochem import methods_text
+    ctx = methods_text.Context(settings=replace(run.settings, reference_cycle=3), run=run)
+    line = next(x for x in methods_text.for_file("peaks", ctx) if x.startswith("Cycle 3:"))
+    assert line.endswith("first cycle only: charge 4.100 V (cycle 1).")

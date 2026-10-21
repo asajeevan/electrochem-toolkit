@@ -1,6 +1,7 @@
 """Deliberate faults in the 0.9.1 changes, each run against the tests in a copy of the repository.
 
-python3 mutate.py COPY      (COPY: a copy of the repository, never the working tree)
+python3 mutate.py COPY      (COPY: a copy of the repository under a folder named scratchpad, never the
+                            working tree; the script refuses any other path)
 Every mutation must make at least one of the tests fail; the original file is restored after each.
 """
 import subprocess
@@ -11,7 +12,8 @@ ROOT = Path(sys.argv[1]).resolve()
 assert "scratchpad" in str(ROOT), "mutations run in a copy only"
 TESTS = ["tests/test_readers_cex.py", "tests/test_interrupted_branches.py", "tests/test_degenerate_pairs.py",
          "tests/test_segment_speed.py", "tests/test_methods_text.py", "tests/test_plateaus.py",
-         "tests/test_figures.py", "tests/test_studio.py::test_the_dqde_view_says_why_it_has_no_curve"]
+         "tests/test_figures.py", "tests/test_evolution_view.py",
+         "tests/test_studio.py::test_the_dqde_view_says_why_it_has_no_curve"]
 R = "electrochem/readers/lanhe_cex.py"
 S, D, W, P, V, C = ("electrochem/segment.py", "electrochem/differential.py", "electrochem/workflow.py",
                     "electrochem/plotting.py", "electrochem/studio/views.py", "electrochem/cycling.py")
@@ -105,8 +107,8 @@ M = [
     ("summary hides how many", "electrochem/cycling.py", '+ (f"... ({len(left_out)} in all)" if len(left_out) > 12 else "")',
      '+ ("..." if len(left_out) > 12 else "")'),
     ("missing reference not said", "electrochem/cycling.py", "    if reference_missing:\n", "    if False:\n"),
-    ("methods paragraph silent on pauses", "electrochem/methods_text.py", "    if paused:\n        parts.append(",
-     "    if False:\n        parts.append("),
+    ("methods paragraph silent on pauses", "electrochem/methods_text.py", "        if paused:\n            k = len(paused)",
+     "        if False:\n            k = len(paused)"),
     ("cycle note: reasons in the code's words", C, "why = [_BREAK_WORDS.get(reason, reason) for reason in",
      "why = [reason for reason in"),
     ("withheld curve reported as an absent branch", D, "if (c, other) in withheld", "if False"),
@@ -142,14 +144,32 @@ M = [
     ("interruption in a hold not in the paragraph", MT,
      "    interrupted = _interrupted(seg, branches)\n",
      '    interrupted = {b.index: set(getattr(b, "breaks_why", ())) for b in branches if getattr(b, "curve_breaks", 0)}\n'),
-    ("interval in a hold said to remove the dQ/dE", MT, "        if m == n:\n", "        if True:\n"),
+    ("interval in a hold not told apart", MT, "    if outside:\n", "    if False:\n"),
+    ("every interrupted branch said to have no dQ/dE", MT,
+     '    in_curve = [b for b in branches if getattr(b, "curve_breaks", 0)]', "    in_curve = list(broken)"),
+    ("count of hold intervals taken from all", MT, 'f"In {h} of them the {many(h, ', 'f"In {n} of them the {many(h, '),
+    ("what a pause leaves not said", MT, '        out.append("A pause leaves the capacities and efficiencies of a branch as they are.")\n', ""),
     ("reference discharge ended at once not said", MT, "        elif ref is not None and ref.capacity_retention_pct is None:",
      "        elif False:"),
-    ("topic line without the cycle", MT, 'if u.get("cycle", sm["cycle"]) != sm["cycle"] else ""', 'if False else ""'),
-    ("restart in a hold worded as removing the dQ/dE", R, "its dQ/dE when that hold ends it (M01 section 9.3)\" if step.mode == 2 else",
-     "its dQ/dE when that hold ends it (M01 section 9.3)\" if False else"),
-    ("pause note says partway", R, "A charge or discharge branch paused inside its dQ/dE curve (between its \"\n                 \"first and last record outside constant-voltage stages) keeps",
-     "A charge or discharge branch paused partway keeps"),
+    ("topic line without the cycle", MT, 'if u.get("cycle", 1) != 1 else " (cycle 1)" if sm["cycle"] != 1 else ""',
+     'if False else ""'),
+    ("topic line names by the line's cycle", MT, 'if u.get("cycle", 1) != 1 else " (cycle 1)" if sm["cycle"] != 1 else ""',
+     'if u.get("cycle", sm["cycle"]) != sm["cycle"] else ""'),
+    ("every restart in a hold called outside the curve", R,
+     "    return cc_on(range(k - 1, -1, -1)) and cc_on(range(k + 1, len(steps)))", "    return False"),
+    ("every restart in a hold called inside the curve", R,
+     "    return cc_on(range(k - 1, -1, -1)) and cc_on(range(k + 1, len(steps)))", "    return True"),
+    ("pause note without where it counts", R, "A pause inside the dQ/dE curve of a charge or discharge branch (between its \"\n                 \"first and last record outside constant-voltage stages) removes",
+     "A pause in a charge or discharge branch \"\n                 \"removes"),
+    ("interrupted branch reported as paused", V, '        return "interrupted"', '        return "paused partway"'),
+    ("too few points reported as paused", V, '    return "too few points or too narrow a range outside constant-voltage stages"',
+     '    return "paused partway"'),
+    ("evolution map note without the reasons", V, '" curve (interrupted or paused inside it, as its cycle note says, or too few points or "',
+     '" curve ("'),
+    ("evolution map keeps a stale note", V, "            if g is None:\n                self.set_note([])\n",
+     "            if g is None:\n"),
+    ("evolution sentences without the axis symbol", V, 'self.set_empty(f"No {direction} branch has a dQ/d{sym} curve.")',
+     'self.set_empty(f"No {direction} branch has a dQ/dE curve.")'),
 ]
 
 

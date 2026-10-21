@@ -86,9 +86,10 @@ EVERY TIME
      against the tester's own capacity and energy counters and its clock
      wherever the file holds enough records (a note says when it does not),
      and lists the tester's steps in instrument_steps.csv. Pauses are read:
-     a charge or discharge paused partway, however briefly, keeps its
-     capacities and efficiency but has no dQ/dE (a precaution: the cell
-     relaxes while the current is off). When the tester stopped during a
+     a charge or discharge paused partway, however briefly, has no dQ/dE
+     (a precaution: the cell relaxes while the current is off), unless the
+     pause falls in a constant-voltage hold that ends it; a pause leaves
+     capacities and efficiency as they are. When the tester stopped during a
      charge or discharge and resumed from a state saved shortly before the
      stop, every record and the charge its counter left out are kept; that
      cycle has no efficiency or retention, and when it is the reference cycle
