@@ -177,7 +177,9 @@ def test_export_writes_the_tables_and_the_summary_block(run, tmp_path):
     block = json.loads((tmp_path / "summary.json").read_text())["plateaus"]
     assert block["cycle"] == 1 and block["pairs"] == 3
     assert [(u["direction"], round(u["voltage_V"], 1)) for u in block["unpaired_peaks"]] == [("charge", 4.1)]
-    assert [(u["direction"], round(u["voltage_V"], 1)) for u in block["first_cycle_only_peaks"]] == [("charge", 4.1)]
+    assert [(u["direction"], u["cycle"], round(u["voltage_V"], 1)) for u in block["first_cycle_only_peaks"]] == \
+        [("charge", 1, 4.1)]
+    assert {r["no_curve_cycles"] for r in peaks} == {""}                     # every branch has its curve
     assert sorted((u["direction"], u["from_cycle"]) for u in block["peaks_appearing_later"]) == \
         [("charge", 3), ("discharge", 3)]
     assert rec["differential"]["peak_pair_window_mV"] == 200 and rec["settings"]["peak_pair_window_mV"] == 200
@@ -300,3 +302,66 @@ def test_other_files_give_well_formed_tables(path, settings):
     json.dumps(rep.summary(settings.reference_cycle))
     for g in r.evolution_grids():
         assert g.dqde.shape == (len(g.cycles), len(g.voltage_V))
+
+
+# ------------------------------------------------------------------ a branch without a curve
+
+def _interrupted(path, cycle, direction, back_s=100.0):
+    """The plateau cell with the time going back once, halfway through one branch, as at a tester's restart
+    (every later row is moved back_s earlier): that branch has no dQ/dE curve (M01 section 9.3, item 1)."""
+    pc.write(path)
+    lines = path.read_bytes().decode("cp1252").split("\r\n")
+    n_head = int(lines[1].split(":")[1])
+    cols = lines[n_head - 1].split("\t")
+    ns_k, t_k, cyc_k = cols.index("Ns"), cols.index("time/s"), cols.index("cycle number")
+    rows = [line.split("\t") for line in lines[n_head:] if line]
+    want = 1 if direction == "charge" else 3
+    idx = [k for k, r in enumerate(rows) if int(r[ns_k]) == want and int(r[cyc_k]) == cycle - 1]
+    for r in rows[idx[len(idx) // 2]:]:
+        r[t_k] = f"{float(r[t_k]) - back_s:.9E}"
+    path.write_bytes(("\r\n".join(lines[:n_head] + ["\t".join(r) for r in rows]) + "\r\n").encode("cp1252"))
+    return path
+
+
+def _analysed(p):
+    return workflow.analyse_file(workflow.open_file(p), Settings(charge="ox", reference="Li/Li+"), cycles="1:-1")
+
+
+def test_a_peak_whose_partner_branch_has_no_curve_says_so(tmp_path):
+    """Cycle 2's discharge is interrupted, so it has no curve: the charge peaks of cycle 2 are unpaired because
+    that branch has no dQ/dE curve, not because the cycle has no discharge, and the discharge peaks of the other
+    cycles are followed over the cycles whose discharge has a curve (1, 3, 4, 5; ranges run through consecutive
+    analysed cycles)."""
+    run = _analysed(_interrupted(tmp_path / "cell.mpt", 2, "discharge"))
+    assert [b.curve_breaks for b in run.seg.branches] == [0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
+    assert run.dqde_and_withheld(run.all_cycles)[1] == {(2, "discharge")}
+    rep = run.plateaus()
+    ch2 = rows_of(rep, 2, "charge")
+    assert len(ch2) == 3 and {r.pairing for r in ch2} == {"unpaired"}
+    assert {r.pairing_note for r in ch2} == {"the discharge branch of this cycle has no dQ/dE curve"}
+    assert not rows_of(rep, 2, "discharge") and not [q for q in rep.pairs if q.cycle == 2]
+    for e0, _ in pc.REVERSIBLE:
+        r = near(rows_of(rep, 3, "discharge"), e0 - pc.HYST / 2)
+        assert r.pairing == "paired" and r.evolution == "seen in cycles 1-5" and r.cycles_seen == "1-5"
+        assert r.no_curve_cycles == "2"                  # the range runs through cycle 2, and this says why
+        assert near(rows_of(rep, 3, "charge"), e0 + pc.HYST / 2).no_curve_cycles == ""
+    late = near(rows_of(rep, 3, "discharge"), pc.LATE[0] - pc.HYST / 2)
+    assert late.evolution == "appears from cycle 3"
+    assert differential.describe_peak(late).endswith("appears from cycle 3 (no discharge dQ/dE curve in cycle 2).")
+
+
+def test_presence_is_judged_over_the_cycles_with_a_curve(tmp_path):
+    """Cycle 1's charge is interrupted: the charge peaks of cycles 2 to 5 are seen in every cycle whose charge
+    has a curve, not 'appearing from cycle 2' (the first charge is not known to lack them), and the
+    first-charge-only plateau cannot be reported at all."""
+    run = _analysed(_interrupted(tmp_path / "cell.mpt", 1, "charge"))
+    rep = run.plateaus()
+    assert not rows_of(rep, 1, "charge")
+    for e0, _ in pc.REVERSIBLE:
+        c = near(rows_of(rep, 2, "charge"), e0 + pc.HYST / 2)
+        assert c.evolution == "seen in cycles 2-5" and c.cycles_seen == "2-5"
+        d = near(rows_of(rep, 1, "discharge"), e0 - pc.HYST / 2)
+        assert d.pairing_note == "the charge branch of this cycle has no dQ/dE curve"
+        assert d.evolution == "seen in cycles 1-5"
+    assert not [r for r in rep.peaks if abs(r.voltage_V - pc.IRREVERSIBLE[0]) < 0.02]
+    assert rep.summary(1)["first_cycle_only_peaks"] == []

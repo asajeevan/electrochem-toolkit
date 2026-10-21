@@ -333,6 +333,7 @@ class PlateauPeak:
     peaks_reported: int
     capped: bool
     peaks_note: str
+    no_curve_cycles: str = ""        # cycles of this direction whose branch has no dQ/dE curve (the ranges run through them)
 
 
 @dataclass
@@ -378,7 +379,6 @@ class PlateauReport:
         cyc = reference_cycle if reference_cycle in self.cycles else min(self.cycles)
         mine = [p for p in self.peaks if p.cycle == cyc]
         pairs = [p for p in self.pairs if p.cycle == cyc]
-        first = min(self.cycles)
         out = {
             "cycle": cyc,
             "pair_window_mV": self.window_mV, "bin_mV": self.bin_mV,
@@ -388,8 +388,10 @@ class PlateauReport:
                                   for p in pairs],
             "unpaired_peaks": [{"direction": p.direction, "voltage_V": round(p.voltage_V, 6), "note": p.pairing_note}
                                for p in mine if p.pairing == "unpaired"],
-            "first_cycle_only_peaks": [{"direction": p.direction, "voltage_V": round(p.voltage_V, 6)}
-                                       for p in self.peaks if p.cycle == first and p.evolution == "first cycle only"],
+            # in the first analysed cycle of its direction only (a direction whose first branch has no curve
+            # starts later, so each entry names its cycle)
+            "first_cycle_only_peaks": [{"direction": p.direction, "cycle": p.cycle, "voltage_V": round(p.voltage_V, 6)}
+                                       for p in self.peaks if p.evolution == "first cycle only"],
             # each track that starts after the first analysed cycle, at the cycle it appears
             "peaks_appearing_later": [{"direction": p.direction, "from_cycle": p.cycle, "voltage_V": round(p.voltage_V, 6)}
                                       for p in self.peaks if p.evolution == f"appears from cycle {p.cycle}"],
@@ -409,11 +411,14 @@ OPPOSITE = {"charge": "discharge", "discharge": "charge"}
 
 def plateau_analysis(curves, window_mV: float = PEAK_PAIR_WINDOW_MV,
                      min_prominence_fraction: float = MIN_PROMINENCE_FRACTION,
-                     max_peaks: int = MAX_PEAKS) -> PlateauReport:
+                     max_peaks: int = MAX_PEAKS, withheld=frozenset()) -> PlateauReport:
     """Peaks, charge under each peak, pairs and presence across cycles for (cycle, DqdvCurve) items.
 
     Only branches named charge or discharge take part in pairing and tracking (a file whose charging
-    direction is not stated has no cycles, so no curves reach here)."""
+    direction is not stated has no cycles, so no curves reach here). withheld: (cycle, direction) of the
+    branches that exist but have no curve (Run.dqde_curves leaves them out), so that a peak without a
+    partner says so rather than that the branch is absent. Presence across cycles is judged, for each
+    direction, over the cycles in which that direction has a curve."""
     window_mV = float(window_mV)
     by_branch = {}
     found = {}
@@ -422,6 +427,12 @@ def plateau_analysis(curves, window_mV: float = PEAK_PAIR_WINDOW_MV,
         by_branch[(c, cv.direction)] = (cv, pk, n)
         found[(c, cv.direction)] = pk
     cycles = sorted({c for c, _ in curves})
+    analysed = {}                                      # direction -> the cycles in which it has a curve
+    for c, d in by_branch:
+        analysed.setdefault(d, []).append(c)
+    analysed = {d: sorted(v) for d, v in analysed.items()}
+    known = sorted(set(cycles) | {c for c, _ in withheld})
+    gaps = {d: cycle_ranges(sorted(c for c, dd in withheld if dd == d), known) for d in analysed}
     tracks, member = track_peaks(found, cycles, window_mV)
     rows, pair_rows = [], []
     for c in cycles:
@@ -464,6 +475,7 @@ def plateau_analysis(curves, window_mV: float = PEAK_PAIR_WINDOW_MV,
                     sep = None
                     status = "unpaired"
                     why = (f"no counterpart within {window_mV:g} mV in the {other} of the same cycle" if has_other
+                           else f"the {other} branch of this cycle has no dQ/dE curve" if (c, other) in withheld
                            else f"no {other} branch in this cycle")
                 t = member[id(p)]
                 rows.append(PlateauPeak(
@@ -475,8 +487,10 @@ def plateau_analysis(curves, window_mV: float = PEAK_PAIR_WINDOW_MV,
                     separation_mV=sep * 1000.0 if sep is not None else None,
                     midpoint_V=(p.voltage_V + b.voltage_V) / 2.0 if b is not None else None,
                     pairing=status, pairing_note=why, pair_window_mV=window_mV, track=t.track,
-                    cycles_seen=cycle_ranges(t.cycles, cycles), evolution=evolution_text(t, cycles),
-                    peaks_found=n, peaks_reported=len(pk), capped=n > len(pk), peaks_note=note))
+                    cycles_seen=cycle_ranges(t.cycles, analysed[cv.direction]),
+                    evolution=evolution_text(t, analysed[cv.direction]),
+                    peaks_found=n, peaks_reported=len(pk), capped=n > len(pk), peaks_note=note,
+                    no_curve_cycles=gaps[cv.direction]))
     notes = []
     if cycles and not pair_rows and any(by_branch.get((c, "charge")) and by_branch.get((c, "discharge")) for c in cycles):
         notes.append(f"no charge peak has a discharge peak within {window_mV:g} mV in any analysed cycle")
@@ -496,8 +510,11 @@ def describe_peak(p: PlateauPeak) -> str:
     if p.separation_mV is not None:
         s += f", separation {p.separation_mV:.0f} mV, apparent mid-point {p.midpoint_V:.4f} V"
     ev = p.evolution
-    s += "; " + ("present in the first cycle only" if ev == "first cycle only" else ev) + "."
-    return s
+    s += "; " + ("present in the first cycle only" if ev == "first cycle only" else ev)
+    if p.no_curve_cycles:
+        s += f" (no {p.direction} dQ/dE curve in cycle{'s' if any(x in p.no_curve_cycles for x in ',-') else ''} " \
+             f"{p.no_curve_cycles})"
+    return s + "."
 
 
 # ------------------------------------------------------------------ evolution grid (map, surface, view)

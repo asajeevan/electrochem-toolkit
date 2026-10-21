@@ -60,8 +60,10 @@ def branches_reference(tab, sign, mode, edge, charge):
         terminated = "end of data" if end + 1 >= n else ("rest" if mode[end + 1] == REST else "direction change")
         unsupported = sum(1 for e in range(start, end) if not edge.supported[e])
         kinds = ("time reset or invalid time", "missing or invalid current", "instrument error flag")
-        breaks = sum(1 for e in range(start, end) if edge.reason.get(e) in kinds)
-        why = tuple(sorted({edge.reason[e] for e in range(start, end) if edge.reason.get(e) in kinds}))
+        curve_rows = [r for r in range(start, end + 1) if mode[r] != seg_module.CV]   # dQ/dE leaves out CV rows
+        lo, hi = (curve_rows[0], curve_rows[-1]) if curve_rows else (end, end)
+        breaks = sum(1 for e in range(lo, hi) if edge.reason.get(e) in kinds)        # curve rows on both sides
+        why = tuple(sorted({edge.reason[e] for e in range(lo, hi) if edge.reason.get(e) in kinds}))
         steps = tuple(sorted(set(int(x) for x in (tab.ns[start:end + 1] if tab.ns is not None else [0]))))
         modes = tuple(seg_module.MODE_LABELS.get(int(m), "unknown") for m in dict.fromkeys(mode[start:end + 1]))
         b = Branch(index=len(out) + 1, start=start, end=end, sign=int(s), direction=seg_module._direction(s, charge),

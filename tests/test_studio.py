@@ -605,3 +605,33 @@ def test_a_lanhe_cex_opens_with_its_direction_answered_and_its_checks_listed(win
     assert any(t.startswith("1 incomplete cycle (a branch reaches the end of the file") for t in texts)
     assert win.strip.incomplete_why == {1: "no partner branch",
                                         2: "a branch reaches the end of the file or has an unsupported interval"}
+
+
+def test_the_dqde_view_says_why_it_has_no_curve(win, app, tmp_path):
+    """A LANHE file whose every branch was paused partway: the dQ/dE view (and its compact copy in the overview)
+    says why it is empty instead of showing an empty scale; with one branch paused, the view's note names it."""
+    import sys as _sys
+    from dataclasses import replace
+    _sys.path.insert(0, str(Path(__file__).parent))
+    import cex_synthetic as cs
+    from electrochem.studio.views import NO_DQDE, DifferentialView
+    for name, paused in (("all.cex", (1, 4, 6, 7)), ("one.cex", (4,))):
+        steps = cs.two_cycles()
+        for k in paused:
+            steps[k] = replace(steps[k], pause=(steps[k].duration / 2, 120))
+        p = tmp_path / name
+        p.write_bytes(cs.write(steps)[0])
+        win.open_paths([p]); pump(app)
+        for a in ({"configuration": "full"}, {"no_mass": True}):
+            win._answer(a); pump(app)
+        assert win.rec.run is not None and [b.pauses for b in win.rec.run.seg.branches] == \
+            [int(k in paused) for k in (1, 4, 6, 7)]
+        view = next(v for v in win.views if isinstance(v, DifferentialView))
+        view.show_record(win.rec, [1, 2], None)
+        if name == "all.cex":
+            assert not view.empty.isHidden() and view.empty.text() == NO_DQDE
+            compact = [v for v in win.findChildren(DifferentialView) if v.compact]
+            assert compact and all(v.empty.text() == NO_DQDE for v in compact)
+        else:
+            assert view.empty.isHidden()
+            assert "No dQ/dE curve for cycle 1 discharge (the cycle notes say why)." in view.note.text()

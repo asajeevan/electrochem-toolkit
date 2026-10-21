@@ -507,7 +507,7 @@ def test_a_restart_keeps_every_record_and_the_charge_the_counter_left_out(tmp_pa
     assert not c1.complete and c1.coulombic_efficiency_pct is None and c1.discharge_capacity_mAh == br[1].charge_mAh
     assert c1.note == ("incomplete pair: the discharge branch 2 has 1 interval that is not integrated (settings.json "
                        "lists each interval and why), so this pair has no efficiency or retention; the discharge "
-                       "branch 2 has no dQ/dE (time reset or invalid time inside it)")
+                       "branch 2 has no dQ/dE (an interval where the time goes back or is invalid)")
     assert c2.complete and c2.coulombic_efficiency_pct == pytest.approx(100 * tr.charge[7] / tr.charge[6], rel=1e-6)
     # cycle 1 is the reference cycle by default: being incomplete, it gives no cycle a retention, and the summary says so
     assert c2.capacity_retention_pct is None and run.an.summary.retention_at_last_cycle_pct is None
@@ -521,9 +521,12 @@ def test_a_restart_keeps_every_record_and_the_charge_the_counter_left_out(tmp_pa
     assert "stopped after record" in meta["instrument_steps"][4]["notes"]
     from electrochem import methods_text
     text = methods_text.paragraph(methods_text.Context(settings=run.settings, run=run, profile_name="lanhe-cex"))
-    assert ("1 branch contained an interval where the time went back, the current was missing or the instrument "
-            "flagged an error; its capacity is given over the integrated intervals, but its cycle has no coulombic "
-            "efficiency or retention and the branch no dQ/dE.") in text
+    assert ("1 branch contained an interval where the time went back or was invalid; its capacity is given over the "
+            "integrated intervals, but its cycle has no coulombic efficiency or retention and the branch no dQ/dE.") in text
+    assert ("no capacity retention is given, because the reference cycle, 1, is not a complete cycle of this file."
+            in text)
+    text2 = methods_text.paragraph(methods_text.Context(settings=run2.settings, run=run2, profile_name="lanhe-cex"))
+    assert "capacity retention refers to the discharge capacity of cycle 2." in text2
     out = tmp_path / "out"
     rec = workflow.export(run, out, workflow.ExportOptions(plots=set(), origin=False))
     assert "none for a branch with a curve break" in rec["methods"]["dqde"]
@@ -560,17 +563,20 @@ def test_a_restart_in_a_rest_is_read(tmp_path):
     assert [c.complete for c in analysed(p).an.cycles] == [True, True]
 
 
-@pytest.mark.parametrize("why", ["too far back", "counter of another moment", "records go forward",
-                                 "records go forward in a rest", "across steps"])
+@pytest.mark.parametrize("why", ["too far back", "counter of another moment", "energy of another moment",
+                                 "records go forward", "records go forward in a rest", "across steps"])
 def test_a_restart_unlike_the_ones_verified_is_refused(tmp_path, why):
     if why == "too far back":
         blob, _ = cs.write(with_step(DISCHARGE, restart=(1495.0, 130.0, 600)))
-    elif why == "counter of another moment":
+    elif why in ("counter of another moment", "energy of another moment"):
         blob, tr = cs.write(with_step(DISCHARGE, restart=(1495.0, 30.0, 600)))
         at = status_offsets(blob, 0x0803)[0] + 16 * 5               # the stop, the resume and its details
         t, v, i, q, w = struct.unpack_from("<Ihhff", blob, at)
         bad = bytearray(blob)
-        struct.pack_into("<Ihhff", bad, at, t, v, i, q * 0.9, w)     # not the counter of the moment restored
+        if why == "counter of another moment":                        # not the capacity of the moment restored
+            struct.pack_into("<Ihhff", bad, at, t, v, i, q * 0.9, w)
+        else:                                                         # the capacity is, the energy is not
+            struct.pack_into("<Ihhff", bad, at, t, v, i, q, w * 0.9)
         blob = bytes(bad)
     elif why == "records go forward":
         blob, _ = cs.write(cs.two_cycles(), inserts={(DISCHARGE, 100): cs.status(0x0803, cs.START + 9000)
@@ -605,20 +611,23 @@ def test_events_out_of_their_verified_order_are_refused(tmp_path, units, expect)
     assert expect in refused(p, "cex_event_break")
 
 
-def test_an_event_where_the_records_break_is_refused(tmp_path):
-    """An event after which the records were found to continue, at a gap of 200 s in a step logged every 10 s:
-    what it means there has not been established. The same gap without the event is read."""
+@pytest.mark.parametrize("cut", [20, 8])
+def test_an_event_where_the_records_break_is_refused(tmp_path, cut):
+    """An event after which the records were found to continue, at a gap of 210 s or 90 s in a step logged every
+    10 s: what it means there has not been established. The rests of this file are logged every 60 s, which
+    does not widen what a constant-current step allows (twice its own 10 s). The same gap without the event is
+    read."""
     for name, event in (("event.cex", cs.status(0x0404, cs.START + 9000)), ("plain.cex", b"")):
         blob, tr = cs.write(cs.two_cycles(), inserts={(DISCHARGE, 100): event} if event else None)
         offs = cs.records_of(blob)
         first = int(np.flatnonzero(np.array(tr.step) == 5)[0])
-        a, b = int(offs[first + 100]), int(offs[first + 120])         # the 20 records after the event
+        a, b = int(offs[first + 100]), int(offs[first + 100 + cut])   # the records after the event
         p = tmp_path / name
         p.write_bytes(blob[:a] + blob[b:])
         if event:
             assert "the records break at the status 0x0404 event" in refused(p, "cex_event_break")
         else:
-            assert read(p)[0].n == len(tr.t) - 20
+            assert read(p)[0].n == len(tr.t) - cut
 
 
 def test_an_event_where_the_counter_falls_is_refused_as_a_break(tmp_path):
@@ -771,3 +780,71 @@ def test_only_a_pause_inside_a_branch_stops_its_dqde(tmp_path):
     assert firsts[0] == tr.step.index(2) and firsts[1] == len(tr.step) - 1 - tr.step[::-1].index(5)
     assert [b.pauses for b in run.seg.branches] == [0, 1, 0, 0]
     assert [cv.branch for _, cv in run.dqde_curves([1, 2])] == [1, 3, 4]
+
+
+def test_a_short_rest_with_an_event_is_judged_by_the_rests_of_the_file(tmp_path):
+    """A rest of 70 s logged every 60 s has intervals of 60 s and 10 s. An event before its second record is
+    checked against twice the longer of the step's other intervals and the typical interval of the file's
+    rests (60 s): the 60 s interval continues the step. Judged by the 10 s interval alone, it would be refused
+    as a break."""
+    steps = cs.two_cycles()
+    steps[5] = replace(steps[5], duration=70.0)
+    p, tr = write(tmp_path, steps, inserts={(5, 1): cs.status(0x2004, 0)})
+    tab, meta = read(p)
+    assert tab.n == len(tr.t)
+    where = meta["import_report"]["cex"]["other_events_where"]
+    assert where["inside_steps"] == {"status 0x2004": 1}
+
+
+def test_a_pause_in_a_constant_voltage_hold_keeps_the_dqde(tmp_path):
+    """The constant-voltage hold has no dQ/dE rows (dE is zero there), so a pause inside it, after the last row
+    of the curve, cannot fold the curve: the charge branch keeps its dQ/dE and its cycle its efficiency."""
+    steps = cs.two_cycles()
+    steps[2] = replace(steps[2], pause=(900.0, 300))
+    p, _ = write(tmp_path, steps)
+    tab, meta = read(p)
+    assert [x["step"] for x in meta["import_report"]["cex"]["pauses"]] == [3]
+    run = analysed(p)
+    assert [b.pauses for b in run.seg.branches] == [0, 0, 0, 0]
+    assert [cv.branch for _, cv in run.dqde_curves([1, 2])] == [1, 2, 3, 4]
+    assert run.an.cycles[0].complete and run.an.cycles[0].coulombic_efficiency_pct is not None
+
+
+def test_an_export_without_any_dqde_curve_says_why_in_each_figure(tmp_path):
+    """Every charge and discharge paused partway: no branch has a dQ/dE curve. The default export is written
+    whole (before the second review the 3D figure raised an error here), each dQ/dE figure and the summary's
+    panel c draw the reason instead of an empty scale, every journal check passes, and the peak tables are
+    written empty."""
+    steps = cs.two_cycles()
+    for k in (1, 4, 6, 7):
+        steps[k] = replace(steps[k], pause=(steps[k].duration / 2, 120))
+    p, _ = write(tmp_path, steps)
+    run = analysed(p)
+    assert [b.pauses for b in run.seg.branches] == [1, 1, 1, 1] and run.dqde_curves(run.all_cycles) == []
+    assert run.dqde_and_withheld(run.all_cycles)[1] == {(1, "charge"), (1, "discharge"), (2, "charge"),
+                                                        (2, "discharge")}
+    out = tmp_path / "out"
+    rec = workflow.export(run, out, workflow.ExportOptions(formats=("svg",)))
+    assert set(rec["figures"]) == set(workflow.FILE_STEMS.values())
+    bad = {k: c for k, v in rec["figure_checks"].items() for c in v if c["status"] not in ("pass", "skip")}
+    assert not bad, bad
+    for stem in ("fig3_dqde", "fig6_dqde_map", "fig7_dqde_surface", "fig_summary"):
+        assert 'id="no-curve"' in (out / f"{stem}.svg").read_text(), stem
+    assert 'id="no-curve"' not in (out / "fig1_potential_capacity.svg").read_text()
+    assert (out / "dqde_peaks.csv").exists() and (out / "dqde_pairs.csv").exists()
+    assert "4 branches were paused partway by the instrument" in rec["methods_paragraph"]
+
+
+def test_a_restart_in_a_constant_voltage_hold_keeps_the_dqde(tmp_path):
+    """Time going back inside the constant-voltage hold, after the last row of the charge's dQ/dE curve: the
+    branch has an interval that is not integrated, so its cycle has no efficiency, but its curve, made of the
+    constant-current rows before the hold, is not folded and is kept."""
+    p, tr = write(tmp_path, with_step(2, restart=(900.0, 30.0, 600)))
+    _, meta = read(p)
+    assert [f["detail"]["step"] for f in meta["import_findings"] if f["code"] == "cex_restart"] == [3]
+    run = analysed(p)
+    assert [b.unsupported_edges for b in run.seg.branches] == [1, 0, 0, 0]
+    assert [b.curve_breaks for b in run.seg.branches] == [0, 0, 0, 0]
+    assert [cv.branch for _, cv in run.dqde_curves([1, 2])] == [1, 2, 3, 4]
+    c1 = run.an.cycles[0]
+    assert not c1.complete and c1.coulombic_efficiency_pct is None and "no dQ/dE" not in c1.note

@@ -256,10 +256,12 @@ class Run:
         if cycles is None:
             cached = self.__dict__.get("_plateau_report")
             if cached is None:
-                cached = differential.plateau_analysis(self.dqde_curves(self.all_cycles), window_mV=self.peak_pair_window_mV)
+                curves, withheld = self.dqde_and_withheld(self.all_cycles)
+                cached = differential.plateau_analysis(curves, window_mV=self.peak_pair_window_mV, withheld=withheld)
                 self.__dict__["_plateau_report"] = cached
             return cached
-        return differential.plateau_analysis(self.dqde_curves(cycles), window_mV=self.peak_pair_window_mV)
+        curves, withheld = self.dqde_and_withheld(cycles)
+        return differential.plateau_analysis(curves, window_mV=self.peak_pair_window_mV, withheld=withheld)
 
     def evolution_grids(self, cycles=None) -> list:
         """The charge and discharge evolution grids (differential.evolution_grid), every cycle by default."""
@@ -268,9 +270,15 @@ class Run:
 
     def dqde_curves(self, cycles=None):
         """(cycle, curve) for each branch of the cycles, real units, constant-voltage stages excluded."""
+        return self.dqde_and_withheld(cycles)[0]
+
+    def dqde_and_withheld(self, cycles=None):
+        """The curves of dqde_curves, and the (cycle, direction) of the branches of those cycles that exist but
+        have none (differential.curve: interrupted or paused partway, too few points outside constant-voltage
+        stages, or less than two bins of potential)."""
         cycles = self.selected if cycles is None else cycles
         pairs = {p.index: p for p in self.seg.pairs}
-        out = []
+        out, withheld = [], set()
         for c in cycles:
             p = pairs.get(c)
             if p is None:
@@ -281,7 +289,9 @@ class Run:
                 cv = differential.curve(self.tab, self.seg, self.settings, br, c, self.dqde_mv)
                 if cv is not None:
                     out.append((c, cv))
-        return out
+                else:
+                    withheld.add((c, br.direction))
+        return out, withheld
 
 
 def mass_warnings(loaded: Loaded, s: Settings) -> list[str]:
@@ -382,7 +392,8 @@ def methods(s: Settings, dqde_mv: float, dqde_units: str, peak_pair_window_mV: f
         "voltage_hysteresis": "average charge voltage minus average discharge voltage of the same cycle",
         "dqde": f"finite difference of capacity interpolated on a {dqde_mv:g} mV potential grid; constant-voltage stages excluded; charge positive, discharge negative; "
                 "none for a branch with a curve break (an interval where the time goes back or is invalid, a current is missing or "
-                "an error flag is set, or a pause the instrument marked inside the branch; a zero-duration interval is not one); "
+                "an error flag is set; a zero-duration interval is not one) or with a pause the instrument marked inside it, "
+                "counted between the branch's first and last row outside constant-voltage stages; "
                 + ("figure normalised by the common maximum (a.u.), CSV in real units" if dqde_units == "au" else "real units"),
         "dqde_peaks": "scipy find_peaks on |dQ/dE| with prominence >= 5 % of the branch maximum, the 6 most prominent per branch (a capped branch is marked); "
                       "descriptors of the measured curve at the applied rate, not equilibrium potentials; dqde_peaks.csv and dqde_pairs.csv cover every cycle, dqde_curves.csv the plotted ones",
@@ -391,11 +402,13 @@ def methods(s: Settings, dqde_mv: float, dqde_units: str, peak_pair_window_mV: f
                             "share = that capacity over the branch capacity outside constant-voltage stages (the capacity the dQ/dE curve spans)",
         "dqde_pairs": f"each charge peak paired with the nearest discharge peak of the same cycle within {w} mV, greedy by smallest separation, no peak used twice; "
                         "separation = charge minus discharge peak potential; mid-point = their mean, an apparent descriptor of the measured curves, not a formal potential; "
-                        f"'unpaired' means no counterpart within {w} mV in the opposite branch of the same cycle, a statement about the curve, not a mechanism",
+                        f"'unpaired' means no counterpart within {w} mV in the opposite branch of the same cycle, or that branch is absent or has no dQ/dE "
+                        "curve (pairing_note says which), a statement about the curves, not a mechanism",
         "dqde_presence": f"peaks of one direction linked cycle to cycle to the nearest peak of the previous occurrence within {w} mV, greedy by smallest shift; "
-                         "'seen in cycles a-b', 'first cycle only' (in the first analysed cycle and in no later one) and 'appears from cycle k' describe the linked peaks over the analysed cycles",
+                         "'seen in cycles a-b', 'first cycle only' (in the first analysed cycle and in no later one) and 'appears from cycle k' describe the linked peaks over the analysed cycles "
+                         "of that direction, the cycles in which it has a dQ/dE curve",
         "dqde_map": ("each branch's dQ/dE linearly resampled onto one grid of nodes at multiples of the bin width (a shift of less than one bin), one row per cycle; "
-                     f"{'every cycle' if evolution_cycles == 'all' else 'the selected cycles'}; figure 6 shows |dQ/dE| on a sequential map (magma_r), grey where a branch was not measured; "
+                     f"{'every cycle' if evolution_cycles == 'all' else 'the selected cycles'}; figure 6 shows |dQ/dE| on a sequential map (magma_r), grey where a branch was not measured or a cycle has no dQ/dE curve; "
                      "figure 7 shows the same grid as 3D surfaces; dqde_map.csv keeps the signed values in real units; peak tables do not use this grid"),
         "c_rate": "mean |I| / (theoretical capacity x active mass); needs --molar-mass and --electrons",
         "delta_x": "Q M / (F m): electrons per formula unit exchanged in the branch",

@@ -563,10 +563,12 @@ class Inspector(QScrollArea):
                                  f"{unit} under the peaks", "value"))
         for p in peaks:
             if p.pairing != "paired":
+                gap = (f" (no {p.direction} dQ/dE curve in cycle{'s' if any(x in p.no_curve_cycles for x in ',-') else ''} "
+                       f"{p.no_curve_cycles})" if p.no_curve_cycles else "")
                 lay.addWidget(_label(f"Unpaired {p.direction} peak at {p.voltage_V:.3f} V, {p.charge:.3g} {unit} under it: "
                                      f"{p.pairing_note}; "
                                      + ("present in the first cycle only" if p.evolution == "first cycle only" else p.evolution)
-                                     + ".", "provisional" if p.evolution == "first cycle only" else "value"))
+                                     + gap + ".", "provisional" if p.evolution == "first cycle only" else "value"))
         later = [p for p in peaks if p.evolution.startswith("appears from")]
         if later:
             lay.addWidget(_label("Appearing later: " + "; ".join(f"{p.direction} {p.voltage_V:.3f} V, {p.evolution}" for p in later), "value"))

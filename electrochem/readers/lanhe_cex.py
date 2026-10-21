@@ -295,29 +295,31 @@ REMEDY = "; export the run to Excel from the tester's software"
 
 def _continues(j, row_step, steps, t, q, typical) -> bool:
     """Whether the records continue across the place before record j, inside one step: the time advances by
-    no more than twice the step's largest other interval, or twice the file's typical interval when that is
-    larger (a step of two intervals, one of them a short last one, would otherwise allow almost nothing), and
-    the counter does not fall. A step with no other interval has nothing to compare with and passes."""
-    a, b = steps[int(row_step[j])].first, steps[int(row_step[j])].last + 1
+    no more than twice the largest of the step's other intervals and the usual logging interval of steps of
+    its type (typical: {step type: median interval}; a step of two intervals, one of them a short last one,
+    would otherwise allow almost nothing), and the capacity counter does not fall. A step with no other
+    interval has nothing to compare with and passes."""
+    step = steps[int(row_step[j])]
+    a, b = step.first, step.last + 1
     h = np.diff(t[a:b])
     others = np.delete(h, j - 1 - a) if h.size > 1 else h[:0]
-    limit = 2.0 * max(float(others.max()), typical) if others.size else np.inf
+    limit = 2.0 * max(float(others.max()), typical.get(step.type, 0.0)) if others.size else np.inf
     return bool(0 < t[j] - t[j - 1] <= limit and q[j] >= q[j - 1])
 
 
-def _breaks(events, rec_units, row_step, steps, t, q, typical, fnd: Findings):
+def _breaks(events, rec_units, row_step, steps, t, q, w, typical, fnd: Findings):
     """Pauses and restarts, from the status events, checked against the records around them.
 
     A pause (0x0802) is ended by a resume (0x0203) with no record between them; inside a step the records then
     continue (_continues), and the record time does not count the pause. A stop after which the tester
     restored an earlier state (0x0803, word 3 the clock of that state) is also ended by a resume; the first
     record after it goes back in record time, by more than 0 s and at most ROLLBACK_MAX_S, within the step,
-    and its counter lies between the counters of the two records around the moment the tester went back to. A
-    stop resumed before the first record or after the last cannot be checked so and is refused. The resume
-    details (RESUME_DETAILS) must sit where a resume is. Every other event of INERT_EVENTS that lies inside a
-    step must sit where the records continue; at a step boundary, or before the first record or after the
-    last, it is only listed. Start, end and step-change events are listed, not checked. Anything else refuses
-    the file. Returns (pauses, restarts, open_at_end): open_at_end is the pause or stop the file ends in without
+    and its capacity and energy counters lie between those of the two records around the moment the tester
+    went back to. A stop resumed before the first record or after the last cannot be checked so and is
+    refused. The resume details (RESUME_DETAILS) must sit where a resume is. Every other event of INERT_EVENTS
+    that lies inside a step must sit where the records continue; at a step boundary, or before the first record
+    or after the last, it is only listed. Start, end and step-change events are listed, not checked. Anything
+    else refuses the file. Returns (pauses, restarts, open_at_end): open_at_end is the pause or stop the file ends in without
     a resume, if any. Each event gets its record index (the number of records before it)."""
     n = t.size
     for ev in events:
@@ -377,13 +379,15 @@ def _breaks(events, rec_units, row_step, steps, t, q, typical, fnd: Findings):
         a = max(steps[k].first, since.get(k, 0))     # the records since the step began, or since its last restart
         went_to = int(np.searchsorted(t[a:j], t[j], side="right")) - 1 + a       # last record at or before it
         nxt = min(went_to + 1, j - 1)
-        tol = 1e-9 + 1e-7 * abs(float(q[j]))         # float32 counters: about a part in ten million
-        bracketed = went_to >= a and q[went_to] - tol <= q[j] <= q[nxt] + tol    # the counter of that moment
+        tol, tol_w = 1e-9 + 1e-7 * abs(float(q[j])), 1e-9 + 1e-7 * abs(float(w[j]))   # float32: a part in 1e7
+        bracketed = (went_to >= a and q[went_to] - tol <= q[j] <= q[nxt] + tol            # the counters of that
+                     and w[went_to] - tol_w <= w[j] <= w[nxt] + tol_w)                     # moment, both
         if row_step[j - 1] != row_step[j] or not 0 < back <= ROLLBACK_MAX_S or not bracketed:
             fnd.refuse("cex_restart_unverified", f"at record {j + 1} (step {r['step']}) the tester resumed after a "
                        "stop, but the records do not go back to an earlier state the way a restart was verified to "
                        f"(within one step, more than 0 s and at most {ROLLBACK_MAX_S:g} s back in record time, the "
-                       "restored counters between those of the two records around the moment restored)" + REMEDY,
+                       "restored capacity and energy counters between those of the two records around the moment "
+                       "restored)" + REMEDY,
                        record=j + 1, step=r["step"])
             continue
         r.update(rollback_s=back, rollback_records=int(j - 1 - went_to), counter_drop_Ah=float(q[j - 1] - q[j]),
@@ -639,8 +643,9 @@ def read(path: str | Path, progress=None) -> tuple[RawTable, dict]:
     # --- structure ------------------------------------------------------------------------------------------
     d_t = np.diff(t)
     within = (row_step[1:] == row_step[:-1]) & (d_t > 0)
-    typical = float(np.median(d_t[within])) if within.any() else 0.0           # the file's usual logging interval
-    pauses, restarts, ends_open = _breaks(events, rec_units, row_step, steps, t, q, typical, fnd)
+    step_type = np.array([s.type for s in steps])[row_step[1:]]
+    typical = {int(k): float(np.median(d_t[within & (step_type == k)])) for k in np.unique(step_type[within])}
+    pauses, restarts, ends_open = _breaks(events, rec_units, row_step, steps, t, q, w, typical, fnd)
     restored = {r["record"] - 1 for r in restarts if "rollback_s" in r}     # first record after each restart
     back = np.flatnonzero(np.diff(t) < 0)
     unexplained = [int(k) for k in back if int(k) + 1 not in restored]
@@ -700,7 +705,7 @@ def read(path: str | Path, progress=None) -> tuple[RawTable, dict]:
         fnd.warn("cex_restart", f"step {r['step']}: the tester stopped after record {r['record'] - 1} and resumed at "
                  f"{r['resumed_clock']} on its clock, {hours:.1f} h after {r['from_clock']}, the moment whose state it "
                  f"restored; so at record {r['record']} the record time goes back {r['rollback_s']:.1f} s and the "
-                 "counters return to their values of that moment. " + what, **r)
+                 "capacity and energy counters return to their values of that moment. " + what, **r)
     if ends_open is not None:
         kind_ = "pause" if ends_open["kind"] == PAUSE else "stop"
         fnd.note("cex_ends_paused", f"the file ends in a {kind_} (event at byte {ends_open['offset']}) that it does not "

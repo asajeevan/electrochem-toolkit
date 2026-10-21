@@ -405,9 +405,15 @@ def ended_at_once(p: Pair, br: dict) -> str | None:
     return None
 
 
+# segment's reasons for a curve break, in the words of a cycle note
+_BREAK_WORDS = {"time reset or invalid time": "an interval where the time goes back or is invalid",
+                "missing or invalid current": "an interval with a missing current",
+                "instrument error flag": "an interval the instrument flagged"}
+
+
 def _no_dqde(g) -> str:
     """Why a branch has no dQ/dE (differential.curve gives none for these), for the note of its pair."""
-    why = [f"{reason} inside it" for reason in getattr(g, "breaks_why", ())]
+    why = [_BREAK_WORDS.get(reason, reason) for reason in getattr(g, "breaks_why", ())]
     if getattr(g, "pauses", 0):
         why.append("paused partway, and the potential relaxes while the current is off")
     return f"the {g.direction} branch {g.index} has no dQ/dE ({'; '.join(why)})"

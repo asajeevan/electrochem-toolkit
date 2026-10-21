@@ -101,6 +101,18 @@ def average_titles(s) -> tuple:
 
 NO_CYCLES = ("Cycles appear once you say which current direction charges the cell. "
              "Until then the Timeline and Data views show every recorded row.")
+NO_DQDE = ("None of the shown cycles has a dQ/dE curve: every branch is interrupted or paused partway, or has fewer "
+           "than four points outside constant-voltage stages, or spans less than two potential bins. The cycle "
+           "notes name the interrupted and paused branches.")
+
+
+def withheld_note(withheld, shown=6) -> str:
+    """The branches of the shown cycles that have no dQ/dE curve (Run.dqde_and_withheld), for a view's note."""
+    if not withheld:
+        return ""
+    items = [f"cycle {c} {d}" for c, d in sorted(withheld, key=lambda x: (x[0], x[1] != "charge"))]
+    more = f" and {len(items) - shown} more" if len(items) > shown else ""
+    return f"No dQ/dE curve for {', '.join(items[:shown])}{more} (the cycle notes say why)."
 
 
 def fmt(v, d=4):
@@ -437,7 +449,11 @@ class DifferentialView(View):
         pi.addItem(pg.InfiniteLine(0, angle=90, pen=pg.mkPen(t.line_strong, width=1)))
         cols = self.colors()
         order = self.drawn()
-        for c, cv in run.dqde_curves(order):
+        curves, withheld = run.dqde_and_withheld(order)
+        if withheld and not curves:
+            self.set_empty(NO_DQDE)
+            return
+        for c, cv in curves:
             focus = c == self.focus
             item = pg.PlotDataItem(cv.dqdv, cv.voltage_V, pen=_pen(cols.get(c, t.muted), 2.4 if focus else 1.2,
                                                                    Qt.DashLine if self.preview(c) else Qt.SolidLine))
@@ -448,7 +464,7 @@ class DifferentialView(View):
                                                        f"at {cv.voltage_V[k]:.4f} V ({cv.bin_mV:g} mV bins)"))
         self.set_note([] if self.compact else
                       [f"Capacity interpolated on a {run.dqde_mv:g} mV grid; constant-voltage stages excluded; "
-                       "discharge left, charge right."])
+                       "discharge left, charge right.", withheld_note(withheld)])
         self.note.setProperty("role", "muted"); self.note.style().unpolish(self.note); self.note.style().polish(self.note)
         pi.enableAutoRange()
 
@@ -914,7 +930,9 @@ class EvolutionView(View):
             if self.focus is not None and g.cycles[0] <= self.focus <= g.cycles[-1]:
                 pi.addItem(pg.InfiniteLine(self.focus, angle=0, pen=pg.mkPen(t.selection, width=1, style=Qt.DashLine)))
             self.set_note([f"|dQ/d{sym}| of every cycle on one grid of {g.bin_mV:g} mV nodes (each curve resampled by "
-                           "less than one bin); grey where the branch was not measured. Peak tables use each "
+                           "less than one bin); grey where the branch was not measured, or where a cycle has no "
+                           "dQ/dE curve (an interruption or pause inside the branch: see its cycle note). Peak "
+                           "tables use each "
                            "branch's own grid. The dashed line marks the focused cycle."])
         else:
             self._show_cbar(False)

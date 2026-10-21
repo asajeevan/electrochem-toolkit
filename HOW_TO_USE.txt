@@ -3,10 +3,11 @@ Cyclara (electrochem-toolkit 0.9): how to use it
 
 WHAT IT DOES
   Opens a battery cycling file in Cyclara, a desktop app for Windows and macOS:
-  an EC-Lab .mpr or .mpt, or the text or Excel export of another cycler (Arbin,
-  Neware, Maccor and the rest). You answer three questions only you can answer,
-  look at every cycle, pick the cycles you want, and export journal-sized figures
-  that pass their checks, every calculated quantity as tables, and an Origin folder.
+  an EC-Lab .mpr or .mpt, a LANHE .cex, or the text or Excel export of another
+  cycler (Arbin, Neware, Maccor and the rest). You answer three questions only
+  you can answer, look at every cycle, pick the cycles you want, and export
+  journal-sized figures that pass their checks, every calculated quantity as
+  tables, and an Origin folder.
 
 
 INSTALLING ON WINDOWS (one click; Windows 10 version 1903 or later, or Windows 11, 64-bit)
@@ -84,15 +85,23 @@ EVERY TIME
      A LANHE (LAND) .cex file is read directly: Cyclara checks its reading
      against the tester's own capacity and energy counters and its clock
      wherever the file holds enough records (a note says when it does not),
-     and lists the tester's steps in instrument_steps.csv. Pauses are read;
-     a charge or discharge paused partway has no dQ/dE. When the tester
-     stopped during a charge or discharge and resumed from a state saved
-     shortly before the stop, every record and the charge its counter left out
-     are kept, and that cycle has no efficiency or retention (its notes say
-     why). A .cex it cannot vouch for (a layout, step type, status event or
-     unit kind not yet seen, events out of the order seen, or a range code
-     its counters cannot confirm) is refused with the reason; export that run
-     to Excel from LANHE's software, which is read.
+     and lists the tester's steps in instrument_steps.csv. Pauses are read:
+     a charge or discharge paused partway, however briefly, keeps its
+     capacities and efficiency but has no dQ/dE (a precaution: the cell
+     relaxes while the current is off). When the tester stopped during a
+     charge or discharge and resumed from a state saved shortly before the
+     stop, every record and the charge its counter left out are kept; that
+     branch has no dQ/dE and its cycle no efficiency or retention, and when
+     it is the reference cycle no cycle has a retention until you choose
+     another reference cycle. The cycle notes say which branch and why; the
+     dQ/dE figures, views and peak tables leave such a branch out. A .cex it
+     cannot vouch for (a layout, step type, status event or unit kind not
+     yet seen, events out of the order seen, a restart unlike the ones seen,
+     records that break at an event, or a range code its counters cannot
+     confirm) is refused with the reason; export that run to Excel from
+     LANHE's software, which is read (the Landt export checked so far gives
+     capacities and dQ/dE but, its time printed to 0.01 h, no efficiency or
+     retention).
      Binary files from other makers (.res, .nda, .ndax) are not read: export
      them as text or Excel from the instrument's software first.
   4. On the right, answer the three questions:

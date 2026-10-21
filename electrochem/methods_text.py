@@ -291,14 +291,17 @@ TOPICS: list[Topic] = [
             "against noise: two plateaus closer than about two bins merge. This is dQ/dE (incremental capacity), "
             "not dE/dQ (differential voltage); the two emphasise different features.</p>"
             "<h4>Not produced when</h4><p>Fewer than four usable rows in the branch, or a potential range shorter "
-            "than two bins. Nor for a branch with a <b>curve break</b>: an unsupported edge where the time goes back "
-            "or is invalid, a current is missing or an error flag is set, or a pause the instrument marked inside "
-            "the branch (a LANHE .cex). The potential after such a place need not continue the curve before it (a "
-            "cell left without current relaxes, and the current resumes from the relaxed potential), and sorting by "
-            "potential would fold the two parts onto each other and show false peaks. A zero-duration edge (a time "
-            "printed coarsely, or a programmed discontinuity) loses no time and is not a break, and a branch cut off "
-            "by the end of the file keeps its curve. The cycle's note says which branch has no dQ/dE and why "
-            "(M01 section 9.3).</p>"),
+            "than two bins. Nor for a branch with a <b>curve break</b>, an unsupported edge where the time goes back "
+            "or is invalid, a current is missing or an error flag is set, nor for a branch with a <b>pause</b> the "
+            "instrument marked inside it (a LANHE .cex). The potential after such a place need not continue the "
+            "curve before it (a cell left without current relaxes, and the current resumes from the relaxed "
+            "potential), and sorting by potential would fold the two parts onto each other and show false peaks. "
+            "Only a break or pause between the branch's first and last row outside constant-voltage stages counts: "
+            "one inside a constant-voltage hold that ends the branch cannot fold the curve. A zero-duration edge (a "
+            "time printed coarsely, or a programmed discontinuity) loses no time and is not a break, and a branch "
+            "cut off by the end of the file keeps its curve. The cycle's note says which branch has no dQ/dE and why; "
+            "the figures, the map and the peak tables leave such a branch out, and a peak whose partner branch has no "
+            "curve says so (M01 section 9.3).</p>"),
         outputs="dqde_curves.csv (cycle, branch, direction, potential, dQ/dE, basis, bin); figure 3; the dQ/dE view",
         spec="differential.py; M01 appendix on differential capacity",
     ),
@@ -342,10 +345,14 @@ TOPICS: list[Topic] = [
             "<h4>Pairing</h4><p>Greedy by smallest separation |<i>E</i><sub>charge</sub> − "
             "<i>E</i><sub>discharge</sub>| within the window; separation = <i>E</i><sub>charge</sub> − "
             "<i>E</i><sub>discharge</sub> in mV (positive for an ordinary cell); mid-point = their mean. Pairing by "
-            "proximity is a convention, not a proof that two peaks are the same process. Across cycles, each peak "
-            "is linked to the nearest peak of the same direction within the window in the next analysed cycle, "
-            "one per cycle; the chain is a <i>track</i>, and its <i>evolution</i> reads 'seen in cycles a-b', "
-            "'first cycle only' or 'appears from cycle k'.</p>"
+            "proximity is a convention, not a proof that two peaks are the same process. A peak without a partner "
+            "is 'unpaired', and <i>pairing_note</i> says whether the opposite branch of the cycle has no peak "
+            "within the window, has no dQ/dE curve, or is absent. Across cycles, each peak is linked to the "
+            "nearest peak of the same direction within the window in the next analysed cycle, one per cycle; the "
+            "chain is a <i>track</i>, and its <i>evolution</i> reads 'seen in cycles a-b', 'first cycle only' or "
+            "'appears from cycle k'. The analysed cycles of a direction are those in which it has a dQ/dE curve; "
+            "<i>no_curve_cycles</i> lists the cycles whose branch of that direction has none, which the ranges "
+            "run through.</p>"
             "<h4>What a peak is not</h4><p>Peak potentials are descriptors of the measured curve at the applied "
             "rate and temperature; they contain the polarisation of the cell and shift with rate. A plateau split "
             "by a rest or a current change inside a branch gives two peaks; two plateaus closer than about two "
@@ -355,7 +362,7 @@ TOPICS: list[Topic] = [
         outputs="dqde_peaks.csv, every cycle: voltage_V, dqdv, prominence, width_V, charge, charge_unit, "
                 "share_of_branch_pct, curve_capacity, window_low_V, window_high_V, partner_voltage_V, separation_mV, "
                 "midpoint_V, pairing, pairing_note, pair_window_mV, track, cycles_seen, evolution, peaks_found, "
-                "peaks_reported, capped, peaks_note; dqde_pairs.csv: one row per pair and cycle (charge_voltage_V, "
+                "peaks_reported, capped, peaks_note, no_curve_cycles; dqde_pairs.csv: one row per pair and cycle (charge_voltage_V, "
                 "discharge_voltage_V, separation_mV, midpoint_V, charge_capacity, discharge_capacity); summary.json: "
                 "plateaus (the reference cycle's pairs, unpaired peaks, first-cycle-only peaks, peaks appearing later); "
                 "origin/dqde_peaks.csv and origin/dqde_pairs.csv",
@@ -641,8 +648,15 @@ def paragraph(ctx: Context) -> str:
             parts.append(f"Specific capacities refer to the active-material mass ({s.active_mass_mg:g} mg).")
         elif basis == "areal":
             parts.append(f"Areal capacities refer to the geometric electrode area ({s.area_cm2:g} cm²).")
-        parts.append(f"Coulombic efficiency is the discharge capacity divided by the charge capacity of the same "
-                     f"cycle; capacity retention refers to the discharge capacity of cycle {s.reference_cycle}.")
+        an = getattr(run, "an", None)
+        complete = {c.cycle for c in an.cycles if c.complete} if an is not None else set()
+        if an is not None and s.reference_cycle not in complete:
+            parts.append(f"Coulombic efficiency is the discharge capacity divided by the charge capacity of the same "
+                         f"cycle; no capacity retention is given, because the reference cycle, {s.reference_cycle}, "
+                         "is not a complete cycle of this file.")
+        else:
+            parts.append(f"Coulombic efficiency is the discharge capacity divided by the charge capacity of the same "
+                         f"cycle; capacity retention refers to the discharge capacity of cycle {s.reference_cycle}.")
         how = ("the sum of the recorded charge increments times the mean potential of each recording interval"
                if use_dq else "the time integral of potential times current, both taken as linear between samples")
         if s.terminal_voltage:
@@ -669,8 +683,12 @@ def paragraph(ctx: Context) -> str:
     broken = [b for b in branches if getattr(b, "curve_breaks", 0)]
     paused = [b for b in branches if getattr(b, "pauses", 0) and not getattr(b, "curve_breaks", 0)]
     if broken:
-        parts.append(f"{len(broken)} branch{'es' if len(broken) > 1 else ''} contained an interval where the time "
-                     "went back, the current was missing or the instrument flagged an error; "
+        words = {"time reset or invalid time": "the time went back or was invalid",
+                 "missing or invalid current": "the current was missing",
+                 "instrument error flag": "the instrument flagged an error"}
+        found = [words[r] for r in words if any(r in getattr(b, "breaks_why", ()) for b in broken)]
+        what = found[0] if len(found) == 1 else ", ".join(found[:-1]) + " or " + found[-1]
+        parts.append(f"{len(broken)} branch{'es' if len(broken) > 1 else ''} contained an interval where {what}; "
                      f"{'their capacities are' if len(broken) > 1 else 'its capacity is'} given over the integrated "
                      f"intervals, but {'their cycles have' if len(broken) > 1 else 'its cycle has'} no coulombic "
                      f"efficiency or retention and {'the branches' if len(broken) > 1 else 'the branch'} no dQ/dE.")

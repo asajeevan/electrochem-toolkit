@@ -485,6 +485,10 @@ def dqde(tab, seg, s, cycles, ax=None, width=None, bin_mV=10.0, palette="blues",
         unit = {"specific": "mAh g$^{−1}$ V$^{−1}$", "areal": "mAh cm$^{−2}$ V$^{−1}$",
                 "absolute": "mAh V$^{−1}$"}[basis_of(s)]
     lab = f"d$\\mathit{{Q}}$/d$\\mathit{{{sym}}}$ ({unit})"
+    if not curves:                   # the axis titles and the reason; no scale, arrows or legend to read
+        box(ax, *((lab, potential_label(tab, s)) if orientation == "vertical" else (potential_label(tab, s), lab)))
+        _no_curve(ax)
+        return fig
     n = len(sel)
     ncol = _ncol(n, ax, f"Cycle {max(c for c, _ in sel)}" if sel else "Cycle 1")
     if orientation == "vertical":
@@ -696,6 +700,7 @@ def fig6_dqde_map(curves, s, tab=None, units="au", journal="nature", width=None)
         cb.ax.tick_params(direction="in", which="both")
         cb.outline.set_linewidth(0.6)
     if not grids:
+        box(axes[0], xlab, "Cycle number")
         _no_curve(axes[0])
     letters = {ax: chr(ord("a") + k) for k, ax in enumerate(axes)} if len(axes) > 1 else None
     return finalize(fig, letters)
@@ -705,12 +710,24 @@ def _ordinal(k: int) -> str:
     return f"{k}{'th' if 10 <= k % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(k % 10, 'th')}"
 
 
-NO_CURVE = "No dQ/dE curve: no branch has four points outside constant-voltage stages"
+NO_CURVE = ("No dQ/dE curve in these cycles: every branch is interrupted or paused partway, or has fewer than "
+            "four points outside constant-voltage stages, or spans less than two potential bins (the cycle notes "
+            "name the interrupted and paused branches)")
 
 
-def _no_curve(ax):
-    ax.set_axis_off()
-    ax.text(0.5, 0.5, NO_CURVE, transform=ax.transAxes, ha="center", va="center", fontsize=_J.small_pt, wrap=True)
+def _no_curve(ax, frame=True):
+    """The reason (NO_CURVE) in place of an empty panel, wrapped to the panel's width. With a frame the panel
+    keeps its outline and axis titles but no ticks, as there is no scale to read; without one, nothing but the
+    reason is drawn."""
+    import textwrap
+    width_pt = ax.get_position().width * ax.figure.get_size_inches()[0] * 72
+    text = textwrap.fill(NO_CURVE, max(24, int(0.85 * width_pt / (0.5 * _J.small_pt))))
+    if frame:
+        ax.set_xticks([]); ax.set_yticks([])
+        ax.minorticks_off()
+    else:
+        ax.set_axis_off()
+    ax.text(0.5, 0.5, text, transform=ax.transAxes, ha="center", va="center", fontsize=_J.small_pt, gid="no-curve")
 
 
 def fig7_dqde_surface(curves, s, tab=None, units="au", journal="nature", width=None, elev=26.0, azim=-58.0):
@@ -727,7 +744,11 @@ def fig7_dqde_surface(curves, s, tab=None, units="au", journal="nature", width=N
     apply_style(journal)
     grids = _evolution_grids(curves)
     w = width or col_width("double", journal)
-    n = max(len(grids), 1)
+    if not grids:                    # the reason alone: no 3D box, colour bar or letters around nothing
+        fig, ax = _new(None, w, 0.28)
+        _no_curve(ax, frame=False)
+        return finalize(fig)
+    n = len(grids)
     fig = plt.figure(figsize=(w, w * 0.28), layout="constrained")
     fig.get_layout_engine().set(w_pad=0.5 / 72, h_pad=0.5 / 72, wspace=0.0)
     axes = [fig.add_subplot(1, n, k + 1, projection="3d") for k in range(n)]
@@ -776,8 +797,6 @@ def fig7_dqde_surface(curves, s, tab=None, units="au", journal="nature", width=N
             axis._axinfo["grid"].update(linewidth=0.4, color="0.86")
             axis._axinfo["tick"].update(linewidth={True: 0.6, False: 0.45}, inward_factor=0.0, outward_factor=0.2)
             axis._axinfo["axisline"]["linewidth"] = 0.6
-    if not grids:
-        _no_curve(axes[0])
     from matplotlib.cm import ScalarMappable
     cb = fig.colorbar(ScalarMappable(norm=norm, cmap=cmap), ax=axes, location="right", fraction=0.03, pad=0.07,
                       aspect=18, shrink=0.62)
@@ -886,6 +905,12 @@ def _axes_axes(ax):
     return (ax.xaxis, ax.yaxis, ax.zaxis) if is_3d(ax) else (ax.xaxis, ax.yaxis)
 
 
+def _axes_drawn(ax) -> bool:
+    """Whether the axes draw their axis lines, ticks and tick labels. set_axis_off clears axison on a 2D axes; a
+    3D axes keeps axison off for its 2D base and draws its own axes while _axis3don is set."""
+    return bool(getattr(ax, "_axis3don", True)) if is_3d(ax) else bool(getattr(ax, "axison", True))
+
+
 def _ticks_in_view(axis):
     """The ticks a drawn 3D axis shows, read without moving them: Axis._update_ticks() would put the labels
     back at 2D positions that a 3D axis never draws them at, so their extents would be wrong."""
@@ -907,7 +932,7 @@ def _drawn_texts(fig):
         for axis in _axes_axes(ax):
             for t in axis.get_major_ticks() + axis.get_minor_ticks():
                 tick_ids.update((id(t.label1), id(t.label2)))
-            if not (ax.get_visible() and axis.get_visible()):
+            if not (ax.get_visible() and axis.get_visible() and _axes_drawn(ax)):
                 continue
             try:
                 drawn = _ticks_in_view(axis) if is_3d(ax) else axis._update_ticks()
@@ -1270,7 +1295,7 @@ def check_figure(fig, journal: str = "nature") -> list[Check]:
                 thin.append(f"axis {sp.get_linewidth():g} pt")
         if is_3d(ax):                  # a 3D axes draws its own axis lines, panes, grid and tick strokes
             for axis in _axes_axes(ax):
-                if not (ax.get_visible() and axis.get_visible()):
+                if not (ax.get_visible() and axis.get_visible() and _axes_drawn(ax)):
                     continue
                 if axis.line.get_visible() and axis.line.get_linewidth() < 0.25:
                     thin.append(f"3D axis line {axis.line.get_linewidth():g} pt")
@@ -1285,7 +1310,7 @@ def check_figure(fig, journal: str = "nature") -> list[Check]:
                         thin.append(f"3D tick {tl.get_linewidth():g} pt")
             continue
         for axis in (ax.xaxis, ax.yaxis):
-            if not (ax.get_visible() and axis.get_visible()):
+            if not (ax.get_visible() and axis.get_visible() and _axes_drawn(ax)):
                 continue
             for tick in axis.get_major_ticks()[:1] + axis.get_minor_ticks()[:1]:
                 for tl in (tick.tick1line, tick.tick2line):

@@ -70,7 +70,7 @@ def test_a_branch_whose_time_goes_back_keeps_its_charge_and_loses_its_ratios_and
     assert c.charge_capacity_mAh == an.branches[0].charge_mAh and c.discharge_capacity_mAh is not None
     assert c.note == ("incomplete pair: the charge branch 1 has 1 interval that is not integrated (settings.json lists "
                       "each interval and why), so this pair has no efficiency or retention; the charge branch 1 has no "
-                      "dQ/dE (time reset or invalid time inside it)")
+                      "dQ/dE (an interval where the time goes back or is invalid)")
     assert seg.branches[0].curve_breaks == 1 and seg.edges.reason == {500: "time reset or invalid time"}
     cv = curves(tab, seg, s)
     assert cv[1] is None and cv[2] is not None
@@ -95,8 +95,8 @@ def test_both_branches_with_gaps_are_named():
     assert [b.unsupported_edges for b in seg.branches] == [1, 1]
     note = an.cycles[0].note
     assert "the charge branch 1 has 1 interval that is not integrated and the discharge branch 2 has 1 interval" in note
-    assert note.endswith("; the charge branch 1 has no dQ/dE (time reset or invalid time inside it); the discharge "
-                         "branch 2 has no dQ/dE (time reset or invalid time inside it)")
+    assert note.endswith("; the charge branch 1 has no dQ/dE (an interval where the time goes back or is invalid); the discharge "
+                         "branch 2 has no dQ/dE (an interval where the time goes back or is invalid)")
 
 
 def test_a_time_printed_coarsely_does_not_stop_the_dqde():

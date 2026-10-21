@@ -164,7 +164,8 @@ def write_plateau_tables(odir: Path, report) -> list[Path]:
              "curve_capacity": "Branch capacity outside CV stages", "partner_voltage_V": "Partner peak potential",
              "separation_mV": "Separation (charge minus discharge)", "midpoint_V": "Apparent mid-point",
              "charge_capacity": "Capacity under the charge peak", "discharge_capacity": "Capacity under the discharge peak",
-             "pair_window_mV": "Pairing window", "bin_mV": "Bin width", "width_V": "Peak width"}
+             "pair_window_mV": "Pairing window", "bin_mV": "Bin width", "width_V": "Peak width",
+             "no_curve_cycles": "Cycles without a dQ/dE curve"}
     out = []
     for name, records in (("dqde_peaks.csv", report.peak_rows()), ("dqde_pairs.csv", report.pair_rows())):
         path = odir / name

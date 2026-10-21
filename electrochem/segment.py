@@ -18,7 +18,10 @@ Rules (M01 section 5, P02 cases S07 to S19):
   zero-duration edge is not one (a time printed coarsely, or a programmed
   discontinuity, loses no time). A pause the instrument marks inside a branch
   (Table.paused) is integrated as usual, the record time not counting it, but
-  the potential relaxes during it, so such a branch has no dQ/dE either.
+  the potential relaxes during it, so such a branch has no dQ/dE either. A
+  break or pause counts only where the dQ/dE curve lies on both sides of it:
+  the curve leaves out constant-voltage rows, so one inside a constant-voltage
+  hold, or between the constant-current part and the hold, cannot fold it.
 * A *pair* is one charge branch and the discharge branch that follows it (or
   the reverse order, if the protocol starts with discharge). Unpaired branches
   are reported, never silently dropped (S16).
@@ -245,6 +248,10 @@ def branches(tab: Table, sign: np.ndarray, mode: np.ndarray, edge: Edge, charge:
         steps = tuple(sorted(set(int(x) for x in (np.unique(tab.ns[start:end + 1]) if tab.ns is not None else [0]))))
         modes = tuple(MODE_LABELS.get(int(m), "unknown") for m in dict.fromkeys(mode[start:end + 1].tolist()))
         direction = _direction(s, charge)
+        # the curve's rows: outside constant-voltage stages. A break before row j (edge j-1) or a pause before row j
+        # folds the curve only with curve rows on both sides: first_nc < j <= last_nc
+        nc = np.flatnonzero(mode[start:end + 1] != CV) + start
+        first_nc, last_nc = (int(nc[0]), int(nc[-1])) if nc.size else (end, end)
         b = Branch(
             index=len(out) + 1, start=start, end=end, sign=s, direction=direction,
             steps=steps, modes=modes, terminated_by=terminated,
@@ -252,11 +259,11 @@ def branches(tab: Table, sign: np.ndarray, mode: np.ndarray, edge: Edge, charge:
             unsupported_edges=unsupported,
             native_cycle=int(tab.cycle[end]) if tab.cycle is not None and np.isfinite(tab.cycle[end]) else None,
             native_half_cycle=int(tab.half_cycle[end]) if tab.half_cycle is not None and np.isfinite(tab.half_cycle[end]) else None,
-            curve_breaks=int(breaks_before[end] - breaks_before[start]),
-            pauses=int(paused_before[end + 1] - paused_before[start + 1]),     # rows start+1 .. end
+            curve_breaks=int(breaks_before[last_nc] - breaks_before[first_nc]),          # edges first_nc .. last_nc-1
+            pauses=int(paused_before[last_nc + 1] - paused_before[first_nc + 1]),        # rows first_nc+1 .. last_nc
         )
         if b.curve_breaks:
-            b.breaks_why = tuple(sorted({edge.reason[int(k)] for k in np.flatnonzero(breaks[start:end]) + start}))
+            b.breaks_why = tuple(sorted({edge.reason[int(k)] for k in np.flatnonzero(breaks[first_nc:last_nc]) + first_nc}))
         if terminated == "end of data":
             b.notes.append("last branch reaches the end of the file; treated as interrupted")
         if unsupported:
