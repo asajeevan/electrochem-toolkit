@@ -13,6 +13,16 @@ so the first increment includes the gap.
 
 Currents of constant-current steps are whole counts, so the decoded current equals the written one
 exactly; the voltage is linear in time within a step and is rounded to counts, as a tester does.
+
+Interruptions are written as the reader expects a tester to write them. A pause (Step.pause) writes a pause
+event at the clock of the last record before it, a block, then a resume event and the three resume details;
+the records continue, and the record time does not count the pause, so the clock is that much ahead from
+then on. A stop with a restored state (Step.restart) writes, after the last record before the stop, a stop
+event whose clock is that of the moment restored, a resume and its details; the records then start again
+from that moment: record time and counters go back to it, the step runs on to its end on its own record
+grid, and the counters continue from the restored values, so the counter leaves out the charge passed
+between the restored moment and the stop (Truth.kept). Periodic events (write(periodic=...)) and any other
+units (write(inserts=...)) can be placed between records.
 """
 from __future__ import annotations
 
@@ -43,6 +53,13 @@ class Step:
     tau: float = 600.0                # s, current decay of a constant-voltage step
     carry: bool = False               # counters carried from the step before
     type_code: int | None = None      # override the step type code (unknown types)
+    pause: tuple | list | None = None     # (at_s, clock_s), or a list of them: paused before the first record at
+                                          # least at_s after the step's start on the tester's side, for clock_s
+                                          # whole seconds of clock (at_s < 0: before the step's first record)
+    restart: tuple | list | None = None   # (at_s, back_s, clock_s), or a list of them in order: stopped after the
+                                          # last record at most at_s after the step's start (in the record time
+                                          # since the restart before, if any), resumed clock_s whole seconds of
+                                          # clock later with the state of back_s s of record time before it
 
 
 @dataclass
@@ -56,6 +73,7 @@ class Truth:
     charge: list = field(default_factory=list)       # Ah passed in each step, gap included (the counter's view)
     charge_records: list = field(default_factory=list)   # Ah passed between each step's first and last record
     energy: list = field(default_factory=list)       # Wh passed in each step, gap included
+    kept: list = field(default_factory=list)         # Ah a restart's restored counter left out, per step
 
 
 def u(w0, w1, w2, w3) -> bytes:
@@ -93,13 +111,28 @@ def preamble() -> bytes:
             + block(0x78, bytes(384)) + block(0x13, bytes(plan)))
 
 
+def status(code: int, clock: int, parameter: int = 0) -> bytes:
+    """A status event: its code in the low 16 bits of word 2, a parameter in the high 16, a clock in word 3."""
+    return control(0x33, (code & 0xFFFF) | ((parameter & 0xFFFF) << 16), clock)
+
+
+def resume_units(clock: int) -> bytes:
+    """A resume event and the three details written with it (the reader uses only their codes and places)."""
+    return status(0x0203, clock) + status(0x1008, 0) + status(0x1012, 0) + status(0x100E, 0)
+
+
 def write(steps: list[Step], *, v_fs=5.0, i_fs=1e-3, v_code=0xE005, i_code=0xC00A, mass_g=0.0,
-          end_event=True, start=START, time_unit=0.01) -> tuple[bytes, Truth]:
+          end_event=True, start=START, time_unit=0.01, layout=LAYOUT, periodic: float | None = None,
+          inserts: dict | None = None) -> tuple[bytes, Truth]:
     """The file and its truth. v_fs and i_fs set the scales the counts are written with; the header states
     v_code and i_code, so a header can be made to disagree with its data. time_unit is the unit the
-    record time is written in (the tester's is 0.01 s). The truth holds the physical values written."""
+    record time is written in (the tester's is 0.01 s). layout: the header's layout code. periodic: whole
+    seconds of clock between periodic events (0x1013), none during a stop. inserts: {(step index, record
+    index within the step, in the order written): bytes} written just before that record, after any pause or
+    restart units there. The truth holds the physical values written."""
     sv, si = v_fs / FULL, i_fs / FULL
-    out = bytearray(header(start, v_code, i_code, mass_g))
+    inserts = inserts or {}
+    out = bytearray(header(start, v_code, i_code, mass_g, layout))
     out += preamble()
     out += control(0x33, 0x0201, start)
     tr = Truth()
@@ -107,6 +140,12 @@ def write(steps: list[Step], *, v_fs=5.0, i_fs=1e-3, v_code=0xE005, i_code=0xC00
     q_prev = w_prev = 0.0
     direction_prev = None
     cycle = 0
+    ahead = 0.0                                      # s the clock is ahead of the record time (pauses, stops)
+    tick = periodic                                  # clock of the next periodic event, s after the start
+
+    def clock(x):                                    # the tester's clock (whole seconds) at record time x
+        return start + int(math.floor(x + ahead + 1e-6))
+
     for k, st in enumerate(steps):
         sgn = SIGN[st.kind]
         if sgn and sgn != direction_prev:
@@ -120,12 +159,31 @@ def write(steps: list[Step], *, v_fs=5.0, i_fs=1e-3, v_code=0xE005, i_code=0xC00
         if times[-1] < t_first + st.duration - 1e-9:
             times.append(t_first + st.duration)
         times = [round(x * 100) / 100 for x in times]
-        wall = start + int(math.floor(t_start + (0 if t_prev is None else GAP)))
         typ = st.type_code if st.type_code is not None else TYPE[st.kind]
         setpoint = (st.counts if st.kind.startswith("cc") else
                     round(st.v0 / sv) if st.kind == "cv_charge" else 0)
-        out += control(0x22, (setpoint << 16) | (0x85 if st.carry else 0x05) << 8 | typ, wall, hi=0x8000 | (k + 1),
-                       sig=CTRL_STEP)
+        out += control(0x22, (setpoint << 16) | (0x85 if st.carry else 0x05) << 8 | typ, clock(t_first),
+                       hi=0x8000 | (k + 1), sig=CTRL_STEP)
+        pauses = [st.pause] if isinstance(st.pause, tuple) else list(st.pause or [])
+        restarts = [st.restart] if isinstance(st.restart, tuple) else list(st.restart or [])
+        assert not (pauses and restarts), "a step with both pauses and restarts is not written"
+        plan, paused, stops = list(times), {}, {}       # record times in the order written; index -> event
+        for at_s, clock_s in pauses:
+            paused[0 if at_s < 0 else next(j for j, tt in enumerate(times) if j > 0 and tt - t_start >= at_s - 1e-9)] \
+                = clock_s
+        lo = 0
+        for at_s, back_s, clock_s in restarts:
+            jr = max(j for j in range(lo, len(plan)) if plan[j] - t_start <= at_s + 1e-9)
+            t_back = round((plan[jr] - back_s) * 100) / 100
+            assert (plan[lo] < t_back if lo == 0 else plan[lo] <= t_back) and t_back <= plan[jr], \
+                "the restored moment lies after the step's first record and after the restart before"
+            again = [t_back + m * st.every for m in range(int(math.floor((times[-1] - t_back) / st.every + 1e-9)) + 1)]
+            again = [round(x * 100) / 100 for x in again]
+            if again[-1] < times[-1] - 1e-9:
+                again.append(times[-1])
+            plan = plan[:jr + 1] + again
+            stops[jr + 1] = (t_back, clock_s)
+            lo = jr + 1
         v1 = st.v0 if st.v1 is None else st.v1
         span = times[-1] - t_start
 
@@ -150,7 +208,24 @@ def write(steps: list[Step], *, v_fs=5.0, i_fs=1e-3, v_code=0xE005, i_code=0xC00
 
         q_base = q_prev if st.carry else 0.0
         w_base = w_prev if st.carry else 0.0
-        for j, tt in enumerate(times):
+        kept = 0.0
+        for j, tt in enumerate(plan):
+            if j in paused:
+                at = clock(plan[j - 1] if j else tt)
+                out += status(0x0802, at) + block(0xCC, bytes(32)) + resume_units(at + paused[j])
+                ahead += paused[j]
+            if j in stops:
+                last, (t_back, clock_s) = plan[j - 1], stops[j]
+                out += status(0x0803, clock(t_back)) + resume_units(clock(last) + clock_s)
+                ahead += (last - t_back) + clock_s
+                kept += charge(last - t_start) - charge(t_back - t_start) if sgn else 0.0
+                while tick is not None and tick <= t_back + ahead + 1e-6:    # the tester was off until the resume
+                    tick += periodic
+            while tick is not None and tick <= tt + ahead + 1e-6:
+                out += status(0x1013, start + int(tick))
+                tick += periodic
+            if (k, j) in inserts:
+                out += inserts[(k, j)]
             x = tt - t_start
             v_counts = int(round(volt(x) / sv))
             i_true = amps(x)
@@ -168,10 +243,11 @@ def write(steps: list[Step], *, v_fs=5.0, i_fs=1e-3, v_code=0xE005, i_code=0xC00
         tr.charge.append(charge(x_end) if sgn else 0.0)
         tr.charge_records.append((charge(x_end) - charge(times[0] - t_start)) if sgn else 0.0)
         tr.energy.append(energy(x_end) if sgn else 0.0)
+        tr.kept.append(kept)
         t_prev = times[-1]
         q_prev, w_prev = (q32, w32) if sgn else (q_prev, w_prev)
     if end_event:
-        out += control(0x33, 0x0101, start + int(math.floor(t_prev)))
+        out += control(0x33, 0x0101, clock(t_prev))
     return bytes(out), tr
 
 

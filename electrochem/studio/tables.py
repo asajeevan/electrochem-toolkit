@@ -285,9 +285,13 @@ class Diagnostics(QListWidget):
                                      f"capacity counters within {abs(sc['voltage_ratio'] - 1) * 100:.2g} %"
                                      if sc.get("voltage_ratio") else "")
                                   + f" ({sc['intervals']} intervals of {sc['basis']})"))
-        if tc.get("slope"):
-            items.append(("info", f"Import: the record time follows the tester's clock between step starts "
-                                  f"(slope {tc['slope']:.6f}, largest offset {tc['largest_offset_s']:.2f} s)"))
+        if tc.get("intervals"):
+            added = tc.get("time_not_counted_s") or 0
+            items.append(("info", f"Import: the record time follows the tester's clock in {tc['intervals_agreeing']} of "
+                                  f"{tc['intervals']} intervals between step starts"
+                                  + (f", once {added:.0f} s of pauses and stops are added back" if added else "")
+                                  + f" (slope {tc['slope']:.6f}, largest offset between consecutive step starts "
+                                  f"{tc['largest_offset_s']:.2f} s)"))
         cv = (rec.loaded.meta.get("import_report") or {}).get("counter_vs_integral") or {}
         parts = [f"{side} {abs(v['relative_difference']) * 100:.3f} %" for side, v in cv.items()
                  if isinstance(v, dict) and v.get("relative_difference") is not None]

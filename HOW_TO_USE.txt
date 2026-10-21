@@ -10,7 +10,7 @@ WHAT IT DOES
 
 
 INSTALLING ON WINDOWS (one click; Windows 10 version 1903 or later, or Windows 11, 64-bit)
-  1. Double-click  Cyclara-0.9.0-Setup.exe  and click Next, Install, Finish.
+  1. Double-click  Cyclara-0.9.1-Setup.exe  and click Next, Install, Finish.
      No administrator password is asked for and nothing else on the PC is changed:
      Cyclara, its own Python and everything it needs go into your user folder
      (about 450 MB), with a Cyclara icon on the Desktop and in the Start menu.
@@ -29,8 +29,8 @@ INSTALLING ON WINDOWS (one click; Windows 10 version 1903 or later, or Windows 1
 
 
 INSTALLING ON A MAC (macOS 14 Sonoma or later)
-  1. Download the zip for your Mac: Cyclara-0.9.0-macOS-AppleSilicon.zip for an
-     M1, M2, M3 or M4 Mac, Cyclara-0.9.0-macOS-Intel.zip for an Intel Mac.
+  1. Download the zip for your Mac: Cyclara-0.9.1-macOS-AppleSilicon.zip for an
+     M1, M2, M3 or M4 Mac, Cyclara-0.9.1-macOS-Intel.zip for an Intel Mac.
      (Apple menu > About This Mac says which.) Safari unzips it by itself;
      otherwise double-click the zip.
   2. Drag Cyclara.app into Applications (or leave it in Downloads).
@@ -84,10 +84,15 @@ EVERY TIME
      A LANHE (LAND) .cex file is read directly: Cyclara checks its reading
      against the tester's own capacity and energy counters and its clock
      wherever the file holds enough records (a note says when it does not),
-     and lists the tester's steps in instrument_steps.csv. A .cex it cannot
-     vouch for (a layout, step type, status event or unit kind not yet seen,
-     or a range code its counters cannot confirm) is refused with the reason;
-     export that run to Excel from LANHE's software, which is read.
+     and lists the tester's steps in instrument_steps.csv. Pauses are read;
+     a charge or discharge paused partway has no dQ/dE. When the tester
+     stopped during a charge or discharge and resumed from a state saved
+     shortly before the stop, every record and the charge its counter left out
+     are kept, and that cycle has no efficiency or retention (its notes say
+     why). A .cex it cannot vouch for (a layout, step type, status event or
+     unit kind not yet seen, events out of the order seen, or a range code
+     its counters cannot confirm) is refused with the reason; export that run
+     to Excel from LANHE's software, which is read.
      Binary files from other makers (.res, .nda, .ndax) are not read: export
      them as text or Excel from the instrument's software first.
   4. On the right, answer the three questions:

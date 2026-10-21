@@ -2,6 +2,7 @@
 known by construction (tests/cex_synthetic.py). No real file is used: the real file the format was
 established on is private, and its regression check lives beside it, outside the repository."""
 import json
+import re
 import struct
 import sys
 from dataclasses import replace
@@ -237,10 +238,11 @@ def test_a_record_time_in_another_unit_is_refused(tmp_path):
 # --------------------------------------------------------------------------- what has not been seen: refused
 def test_another_layout_is_refused(tmp_path):
     blob, _ = cs.write(cs.two_cycles())
-    for layout in (b"\x01\x00\x04\x00", b"\x02\x01\x01\x00"):
+    for layout in (b"\x01\x00\x04\x00", b"\x02\x01\x01\x00", b"\x06\x00\x04\x00"):
         p = tmp_path / f"l{layout[0]}.cex"
         p.write_bytes(blob[:4] + layout + blob[8:])
-        assert "07 00 04 00" in refused(p, "cex_layout")
+        msg = refused(p, "cex_layout")
+        assert "07 00 04 00" in msg and "05 00 04 00" in msg
 
 
 def test_an_unknown_step_type_is_refused(tmp_path):
@@ -250,13 +252,12 @@ def test_an_unknown_step_type_is_refused(tmp_path):
     assert "0x04" in refused(p, "cex_step_unverified")
 
 
-def test_a_pause_or_alarm_event_is_refused(tmp_path):
+def test_an_unknown_status_event_is_refused(tmp_path):
     blob, _ = cs.write(cs.two_cycles())
     at = int(cs.records_of(blob)[100])
-    blob = blob[:at] + cs.control(0x33, 0x0203, cs.START + 500) + blob[at:]
-    p = tmp_path / "paused.cex"
-    p.write_bytes(blob)
-    assert "pause" in refused(p, "cex_event_unverified")
+    p = tmp_path / "event.cex"
+    p.write_bytes(blob[:at] + cs.status(0x0999, cs.START + 500, parameter=3) + blob[at:])
+    assert "0x00030999" in refused(p, "cex_event_unverified")
 
 
 def test_an_unknown_control_unit_is_refused_and_retention_units_are_skipped(tmp_path):
@@ -367,3 +368,406 @@ def test_the_refusals_are_shown_in_the_app_as_written(tmp_path):
     with pytest.raises(ImportFailure) as info:
         workflow.open_file(p)
     assert friendly(info.value) == str(info.value)
+
+
+# -------------------------------------------------------------- pauses, restarts and the other status events
+LAYOUT_05 = b"\x05\x00\x04\x00"
+DISCHARGE = 4                                       # index of the first discharge in cs.two_cycles()
+
+
+def analysed(p):
+    return workflow.analyse_file(workflow.open_file(p), Settings(charge="ox", terminal_voltage=True))
+
+
+def with_step(k, **fields):
+    steps = cs.two_cycles()
+    steps[k] = replace(steps[k], **fields)
+    return steps
+
+
+def status_offsets(blob, code):
+    """Byte offsets of the status events of one code, outside blocks."""
+    out, k = [], 64
+    while k + 16 <= len(blob):
+        w0, w1, w2, _ = struct.unpack_from("<4I", blob, k)
+        if w0 == cs.BLOCK:
+            k += 16 + (w1 >> 16) + 16
+            continue
+        if w0 == cs.CTRL and w1 & 0xFFFF == 0x33 and w2 & 0xFFFF == code:
+            out.append(k)
+        k += 16
+    return out
+
+
+def test_the_second_layout_reads_as_the_first(tmp_path):
+    """Layout 05 00 04 00 has the units and records of 07 00 04 00 (each verified on a real file): one run written
+    under either code reads to the same table and findings, and only the layout reported differs."""
+    p7, _ = write(tmp_path, name="l7.cex")
+    p5, _ = write(tmp_path, name="l5.cex", layout=LAYOUT_05)
+    (t7, m7), (t5, m5) = read(p7), read(p5)
+    for name in ("t", "e", "i", "dq", "ns", "mode"):
+        assert np.array_equal(getattr(t7, name), getattr(t5, name)), name
+    assert m5["import_findings"] == m7["import_findings"]
+    assert m5["import_report"]["cex"]["layout"] == m5["import_profile"]["layout"] == "05 00 04 00"
+    assert m7["import_report"]["cex"]["layout"] == m7["import_profile"]["layout"] == "07 00 04 00"
+
+
+def test_a_pause_is_read_and_the_clock_check_counts_it(tmp_path):
+    """The record time does not count a pause, so the records are those of the same run without it; the clock
+    check adds the pause back (resume minus pause, from the events) and then finds nothing to report."""
+    steps = cs.two_cycles()
+    steps[1] = replace(steps[1], pause=(1000.0, 5400))          # 1.5 h of clock inside the first charge
+    steps[7] = replace(steps[7], pause=(2500.0, 600))
+    edit = cs.status(0x0402, 0) + cs.block(0x13, bytes(64))      # a step plan edited during the second pause
+    p, tr = write(tmp_path, steps, inserts={(7, 250): edit})
+    p0, tr0 = write(tmp_path, name="plain.cex")
+    (tab, meta), (tab0, meta0) = read(p), read(p0)
+    assert tr.t == tr0.t and tab.n == tab0.n == 1794
+    for name in ("t", "e", "i", "dq", "ns", "mode"):
+        assert np.array_equal(getattr(tab, name), getattr(tab0, name)), name
+    rep = meta["import_report"]["cex"]
+    assert [(x["step"], x["clock_s"]) for x in rep["pauses"]] == [(2, 5400), (8, 600)] and rep["restarts"] == []
+    tc = rep["time_check"]
+    assert tc["pauses_and_restarts"] == 2 and tc["time_not_counted_s"] == 6000 and tc["disagreement"] is None
+    assert abs(tc["slope"] - 1) < 1e-4
+    assert not codes(meta, "warn") and {"cex_pauses", "cex_other_events"} <= codes(meta, "note")
+    assert "paused 5400 s on the tester's clock" in meta["instrument_steps"][1]["notes"]
+    assert "step plan edited (0x0402) event before record" in meta["instrument_steps"][7]["notes"]
+    assert [b["type"] for b in rep["blocks"]].count(0xCC) == 2 and [b["type"] for b in rep["blocks"]].count(0x13) == 2
+    assert rep["other_events"] == {"resume detail (0x1008)": 2, "resume detail (0x1012)": 2,
+                                   "resume detail (0x100e)": 2, "step plan edited (0x0402)": 1}
+    run, run0 = analysed(p), analysed(p0)
+    assert [c.coulombic_efficiency_pct for c in run.an.cycles] == [c.coulombic_efficiency_pct for c in run0.an.cycles]
+    assert [c.capacity_retention_pct for c in run.an.cycles] == [c.capacity_retention_pct for c in run0.an.cycles]
+    assert [c.complete for c in run.an.cycles] == [True, True]
+    # the potential relaxes during a pause: a branch paused partway has no dQ/dE, and its cycle's note says so
+    assert list(tab.paused) == [k - 1 for k in (x["record"] for x in rep["pauses"])]
+    assert [b.pauses for b in run.seg.branches] == [1, 0, 0, 1]
+    assert [(c, cv.branch) for c, cv in run.dqde_curves([1, 2])] == [(1, 2), (2, 3)]
+    assert [(c, cv.branch) for c, cv in run0.dqde_curves([1, 2])] == [(1, 1), (1, 2), (2, 3), (2, 4)]
+    assert run.an.cycles[0].note == ("the charge branch 1 has no dQ/dE (paused partway, and the potential relaxes "
+                                     "while the current is off)")
+    from electrochem import methods_text
+    text = methods_text.paragraph(methods_text.Context(settings=run.settings, run=run, profile_name="lanhe-cex"))
+    assert ("2 branches were paused partway by the instrument; they keep their capacities and efficiencies, but no "
+            "dQ/dE was calculated for them, because the potential relaxes while the current is off.") in text
+
+
+def test_a_pause_the_file_does_not_mark_is_reported(tmp_path):
+    """Without its events, a pause is still on the clock: the step starts after it are 5400 s later than the
+    record time says, and the reader says between which steps."""
+    blob, _ = cs.write(with_step(1, pause=(1000.0, 5400)))
+    at = status_offsets(blob, 0x0802)[0]
+    cut = 16 + (16 + 32 + 16) + 4 * 16                           # the pause, its block, the resume and its details
+    assert struct.unpack_from("<I", blob, at + cut - 16 * 4 + 8)[0] & 0xFFFF == 0x0203
+    p = tmp_path / "unmarked.cex"
+    p.write_bytes(blob[:at] + blob[at + cut:])
+    _, meta = read(p)
+    warn = [f for f in meta["import_findings"] if f["code"] == "cex_clock_offset"]
+    assert len(warn) == 1 and warn[0]["detail"]["between_steps"] == [2, 3]
+    said = re.search(r"the tester's clock advanced ([0-9.]+) s more than the record time", warn[0]["message"])
+    assert said and abs(float(said.group(1)) - 5400) <= 1.0          # the clock reads whole seconds
+
+
+def test_periodic_events_are_noted_and_change_nothing(tmp_path):
+    p, _ = write(tmp_path, periodic=1800)
+    p0, _ = write(tmp_path, name="plain.cex")
+    (tab, meta), (tab0, _) = read(p), read(p0)
+    assert np.array_equal(tab.t, tab0.t) and np.array_equal(tab.dq, tab0.dq)
+    n = meta["import_report"]["cex"]["other_events"]["periodic (0x1013)"]
+    assert n == int(tab.t[-1] // 1800) and not codes(meta, "warn")
+
+
+def test_a_restart_keeps_every_record_and_the_charge_the_counter_left_out(tmp_path):
+    """Stopped 1490 s into the first discharge and resumed two hours later with the state of 30 s before: the
+    record time and the counter go back 30 s, the three records of those seconds stay, and the charge they carry,
+    which the tester's own counter left out, stays in the capacity. The branch is partial: no efficiency for its
+    cycle, no dQ/dE for it; the second cycle is untouched."""
+    p, tr = write(tmp_path, with_step(DISCHARGE, restart=(1495.0, 30.0, 7200)))
+    tab, meta = read(p)
+    assert tab.n == len(tr.t) == 1794 + 4                        # the stop's record and the three replayed
+    warn = [f for f in meta["import_findings"] if f["code"] == "cex_restart"]
+    assert len(warn) == 1 and warn[0]["severity"] == "warn"
+    d = warn[0]["detail"]
+    assert d["step"] == 5 and d["rollback_s"] == pytest.approx(30.0, abs=1e-6) and d["rollback_records"] == 3
+    assert d["clock_s"] == 7230 and d["counter_drop_Ah"] == pytest.approx(tr.kept[DISCHARGE], rel=1e-6)
+    assert "time_goes_backwards" not in codes(meta)              # reported once, with its cause
+    tc = meta["import_report"]["cex"]["time_check"]
+    assert tc["time_not_counted_s"] == 7230 and tc["disagreement"] is None
+    k = d["record"] - 1                                          # the first record after the restart
+    assert tab.t[k] == pytest.approx(tab.t[k - 1] - 30.0) and tab.dq[k] == 0.0
+    assert np.sum(tab.dq[tab.ns == 5]) / 3600 == pytest.approx(-(tr.charge[DISCHARGE] + tr.kept[DISCHARGE]), rel=1e-6)
+
+    run = analysed(p)
+    br = run.an.branches
+    assert [b.unsupported_edges for b in run.seg.branches] == [0, 1, 0, 0]
+    assert [b.complete for b in br] == [True, False, True, True]
+    assert br[1].charge_mAh == pytest.approx((tr.charge[DISCHARGE] + tr.kept[DISCHARGE]) * 1e3, rel=1e-6)
+    c1, c2 = run.an.cycles
+    assert not c1.complete and c1.coulombic_efficiency_pct is None and c1.discharge_capacity_mAh == br[1].charge_mAh
+    assert c1.note == ("incomplete pair: the discharge branch 2 has 1 interval that is not integrated (settings.json "
+                       "lists each interval and why), so this pair has no efficiency or retention; the discharge "
+                       "branch 2 has no dQ/dE (time reset or invalid time inside it)")
+    assert c2.complete and c2.coulombic_efficiency_pct == pytest.approx(100 * tr.charge[7] / tr.charge[6], rel=1e-6)
+    # cycle 1 is the reference cycle by default: being incomplete, it gives no cycle a retention, and the summary says so
+    assert c2.capacity_retention_pct is None and run.an.summary.retention_at_last_cycle_pct is None
+    assert run.an.summary.notes == ("cycle 1 incomplete and excluded from the summary; the reference cycle, 1, is not a "
+                                    "complete cycle of this file, so no retention is given; choose another reference "
+                                    "cycle")
+    run2 = workflow.analyse_file(workflow.open_file(p), Settings(charge="ox", terminal_voltage=True, reference_cycle=2))
+    assert run2.an.cycles[1].capacity_retention_pct == pytest.approx(100.0)
+    assert run2.an.summary.notes == "cycle 1 incomplete and excluded from the summary"
+    assert [(c, cv.branch) for c, cv in run.dqde_curves([1, 2])] == [(1, 1), (2, 3), (2, 4)]
+    assert "stopped after record" in meta["instrument_steps"][4]["notes"]
+    from electrochem import methods_text
+    text = methods_text.paragraph(methods_text.Context(settings=run.settings, run=run, profile_name="lanhe-cex"))
+    assert ("1 branch contained an interval where the time went back, the current was missing or the instrument "
+            "flagged an error; its capacity is given over the integrated intervals, but its cycle has no coulombic "
+            "efficiency or retention and the branch no dQ/dE.") in text
+    out = tmp_path / "out"
+    rec = workflow.export(run, out, workflow.ExportOptions(plots=set(), origin=False))
+    assert "none for a branch with a curve break" in rec["methods"]["dqde"]
+    assert rec["import"]["report"]["cex"]["restarts"][0]["rollback_records"] == 3
+    rows = (out / "cycles.csv").read_text().splitlines()
+    assert "the discharge branch 2 has 1 interval that is not integrated" in rows[1]
+
+
+@pytest.mark.parametrize("restarts,want,kept_s", [
+    ([(795.0, 20.0, 600), (1995.0, 10.0, 300)], [(2, 620), (1, 310)], 30),
+    ([(795.0, 20.0, 600), (785.0, 5.0, 300)], [(2, 620), (1, 305)], 25),
+    ([(795.0, 100.0, 600), (715.0, 15.0, 300)], [(10, 700), (2, 315)], 115),
+])
+def test_two_restarts_in_one_step_are_each_checked(tmp_path, restarts, want, kept_s):
+    """The second restart is checked against the records since the first, also when the moment it restores lies
+    in the seconds the first one replayed, which are then recorded twice (the second and third cases)."""
+    p, tr = write(tmp_path, with_step(DISCHARGE, restart=restarts))
+    tab, meta = read(p)
+    warn = [f["detail"] for f in meta["import_findings"] if f["code"] == "cex_restart"]
+    assert [(d["rollback_records"], d["clock_s"]) for d in warn] == want
+    tc = meta["import_report"]["cex"]["time_check"]
+    assert tc["time_not_counted_s"] == sum(w[1] for w in want) and tc["disagreement"] is None
+    assert tc["places_disagreeing"] == 0
+    assert np.sum(tab.dq[tab.ns == 5]) / 3600 == pytest.approx(-(tr.charge[DISCHARGE] + tr.kept[DISCHARGE]), rel=1e-6)
+    assert tr.kept[DISCHARGE] == pytest.approx(0.5e-3 * kept_s / 3600, rel=1e-9)   # at 0.5 mA in all
+    assert [b.unsupported_edges for b in analysed(p).seg.branches] == [0, 2, 0, 0]
+
+
+def test_a_restart_in_a_rest_is_read(tmp_path):
+    p, _ = write(tmp_path, with_step(3, restart=(300.0, 120.0, 900)))
+    _, meta = read(p)
+    warn = [f for f in meta["import_findings"] if f["code"] == "cex_restart"]
+    assert len(warn) == 1 and "the step is a rest" in warn[0]["message"]
+    assert [c.complete for c in analysed(p).an.cycles] == [True, True]
+
+
+@pytest.mark.parametrize("why", ["too far back", "counter of another moment", "records go forward",
+                                 "records go forward in a rest", "across steps"])
+def test_a_restart_unlike_the_ones_verified_is_refused(tmp_path, why):
+    if why == "too far back":
+        blob, _ = cs.write(with_step(DISCHARGE, restart=(1495.0, 130.0, 600)))
+    elif why == "counter of another moment":
+        blob, tr = cs.write(with_step(DISCHARGE, restart=(1495.0, 30.0, 600)))
+        at = status_offsets(blob, 0x0803)[0] + 16 * 5               # the stop, the resume and its details
+        t, v, i, q, w = struct.unpack_from("<Ihhff", blob, at)
+        bad = bytearray(blob)
+        struct.pack_into("<Ihhff", bad, at, t, v, i, q * 0.9, w)     # not the counter of the moment restored
+        blob = bytes(bad)
+    elif why == "records go forward":
+        blob, _ = cs.write(cs.two_cycles(), inserts={(DISCHARGE, 100): cs.status(0x0803, cs.START + 9000)
+                                                     + cs.resume_units(cs.START + 9600)})
+    elif why == "records go forward in a rest":                   # counters at zero: only the time can tell
+        blob, _ = cs.write(cs.two_cycles(), inserts={(3, 5): cs.status(0x0803, cs.START + 5700)
+                                                     + cs.resume_units(cs.START + 5700)})
+    else:
+        blob, _ = cs.write(cs.two_cycles(), inserts={(DISCHARGE, 0): cs.status(0x0803, cs.START + 9000)
+                                                     + cs.resume_units(cs.START + 9600)})
+    p = tmp_path / "restart.cex"
+    p.write_bytes(blob)
+    assert "the records do not go back to an earlier state" in refused(p, "cex_restart_unverified")
+
+
+@pytest.mark.parametrize("units,expect", [
+    ("resume", "follows no pause or stop"),
+    ("detail", "is not where a resume is"),
+    ("pause then records", "records lie between"),
+    ("pause never resumed", "without a resume event"),
+    ("pause inside a pause", "was resumed"),
+])
+def test_events_out_of_their_verified_order_are_refused(tmp_path, units, expect):
+    c = cs.START + 9000
+    put = {"resume": {(DISCHARGE, 100): cs.resume_units(c)},
+           "detail": {(DISCHARGE, 100): cs.status(0x1012, 0)},
+           "pause then records": {(DISCHARGE, 100): cs.status(0x0802, c), (DISCHARGE, 102): cs.resume_units(c + 60)},
+           "pause never resumed": {(DISCHARGE, 100): cs.status(0x0802, c)},
+           "pause inside a pause": {(DISCHARGE, 100): cs.status(0x0802, c) + cs.status(0x0802, c + 5)
+                                    + cs.resume_units(c + 60)}}[units]
+    p, _ = write(tmp_path, inserts=put)
+    assert expect in refused(p, "cex_event_break")
+
+
+def test_an_event_where_the_records_break_is_refused(tmp_path):
+    """An event after which the records were found to continue, at a gap of 200 s in a step logged every 10 s:
+    what it means there has not been established. The same gap without the event is read."""
+    for name, event in (("event.cex", cs.status(0x0404, cs.START + 9000)), ("plain.cex", b"")):
+        blob, tr = cs.write(cs.two_cycles(), inserts={(DISCHARGE, 100): event} if event else None)
+        offs = cs.records_of(blob)
+        first = int(np.flatnonzero(np.array(tr.step) == 5)[0])
+        a, b = int(offs[first + 100]), int(offs[first + 120])         # the 20 records after the event
+        p = tmp_path / name
+        p.write_bytes(blob[:a] + blob[b:])
+        if event:
+            assert "the records break at the status 0x0404 event" in refused(p, "cex_event_break")
+        else:
+            assert read(p)[0].n == len(tr.t) - 20
+
+
+def test_an_event_where_the_counter_falls_is_refused_as_a_break(tmp_path):
+    blob, tr = cs.write(cs.two_cycles(), inserts={(DISCHARGE, 100): cs.status(0x2001, cs.START + 9000)})
+    k = int(np.flatnonzero(np.array(tr.step) == 5)[0]) + 100            # the record after the event
+    at = int(cs.records_of(blob)[k])
+    t, v, i, q, w = struct.unpack_from("<Ihhff", blob, at)
+    bad = bytearray(blob)
+    struct.pack_into("<Ihhff", bad, at, t, v, i, q * 0.5, w)
+    p = tmp_path / "fall.cex"
+    p.write_bytes(bytes(bad))
+    assert "the records break at the status 0x2001 event" in refused(p, "cex_event_break")
+
+
+def test_the_clock_check_allows_for_whole_seconds(tmp_path):
+    """Steps 60.2 s apart in record time: on a clock that reads whole seconds, one interval in five spans 61 s
+    and differs from the record time by 0.8 s, 1.3 %. That is the clock's resolution, not a disagreement."""
+    steps = [cs.Step("rest", 0.0)] + [cs.Step("cc_charge" if k % 2 == 0 else "cc_discharge", 60.0, every=10.0,
+                                              counts=8064, v0=3.4, v1=3.6 if k % 2 == 0 else 3.4) for k in range(40)]
+    steps.append(cs.Step("rest", 60.0, v0=3.4))
+    p, _ = write(tmp_path, steps, name="short_steps.cex")
+    _, meta = read(p)
+    tc = meta["import_report"]["cex"]["time_check"]
+    assert tc["intervals"] >= 30 and tc["intervals_agreeing"] == tc["intervals"] and tc["disagreement"] is None
+
+
+def test_a_restart_that_does_not_go_back_is_refused(tmp_path):
+    """Records going on after a stop from exactly the last state (0 s back) were never seen: the interval across
+    it would be a zero-duration one, which is not a curve break, so a fold could reach the dQ/dE unannounced."""
+    blob, _ = cs.write(with_step(DISCHARGE, restart=(1495.0, 0.0, 600)))
+    p = tmp_path / "zero.cex"
+    p.write_bytes(blob)
+    assert "more than 0 s and at most 120 s back" in refused(p, "cex_restart_unverified")
+
+
+def test_records_missing_after_a_pause_are_refused(tmp_path):
+    """After the pauses seen the records continue; 20 records missing after one (a 210 s jump in a step logged
+    every 10 s) are refused like a break at any other event."""
+    blob, tr = cs.write(with_step(1, pause=(1000.0, 600)))
+    first = int(np.flatnonzero(np.array(tr.step) == 2)[0])
+    j = first + next(k for k, t in enumerate(tr.t[first:]) if t - tr.t[first - 1] >= 1000.0)    # after the pause
+    offs = cs.records_of(blob)
+    p = tmp_path / "missing.cex"
+    p.write_bytes(blob[:int(offs[j])] + blob[int(offs[j + 20]):])
+    assert "the records break at the pause" in refused(p, "cex_event_break")
+
+
+def test_an_event_in_a_short_step_is_judged_by_the_files_logging_interval(tmp_path):
+    """A step of 10.5 s logged every 10 s has intervals of 10 s and 0.5 s; an event in its first interval is
+    where the records continue, by the file's usual 10 s interval."""
+    steps = cs.two_cycles()[:5] + [cs.Step("cc_discharge", 10.5, counts=8064, v0=3.6, v1=3.5)] + cs.two_cycles()[5:]
+    p, tr = write(tmp_path, steps, inserts={(5, 1): cs.status(0x1013, cs.START + 9000)})
+    tab, meta = read(p)
+    assert tab.n == len(tr.t) and meta["import_report"]["cex"]["other_events_where"]["inside_steps"] == \
+        {"periodic (0x1013)": 1}
+
+
+def test_pauses_at_either_end_of_the_records_are_read_and_stops_refused(tmp_path):
+    steps = cs.two_cycles()
+    steps[0] = replace(steps[0], pause=(-1.0, 900))                  # before the first record of the test
+    p, _ = write(tmp_path, steps)
+    tab, meta = read(p)
+    rep = meta["import_report"]["cex"]
+    assert [(x["where"], x["clock_s"]) for x in rep["pauses"]] == [("before the first record", 900)]
+    assert rep["time_check"]["time_not_counted_s"] == 900 and rep["time_check"]["disagreement"] is None
+    assert tab.paused is not None and len(tab.paused) == 0           # no branch is paused partway
+    blob, tr = cs.write(cs.two_cycles(), end_event=False)
+    end = cs.START + 30000
+    tail = cs.status(0x0802, end) + cs.block(0xCC, bytes(32)) + cs.resume_units(end + 60)
+    p = tmp_path / "after.cex"
+    p.write_bytes(blob + tail)
+    _, meta = read(p)
+    assert [x["where"] for x in meta["import_report"]["cex"]["pauses"]] == ["after the last record"]
+    p = tmp_path / "stop_after.cex"
+    p.write_bytes(blob + cs.status(0x0803, end) + cs.resume_units(end + 60))
+    assert "after the last record" in refused(p, "cex_restart_unverified")
+
+
+def test_events_at_a_step_boundary_are_listed_not_checked(tmp_path):
+    p, _ = write(tmp_path, inserts={(DISCHARGE, 0): cs.status(0x2004, cs.START + 9000)})
+    _, meta = read(p)
+    where = meta["import_report"]["cex"]["other_events_where"]
+    assert where == {"inside_steps": {}, "elsewhere": {"status 0x2004": 1}, "with_resumes": {}}
+    note = next(f["message"] for f in meta["import_findings"] if f["code"] == "cex_other_events")
+    assert "at a step boundary, before the first record or after the last, listed only: status 0x2004 x1" in note
+
+
+def test_the_scale_check_says_when_restarts_left_it_without_intervals(tmp_path):
+    steps = cs.two_cycles()
+    for k, at in ((1, 1795.0), (2, 895.0), (4, 1495.0), (6, 1595.0), (7, 2995.0)):    # every step that carries current
+        steps[k] = replace(steps[k], restart=(at, 30.0, 600))
+    p, _ = write(tmp_path, steps)
+    _, meta = read(p)
+    note = next(f["message"] for f in meta["import_findings"] if f["code"] == "cex_scale_not_checked")
+    assert "once its 5 step(s) with a restart are left out" in note
+    assert "outside its steps with a restart, which are left out" in meta["profile_evidence"]
+
+
+def test_a_file_that_ends_in_a_pause_is_read_with_a_note(tmp_path):
+    blob, tr = cs.write(cs.two_cycles(), end_event=False)
+    p = tmp_path / "paused.cex"
+    p.write_bytes(blob + cs.status(0x0802, cs.START + 30000) + cs.block(0xCC, bytes(32)))
+    tab, meta = read(p)
+    assert tab.n == len(tr.t) and {"cex_ends_paused", "cex_no_end_event"} <= codes(meta, "note")
+    note = next(f["message"] for f in meta["import_findings"] if f["code"] == "cex_ends_paused")
+    assert note.startswith("the file ends in a pause (event at byte")
+    p = tmp_path / "stopped.cex"
+    p.write_bytes(blob + cs.status(0x0803, cs.START + 30000))
+    _, meta = read(p)
+    note = next(f["message"] for f in meta["import_findings"] if f["code"] == "cex_ends_paused")
+    assert note.startswith("the file ends in a stop (event at byte")
+
+
+def test_a_clock_behind_the_record_time_is_reported_as_a_clock_change(tmp_path):
+    """The tester's clock set back 300 s before the fifth step: from the fourth step's start to the fifth's, the
+    record time advanced 300 s more than the clock. A pause the file does not mark cannot do that (it makes the
+    clock run ahead), so the warning names a change of the clock only."""
+    blob, _ = cs.write(cs.two_cycles())
+    k, found = 64, 0
+    bad = bytearray(blob)
+    while k + 16 <= len(blob):                                          # every step start from the fifth on
+        w0, w1, w2, w3 = struct.unpack_from("<4I", blob, k)
+        if w0 == cs.BLOCK:
+            k += 16 + (w1 >> 16) + 16
+            continue
+        if w0 == cs.CTRL_STEP and w1 & 0xFFFF == 0x22:
+            found += 1
+            if found >= 5:
+                struct.pack_into("<I", bad, k + 12, w3 - 300)
+        k += 16
+    p = tmp_path / "early.cex"
+    p.write_bytes(bytes(bad))
+    _, meta = read(p)
+    warn = next(f for f in meta["import_findings"] if f["code"] == "cex_clock_offset")
+    assert warn["detail"]["between_steps"] == [4, 5] and warn["detail"]["places_disagreeing"] == 1
+    assert "the record time advanced" in warn["message"] and "(a change of the clock)" in warn["message"]
+    assert "pause" not in warn["message"].split("beyond the pauses and restarts the file marks")[1]
+
+
+def test_only_a_pause_inside_a_branch_stops_its_dqde(tmp_path):
+    """A pause right before a charge's first record (after a rest) is not inside the charge branch, whose curve it
+    cannot fold: the branch keeps its dQ/dE. A pause right before a branch's last record is inside it."""
+    steps = cs.two_cycles()
+    steps[1] = replace(steps[1], pause=(-1.0, 300))                 # before the first record of the first charge
+    steps[4] = replace(steps[4], pause=(2999.0, 300))               # before the last record of the first discharge
+    p, tr = write(tmp_path, steps)
+    tab, meta = read(p)
+    run = analysed(p)
+    firsts = [x["record"] - 1 for x in meta["import_report"]["cex"]["pauses"]]
+    assert firsts[0] == tr.step.index(2) and firsts[1] == len(tr.step) - 1 - tr.step[::-1].index(5)
+    assert [b.pauses for b in run.seg.branches] == [0, 1, 0, 0]
+    assert [cv.branch for _, cv in run.dqde_curves([1, 2])] == [1, 3, 4]

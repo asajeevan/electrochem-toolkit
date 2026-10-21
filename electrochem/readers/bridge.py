@@ -55,7 +55,7 @@ def native_table(raw: RawTable) -> Table:
         columns=tuple(raw.columns), t=raw.t, i=raw.i, e=raw.e, ns=raw.step_id, mode=mode, oxred=None, error=None,
         half_cycle=None, cycle=raw.cycle, q_instrument=None, dq=raw.dq * 3600.0 if raw.dq is not None else None,
         temperature=raw.temperature, invalid_rows={}, labels=dict(rep.get("labels", {})), header=(),
-        potentials={rep.get("potential_name", "voltage"): raw.e},
+        potentials={rep.get("potential_name", "voltage"): raw.e}, paused=raw.paused_rows,
     )
 
 

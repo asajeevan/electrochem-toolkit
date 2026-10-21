@@ -89,6 +89,15 @@ class DqdvPeak:
 
 
 def curve(tab, seg, s, branch, cycle, bin_mV=10.0) -> DqdvCurve | None:
+    """The branch's dQ/dE on a grid of bin_mV (M01 section 9.3), or None. A branch with a curve break (an
+    interval where the time goes back, as at a tester's restart, or the current is missing, or the instrument
+    flagged an error: segment.CURVE_BREAKS) or a pause the instrument marked inside it has none: its potential
+    after the break need not continue the curve before it (a cell left without current relaxes), and the
+    sorted, interpolated Q(E) then folds back on itself and shows false peaks. A zero-duration interval (a time
+    printed coarsely, or a programmed discontinuity) loses no time and does not count; nor does reaching the
+    end of the data."""
+    if getattr(branch, "curve_breaks", 0) or getattr(branch, "pauses", 0):
+        return None
     q = cumulative_charge(tab, seg, branch, s.use_instrument_dq) / 3.6   # mAh
     basis = "mAh/V"
     kind = capacity_basis(s)                  # the same decision as every other capacity

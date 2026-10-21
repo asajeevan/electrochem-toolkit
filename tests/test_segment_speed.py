@@ -4,7 +4,7 @@ The reference implementation below is the row-by-row form of the rules in the mo
 `electrochem/segment.py`, kept here as the specification: the vectorised code must agree with it on
 random tables that hit every rule (time resets, duplicate times, missing current, error flags, sign
 changes across step boundaries, rests, zero current inside an active stretch, the last branch reaching
-the end of the file).
+the end of the file), including which unsupported edges break the dQ/dE curve.
 """
 import time
 from dataclasses import asdict
@@ -59,13 +59,16 @@ def branches_reference(tab, sign, mode, edge, charge):
         end = k
         terminated = "end of data" if end + 1 >= n else ("rest" if mode[end + 1] == REST else "direction change")
         unsupported = sum(1 for e in range(start, end) if not edge.supported[e])
+        kinds = ("time reset or invalid time", "missing or invalid current", "instrument error flag")
+        breaks = sum(1 for e in range(start, end) if edge.reason.get(e) in kinds)
+        why = tuple(sorted({edge.reason[e] for e in range(start, end) if edge.reason.get(e) in kinds}))
         steps = tuple(sorted(set(int(x) for x in (tab.ns[start:end + 1] if tab.ns is not None else [0]))))
         modes = tuple(seg_module.MODE_LABELS.get(int(m), "unknown") for m in dict.fromkeys(mode[start:end + 1]))
         b = Branch(index=len(out) + 1, start=start, end=end, sign=int(s), direction=seg_module._direction(s, charge),
                    steps=steps, modes=modes, terminated_by=terminated,
                    complete=(terminated != "end of data") and unsupported == 0, unsupported_edges=unsupported,
                    native_cycle=int(tab.cycle[end]) if tab.cycle is not None and np.isfinite(tab.cycle[end]) else None,
-                   native_half_cycle=None)
+                   native_half_cycle=None, curve_breaks=breaks, breaks_why=why)
         if terminated == "end of data":
             b.notes.append("last branch reaches the end of the file; treated as interrupted")
         if unsupported:

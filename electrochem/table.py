@@ -63,6 +63,8 @@ class Table:
     labels: dict[str, str] = field(default_factory=dict)
     header: tuple[str, ...] = ()
     potentials: dict[str, np.ndarray] = field(default_factory=dict)   # every potential column, V
+    paused: np.ndarray | None = None   # rows that follow a pause the instrument marked (LANHE .cex): the record
+                                       # time does not count the pause, so the edge before such a row is integrated
 
     @property
     def n(self) -> int:

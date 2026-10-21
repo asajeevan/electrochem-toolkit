@@ -405,6 +405,14 @@ def ended_at_once(p: Pair, br: dict) -> str | None:
     return None
 
 
+def _no_dqde(g) -> str:
+    """Why a branch has no dQ/dE (differential.curve gives none for these), for the note of its pair."""
+    why = [f"{reason} inside it" for reason in getattr(g, "breaks_why", ())]
+    if getattr(g, "pauses", 0):
+        why.append("paused partway, and the potential relaxes while the current is off")
+    return f"the {g.direction} branch {g.index} has no dQ/dE ({'; '.join(why)})"
+
+
 def _cycle_result(p: Pair, br: dict, reference) -> CycleResult:
     c = br.get(p.charge.index) if p.charge else None
     d = br.get(p.discharge.index) if p.discharge else None
@@ -431,7 +439,18 @@ def _cycle_result(p: Pair, br: dict, reference) -> CycleResult:
             lead = degenerate_note(p.discharge, d, c) + ", so no efficiency, hysteresis or retention is given for this pair"
         else:
             lead = degenerate_note(p.charge, c, d) + ", so no efficiency or hysteresis is given for this pair"
-    note = "; ".join(x for x in (p.note or ("" if ok else "incomplete pair: efficiency and retention unavailable"), lead) if x)
+    sides = [g for g in (p.charge, p.discharge) if g is not None]
+    gaps = [g for g in sides if g.unsupported_edges]
+    if not ok and not p.note and gaps:
+        why = " and ".join(f"the {g.direction} branch {g.index} has "
+                           + ("1 interval that is" if g.unsupported_edges == 1 else f"{g.unsupported_edges} intervals "
+                              "that are") + " not integrated" for g in gaps)
+        incomplete = (f"incomplete pair: {why} (settings.json lists each interval and why), so this pair has no "
+                      "efficiency or retention")
+    else:
+        incomplete = "incomplete pair: efficiency and retention unavailable"
+    no_curve = [_no_dqde(g) for g in sides if g.curve_breaks or getattr(g, "pauses", 0)]   # differential.curve
+    note = "; ".join(x for x in (p.note or ("" if ok else incomplete), lead, *no_curve) if x)
     return CycleResult(
         cycle=p.index, native_cycle=p.native_cycle, complete=ok,
         charge_branch=c.branch if c else None, discharge_branch=d.branch if d else None,
@@ -456,9 +475,10 @@ def _cycle_result(p: Pair, br: dict, reference) -> CycleResult:
     )
 
 
-def _summary(cycles, s, tab, ended=None, reference_ended=False) -> Summary:
+def _summary(cycles, s, tab, ended=None, reference_ended=False, reference_missing=False) -> Summary:
     """ended: {cycle: "charge" or "discharge"} for the pairs with a step that ended at once (ended_at_once);
-    reference_ended: the reference cycle's discharge is such a step, so no retention is given at all."""
+    reference_ended: the reference cycle's discharge is such a step, so no retention is given at all;
+    reference_missing: the reference cycle is not a complete cycle of the file, so no retention either."""
     ended = ended or {}
     ok = [c for c in cycles if c.complete]
     total_h = float((tab.t[-1] - tab.t[0]) / 3600)
@@ -483,8 +503,14 @@ def _summary(cycles, s, tab, ended=None, reference_ended=False) -> Summary:
     util = (100 * first.discharge_specific_mAh_g / qth
             if (qth and first.discharge_specific_mAh_g and ended.get(first.cycle) != "discharge") else None)
     notes = []
-    if cycles and last.cycle != cycles[-1].cycle:
-        notes.append(f"cycle {cycles[-1].cycle} incomplete and excluded from the summary")
+    left_out = [c.cycle for c in cycles if not c.complete]          # wherever they are, not only the last
+    if left_out:
+        notes.append(f"cycle{'s' if len(left_out) > 1 else ''} {', '.join(map(str, left_out[:12]))}"
+                     + (f"... ({len(left_out)} in all)" if len(left_out) > 12 else "")
+                     + " incomplete and excluded from the summary")
+    if reference_missing:
+        notes.append(f"the reference cycle, {s.reference_cycle}, is not a complete cycle of this file, so no retention "
+                     "is given; choose another reference cycle")
     odd = [c.cycle for c in ok if ended.get(c.cycle)]
     if odd:
         odd_d = [k for k in odd if ended[k] == "discharge"]
@@ -543,7 +569,8 @@ def analyse(tab: Table, seg: Segmentation, s: Settings) -> Analysis:
             else:
                 reference = by_index[p.discharge.index].charge_mAh
     cycles = [_cycle_result(p, by_index, reference) for p in seg.pairs]
-    return Analysis(branch_results, cycles, rests, _summary(cycles, s, tab, ended, reference_ended))
+    missing = reference is None and not reference_ended
+    return Analysis(branch_results, cycles, rests, _summary(cycles, s, tab, ended, reference_ended, missing))
 
 
 def capacity_basis(s: Settings) -> str:

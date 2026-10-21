@@ -11,7 +11,14 @@ Rules (M01 section 5, P02 cases S07 to S19):
 * A *branch* is a maximal run of non-rest rows with one current direction.
   Constant-current and constant-voltage steps of the same direction belong to
   the same branch (S05). A branch that reaches the end of the data, or that
-  contains an unsupported edge, is *partial* (S07, S08, S15).
+  contains an unsupported edge, is *partial* (S07, S08, S15). Of its unsupported
+  edges, those where time goes back or is invalid, a current is missing, or an
+  error flag is set are *curve breaks*: the potential after one need not continue
+  the curve before it, so the branch has no dQ/dE (M01 section 9.3). A
+  zero-duration edge is not one (a time printed coarsely, or a programmed
+  discontinuity, loses no time). A pause the instrument marks inside a branch
+  (Table.paused) is integrated as usual, the record time not counting it, but
+  the potential relaxes during it, so such a branch has no dQ/dE either.
 * A *pair* is one charge branch and the discharge branch that follows it (or
   the reverse order, if the protocol starts with discharge). Unpaired branches
   are reported, never silently dropped (S16).
@@ -31,6 +38,14 @@ from .table import Table, MODE_LABELS
 REST = 3
 CC = 1
 CV = 2
+
+# why an edge is unsupported (Edge.reason)
+TIME_INVALID = "time reset or invalid time"
+ZERO_DURATION = "zero-duration programmed discontinuity"
+CURRENT_INVALID = "missing or invalid current"
+ERROR_FLAG = "instrument error flag"
+REVERSAL = "current sign change across programmed boundary"
+CURVE_BREAKS = (TIME_INVALID, CURRENT_INVALID, ERROR_FLAG)
 
 
 @dataclass
@@ -55,6 +70,9 @@ class Branch:
     native_cycle: int | None
     native_half_cycle: int | None
     notes: list[str] = field(default_factory=list)
+    curve_breaks: int = 0            # unsupported edges of a CURVE_BREAKS reason: no dQ/dE for the branch
+    pauses: int = 0                  # marked pauses inside the branch (Table.paused): no dQ/dE for it either
+    breaks_why: tuple[str, ...] = ()  # the reasons of its curve breaks, each once
 
     @property
     def rows(self):
@@ -186,9 +204,8 @@ def edges(tab: Table, sign: np.ndarray, mode: np.ndarray) -> Edge:
     reversal = boundary & active & (sign[:-1] != sign[1:])
     supported = ~(bad_time | zero | bad_i | flagged | reversal)
     reason: dict[int, str] = {}
-    for mask, text in ((bad_time, "time reset or invalid time"), (zero, "zero-duration programmed discontinuity"),
-                       (bad_i, "missing or invalid current"), (flagged, "instrument error flag"),
-                       (reversal, "current sign change across programmed boundary")):
+    for mask, text in ((bad_time, TIME_INVALID), (zero, ZERO_DURATION), (bad_i, CURRENT_INVALID),
+                       (flagged, ERROR_FLAG), (reversal, REVERSAL)):
         for k in np.flatnonzero(mask):
             reason[int(k)] = text
     reason = dict(sorted(reason.items()))
@@ -205,6 +222,14 @@ def branches(tab: Table, sign: np.ndarray, mode: np.ndarray, edge: Edge, charge:
     starts = np.concatenate(([0], cuts))
     ends = np.concatenate((cuts, [n])) - 1               # inclusive
     unsupported_before = np.concatenate(([0], np.cumsum(~edge.supported)))   # count over edges [0, k)
+    breaks = np.zeros(max(n - 1, 0), bool)
+    breaks[[k for k, why in edge.reason.items() if why in CURVE_BREAKS]] = True
+    breaks_before = np.concatenate(([0], np.cumsum(breaks)))
+    paused = np.zeros(n, bool)
+    rows = getattr(tab, "paused", None)
+    if rows is not None and len(rows):
+        paused[np.asarray(rows, dtype=np.int64)] = True
+    paused_before = np.concatenate(([0], np.cumsum(paused)))         # count over rows [0, k)
     out: list[Branch] = []
     for start, end in zip(starts.tolist(), ends.tolist()):
         s = int(key[start])
@@ -227,7 +252,11 @@ def branches(tab: Table, sign: np.ndarray, mode: np.ndarray, edge: Edge, charge:
             unsupported_edges=unsupported,
             native_cycle=int(tab.cycle[end]) if tab.cycle is not None and np.isfinite(tab.cycle[end]) else None,
             native_half_cycle=int(tab.half_cycle[end]) if tab.half_cycle is not None and np.isfinite(tab.half_cycle[end]) else None,
+            curve_breaks=int(breaks_before[end] - breaks_before[start]),
+            pauses=int(paused_before[end + 1] - paused_before[start + 1]),     # rows start+1 .. end
         )
+        if b.curve_breaks:
+            b.breaks_why = tuple(sorted({edge.reason[int(k)] for k in np.flatnonzero(breaks[start:end]) + start}))
         if terminated == "end of data":
             b.notes.append("last branch reaches the end of the file; treated as interrupted")
         if unsupported:

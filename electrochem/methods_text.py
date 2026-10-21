@@ -71,11 +71,14 @@ TOPICS: list[Topic] = [
             "the rest current you set (0 A by default, so only an exact zero counts). Rest rows are excluded from "
             "every integral; a rest ends a branch.</p>"
             "<h4>Supported edges</h4><p>An <i>edge</i> is the interval between two consecutive rows. Charge is "
-            "integrated over supported edges only. An edge is <b>unsupported</b> when time does not advance (a reset "
-            "or a duplicate time), when either current sample is missing, when an instrument error flag is set, or "
-            "when the current changes sign across a programmed step boundary. A step boundary with advancing time and "
-            "unchanged direction is included and counted. Nothing is sorted, filled in or extrapolated across an "
-            "unsupported edge (M01 section 5.1).</p>"
+            "integrated over supported edges only. An edge is <b>unsupported</b> when time does not advance (a reset, "
+            "a duplicate time, or time going back where a tester resumed from a saved state), when either current "
+            "sample is missing, when an instrument error flag is set, or when the current changes sign across a "
+            "programmed step boundary. A step boundary with advancing time and unchanged direction is included and "
+            "counted. Nothing is sorted, filled in or extrapolated across an unsupported edge (M01 section 5.1). When "
+            "a tester resumes from a saved state, its charge counter goes back with the time: that step back is not "
+            "a charge, and the increments recorded before the stop are kept, so the capacity includes what the "
+            "counter left out.</p>"
             "<h4>Branches</h4><p>A branch is a maximal run of non-rest rows with one current sign. It is <b>complete</b> "
             "when it ends in a rest or in a change of direction and contains no unsupported edge; a branch that reaches "
             "the end of the file is treated as interrupted. The constant-current and constant-voltage parts of a "
@@ -288,7 +291,14 @@ TOPICS: list[Topic] = [
             "against noise: two plateaus closer than about two bins merge. This is dQ/dE (incremental capacity), "
             "not dE/dQ (differential voltage); the two emphasise different features.</p>"
             "<h4>Not produced when</h4><p>Fewer than four usable rows in the branch, or a potential range shorter "
-            "than two bins.</p>"),
+            "than two bins. Nor for a branch with a <b>curve break</b>: an unsupported edge where the time goes back "
+            "or is invalid, a current is missing or an error flag is set, or a pause the instrument marked inside "
+            "the branch (a LANHE .cex). The potential after such a place need not continue the curve before it (a "
+            "cell left without current relaxes, and the current resumes from the relaxed potential), and sorting by "
+            "potential would fold the two parts onto each other and show false peaks. A zero-duration edge (a time "
+            "printed coarsely, or a programmed discontinuity) loses no time and is not a break, and a branch cut off "
+            "by the end of the file keeps its curve. The cycle's note says which branch has no dQ/dE and why "
+            "(M01 section 9.3).</p>"),
         outputs="dqde_curves.csv (cycle, branch, direction, potential, dQ/dE, basis, bin); figure 3; the dQ/dE view",
         spec="differential.py; M01 appendix on differential capacity",
     ),
@@ -597,8 +607,9 @@ def for_file(key: str, ctx: Context) -> list[str]:
                    "with every export.")
     if ctx.profile_name == "lanhe-cex":
         out.append("Read natively from the tester's .cex file (reader lanhe-cex); its scales, their check against the "
-                   "tester's own capacity and energy counters (or why the check could not be made), and the tester's "
-                   "step table are in settings.json and instrument_steps.csv.")
+                   "tester's own capacity and energy counters (or why the check could not be made), the pauses, "
+                   "restarts and other events of the tester, and its step table are in settings.json and "
+                   "instrument_steps.csv.")
     elif ctx.profile_name:
         out.append(f"Read with the import profile '{ctx.profile_name}'; its conventions (current sign, direction "
                    "source, capacity semantics, cycle base) are in settings.json.")
@@ -653,6 +664,21 @@ def paragraph(ctx: Context) -> str:
                  + f" and charge and discharge peaks of a cycle were paired within "
                  f"{getattr(s, 'peak_pair_window_mV', PEAK_PAIR_WINDOW_MV):g} mV"
                  + ". Peak potentials are descriptors of the measured curves at the applied rate.")
+    seg = getattr(run, "seg", None)
+    branches = getattr(seg, "branches", None) or []
+    broken = [b for b in branches if getattr(b, "curve_breaks", 0)]
+    paused = [b for b in branches if getattr(b, "pauses", 0) and not getattr(b, "curve_breaks", 0)]
+    if broken:
+        parts.append(f"{len(broken)} branch{'es' if len(broken) > 1 else ''} contained an interval where the time "
+                     "went back, the current was missing or the instrument flagged an error; "
+                     f"{'their capacities are' if len(broken) > 1 else 'its capacity is'} given over the integrated "
+                     f"intervals, but {'their cycles have' if len(broken) > 1 else 'its cycle has'} no coulombic "
+                     f"efficiency or retention and {'the branches' if len(broken) > 1 else 'the branch'} no dQ/dE.")
+    if paused:
+        parts.append(f"{len(paused)} branch{'es were' if len(paused) > 1 else ' was'} paused partway by the instrument; "
+                     f"{'they keep their' if len(paused) > 1 else 'it keeps its'} capacities and efficiencies, but "
+                     "no dQ/dE was calculated for "
+                     f"{'them' if len(paused) > 1 else 'it'}, because the potential relaxes while the current is off.")
     parts.append("No smoothing, resampling or baseline correction was applied; the complete settings of the analysis "
                  "are recorded in the settings.json file written with the results.")
     return " ".join(parts) + "\n\nReference: " + citation.plain()

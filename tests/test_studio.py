@@ -5,6 +5,7 @@ found while building the app, and fail if the fix is removed.
 """
 import json
 import os
+import re
 import time
 from pathlib import Path
 
@@ -598,7 +599,8 @@ def test_a_lanhe_cex_opens_with_its_direction_answered_and_its_checks_listed(win
         win._answer(a); pump(app)
     texts = [win.results.diagnostics.item(k).text() for k in range(win.results.diagnostics.count())]
     assert any("integrates to the tester's capacity counter" in t for t in texts)
-    assert any("follows the tester's clock" in t for t in texts)
+    assert any(re.search(r"follows the tester's clock in (\d+) of \1 intervals between step starts \(slope", t)
+               for t in texts)
     assert any(t.startswith("1 incomplete cycle (no partner branch): 1") for t in texts)
     assert any(t.startswith("1 incomplete cycle (a branch reaches the end of the file") for t in texts)
     assert win.strip.incomplete_why == {1: "no partner branch",

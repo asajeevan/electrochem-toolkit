@@ -145,8 +145,8 @@ class EmptyPage(QWidget):
         title = QLabel("Drop a cycling file anywhere"); title.setProperty("role", "title")
         title.setWordWrap(True)
         lay.addWidget(title)
-        sub = QLabel("EC-Lab .mpr or .mpt, the text or Excel export of another cycler (Arbin, Neware, Maccor and "
-                     "the rest), or a whole experiment folder. Files are read, never changed.")
+        sub = QLabel("EC-Lab .mpr or .mpt, a LANHE .cex, the text or Excel export of another cycler (Arbin, Neware, "
+                     "Maccor and the rest), or a whole experiment folder. Files are read, never changed.")
         sub.setProperty("role", "secondary"); sub.setWordWrap(True)
         lay.addWidget(sub)
         row = QHBoxLayout()

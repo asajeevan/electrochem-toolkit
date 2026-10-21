@@ -381,6 +381,8 @@ def methods(s: Settings, dqde_mv: float, dqde_units: str, peak_pair_window_mV: f
         "mid_capacity_voltage": "potential interpolated at half of the branch capacity",
         "voltage_hysteresis": "average charge voltage minus average discharge voltage of the same cycle",
         "dqde": f"finite difference of capacity interpolated on a {dqde_mv:g} mV potential grid; constant-voltage stages excluded; charge positive, discharge negative; "
+                "none for a branch with a curve break (an interval where the time goes back or is invalid, a current is missing or "
+                "an error flag is set, or a pause the instrument marked inside the branch; a zero-duration interval is not one); "
                 + ("figure normalised by the common maximum (a.u.), CSV in real units" if dqde_units == "au" else "real units"),
         "dqde_peaks": "scipy find_peaks on |dQ/dE| with prominence >= 5 % of the branch maximum, the 6 most prominent per branch (a capped branch is marked); "
                       "descriptors of the measured curve at the applied rate, not equilibrium potentials; dqde_peaks.csv and dqde_pairs.csv cover every cycle, dqde_curves.csv the plotted ones",

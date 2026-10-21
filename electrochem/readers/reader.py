@@ -107,6 +107,7 @@ class RawTable:
     q_discharge: np.ndarray | None = None
     dq: np.ndarray | None = None        # Ah per row, derived from the above
     temperature: np.ndarray | None = None  # degC, surface if present else ambient
+    paused_rows: np.ndarray | None = None  # 0-based rows that follow a pause the instrument marked (native readers)
     columns: tuple[str, ...] = ()
     report: dict = field(default_factory=dict)
     findings: list[dict] = field(default_factory=list)

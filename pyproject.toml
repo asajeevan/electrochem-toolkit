@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "electrochem-toolkit"
-version = "0.9.0"
+version = "0.9.1"
 description = "Traceable import, records and calculations for BioLogic EC-Lab battery measurements"
 authors = [{name = "Aswadh Shyma Sajeevan"}]
 readme = "README.md"

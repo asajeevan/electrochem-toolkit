@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ASSETS = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "docs" / "images" / "app"
 OUT = sys.argv[2] if len(sys.argv) > 2 else str(ROOT / "docs" / "Cyclara_handout.pdf")
 MARK = ROOT / "electrochem" / "studio" / "assets" / "cyclara_mark_1024.png"
-VERSION = "0.9.0"
+VERSION = "0.9.1"
 
 INK = colors.HexColor("#16202B")
 NIGHT = colors.HexColor("#0A101A")
@@ -248,8 +248,8 @@ S.append(PageBreak())
 S.append(P("A file from another cycler", h1))
 S.append(P("An EC-Lab file is recognised by its signature, and so is a LANHE (LAND) .cex, which is read directly: its "
            "current and voltage are checked against the tester's own capacity and energy counters wherever the file "
-           "holds enough records (a note says when it does not), and the tester's steps are listed in "
-           "instrument_steps.csv. Any other text or Excel export is matched against the "
+           "holds enough records (a note says when it does not), and the tester's steps, with its pauses and "
+           "restarts, are listed in instrument_steps.csv. Any other text or Excel export is matched against the "
            "import profiles Cyclara knows (Arbin, Neware, Maccor and the ones you have saved). When none fits, this page "
            "opens instead of the plots:", body))
 S.append(Spacer(1, 4))
