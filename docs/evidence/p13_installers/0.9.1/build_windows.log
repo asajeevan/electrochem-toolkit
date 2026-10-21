@@ -1,0 +1,19 @@
+09:17:35 Cyclara 0.9.1, build dir /home/claude/work/build
+09:17:37 cpython-3.12.15+20261013-x86_64-pc-windows-msvc-install_only.tar.gz: checksum verified
+09:17:39 $ /usr/bin/python3 -m pip download -q --no-deps --only-b ... (pins in installer/requirements-bundle.txt)
+09:17:45 $ /usr/bin/python3 -m pip install -q --no-deps --no-inde ... (pins in installer/requirements-bundle.txt)
+09:17:52 cpython-3.12.15+20261013-x86_64-unknown-linux-gnu-install_only.tar.gz: checksum verified
+09:17:55 $ /home/claude/work/build/linux/python/bin/python3.12 -m compileall -q -j 0 --invalidation-mode unchecked-hash /home/claude/work/build/stage_win/python/Lib /home/claude/work/build/stage_win/app
+09:18:03 $ /home/claude/work/build/linux/python/bin/python3.12 -I -c import sys; sys.path[:0] = ['/home/claude/work/build/stage_win/app', '/home/claude/work/build/pure312']
+assert sys.version_info[:2] == (3, 12), sys.version
+import electrochem, eclab_import, electrochem.readers, electrochem.workflow, electrochem.analyze
+from electrochem.readers import BUILTIN; assert BUILTIN
+print('pure-python import under', sys.version.split()[0], 'ok')
+pure-python import under 3.12.15 ok
+09:18:05 $ x86_64-w64-mingw32-windres launcher.rc -O coff -o launcher_res.o
+09:18:05 $ x86_64-w64-mingw32-gcc -municode -mwindows -O2 -Wall -Wl,--no-insert-timestamp -o Cyclara.exe /build/checkout-668b3ad/installer/windows/launcher.c launcher_res.o -lshell32 -lole32
+09:18:07 Windows tree: 259 binaries, every import resolves
+09:18:07 $ /usr/bin/python3 /build/checkout-668b3ad/installer/windows/bitmaps.py /home/claude/work/build/art
+{'welcome.bmp': PosixPath('/home/claude/work/build/art/welcome.bmp'), 'header.bmp': PosixPath('/home/claude/work/build/art/header.bmp')}
+09:18:07 $ makensis -V2 -DVERSION=0.9.1 -DSTAGE=/home/claude/work/build/stage_win -DART=/home/claude/work/build/art -DOUT=/build/checkout-668b3ad/installer/dist/Cyclara-0.9.1-Setup.exe -DSIZE_KB=445334 -DSIZE_MB=434 /build/checkout-668b3ad/installer/windows/cyclara.nsi
+09:23:16 wrote /build/checkout-668b3ad/installer/dist/Cyclara-0.9.1-Setup.exe (105.5 MB; installed 435 MB)
