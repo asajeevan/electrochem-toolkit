@@ -311,20 +311,29 @@ def _continues(j, row_step, steps, t, q, typical) -> bool:
     return bool(0 < t[j] - t[j - 1] <= limit and q[j] >= q[j - 1])
 
 
-def _inside_curve(steps, k) -> bool:
+def _engine_sign(step, i_counts) -> int:
+    """The direction the engine gives a step (segment._sign_array): 0 for a rest, else the sign of its net current,
+    a step whose current sums to zero counting as positive."""
+    if step.mode == 3:
+        return 0
+    return 1 if int(i_counts[step.first:step.last + 1].sum()) >= 0 else -1
+
+
+def _inside_curve(steps, k, i_counts) -> bool:
     """Whether a place inside step k lies inside its branch's dQ/dE curve (M01 section 9.3): a constant-current
-    step is part of the curve; a constant-voltage step only when steps of the same direction that carry
-    constant-current records lie on both sides of it in the same branch (no rest or other direction between)."""
+    step is part of the curve; a constant-voltage step only when steps the engine gives the same direction, with
+    constant-current records, lie on both sides of it in the same branch (no rest or other direction between)."""
     step = steps[k]
     if step.mode != 2:
         return True
+    own = _engine_sign(step, i_counts)
 
     def cc_on(order):
         for j in order:
             other = steps[j]
             if other.records <= 0:
                 continue
-            if other.direction != step.direction:
+            if _engine_sign(other, i_counts) != own:
                 return False
             if other.mode == 1:
                 return True
@@ -725,10 +734,10 @@ def read(path: str | Path, progress=None) -> tuple[RawTable, dict]:
                     "cycle has no efficiency or retention (and no cycle has a retention when that cycle is the "
                     "reference cycle)"
                     + (", and the branch has no dQ/dE, the restart lying inside its dQ/dE curve"
-                       if _inside_curve(steps, r["step"] - 1) else
+                       if _inside_curve(steps, r["step"] - 1, i_counts) else
                        "; the restart lies in a constant-voltage hold, outside the branch's dQ/dE curve (no "
-                       "constant-current records of the same direction on both sides of it), so the branch keeps "
-                       "its dQ/dE (M01 section 9.3)"))
+                       "constant-current records of the same direction on both sides of it), so the restart does "
+                       "not remove the branch's dQ/dE (M01 section 9.3)"))
         else:
             what = (f"The {r['rollback_records']} record(s) of those seconds are kept; the step is a rest, so no "
                     "charge is involved, and its duration in record time does not count the time the tester was "

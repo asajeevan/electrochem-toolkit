@@ -115,3 +115,50 @@ def test_the_methods_paragraph_is_written_from_the_settings_and_ends_with_the_re
     half = methods_text.paragraph(methods_text.Context(settings=Settings(charge="red", reference="Li/Li+")))
     assert "against Li/Li+" in half and "active material" in half
     assert "—" not in p and "—" not in half
+
+
+def _segmentation(branches, reasons):
+    """A stand-in for segment's result: branches (start, end, curve_breaks, pauses) and the edges' reasons."""
+    from types import SimpleNamespace
+    bs = [SimpleNamespace(index=k + 1, start=a, end=b, curve_breaks=c, pauses=p) for k, (a, b, c, p) in enumerate(branches)]
+    return SimpleNamespace(edges=SimpleNamespace(reason=reasons), branches=bs), bs
+
+
+@pytest.mark.parametrize("branches,reasons,expected", [
+    # one branch, one interval inside its curve
+    ([(0, 9, 1, 0)], {4: "time reset or invalid time"},
+     ["One branch contained one interval where the time went back or was invalid: its capacity is given over the "
+      "integrated intervals, and its cycle has no coulombic efficiency or retention.",
+      "No dQ/dE was calculated for one branch with such an interval inside its curve."]),
+    # two causes in two branches, both outside the curve
+    ([(0, 9, 0, 0), (10, 19, 0, 0)], {8: "time reset or invalid time", 18: "missing or invalid current"},
+     ["Two branches contained two intervals where the time went back or was invalid, or the current was missing: "
+      "their capacities are given over the integrated intervals, and their cycles have no coulombic efficiency or "
+      "retention.",
+      "The intervals lay among the constant-voltage rows at the start or end of their branches, which dQ/dE leaves "
+      "out, so they do not affect the dQ/dE."]),
+    # three causes; one branch inside, one outside, one paused only; a zero-duration edge is not counted
+    ([(0, 9, 1, 0), (10, 19, 0, 0), (20, 29, 0, 1)],
+     {3: "time reset or invalid time", 12: "instrument error flag", 14: "missing or invalid current",
+      25: "zero-duration programmed discontinuity"},
+     ["Two branches contained three intervals where the time went back or was invalid, the current was missing, "
+      "or the instrument flagged an error: their capacities are given over the integrated intervals, and their "
+      "cycles have no coulombic efficiency or retention.",
+      "In one of them the intervals lay among the constant-voltage rows at the start or end of its branch, which "
+      "dQ/dE leaves out, so they do not affect the dQ/dE.",
+      "No dQ/dE was calculated for one branch with such an interval inside its curve and one branch paused by the "
+      "instrument inside its curve (the potential relaxes while the current is off).",
+      "A pause changes neither the capacity of a branch nor the efficiency and retention of its cycle."]),
+    # nothing interrupted, nothing paused
+    ([(0, 9, 0, 0)], {}, []),
+])
+def test_the_interruption_sentences_count_and_agree(branches, reasons, expected):
+    seg, bs = _segmentation(branches, reasons)
+    assert methods_text._interruption_sentences(seg, bs) == expected
+
+
+def test_twelve_interrupted_branches_start_the_sentence_without_digits():
+    seg, bs = _segmentation([(10 * k, 10 * k + 9, 1, 0) for k in range(12)],
+                            {10 * k + 4: "time reset or invalid time" for k in range(12)})
+    first = methods_text._interruption_sentences(seg, bs)[0]
+    assert first.startswith("In all, 12 branches contained 12 intervals where")

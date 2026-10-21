@@ -88,14 +88,14 @@ EVERY TIME
      and lists the tester's steps in instrument_steps.csv. Pauses are read:
      a charge or discharge paused partway, however briefly, has no dQ/dE
      (a precaution: the cell relaxes while the current is off), unless the
-     pause falls in a constant-voltage hold that ends it; a pause leaves
-     capacities and efficiency as they are. When the tester stopped during a
+     pause falls in a constant-voltage hold at the start or end of the
+     branch; a pause leaves capacities and efficiency as they are. When the tester stopped during a
      charge or discharge and resumed from a state saved shortly before the
      stop, every record and the charge its counter left out are kept; that
      cycle has no efficiency or retention, and when it is the reference cycle
      no cycle has a retention until you choose another reference cycle. The
      branch has no dQ/dE unless the restart falls in a constant-voltage hold
-     that ends it. The cycle notes say which branch and why; the
+     at the start or end of the branch. The cycle notes say which branch and why; the
      dQ/dE figures, views and peak tables leave such a branch out. A .cex it
      cannot vouch for (a layout, step type, status event or unit kind not
      yet seen, events out of the order seen, a restart unlike the ones seen,

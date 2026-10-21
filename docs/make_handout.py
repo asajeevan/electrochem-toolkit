@@ -375,7 +375,7 @@ S.append(table([
     ["Voltage hysteresis", "Average charge voltage minus average discharge voltage of the same cycle."],
     ["dQ/dE", "Capacity interpolated onto a 10 mV grid inside the measured range and differentiated; constant-voltage stages "
               "excluded; none for a branch interrupted or paused inside its curve, not in a constant-voltage hold "
-              "that ends it (the cycle note says why). Peak positions "
+              "at its start or end (the cycle note says why). Peak positions "
               "describe the measured curve at that rate; they are not equilibrium potentials."],
     ["dQ/dE peaks", "Each peak is one plateau: its potential, the capacity under it (valley to valley), its partner in the "
                     "opposite branch of the same cycle (paired within 200 mV) or <i>unpaired</i>, and the cycles in which it "

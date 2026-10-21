@@ -982,7 +982,7 @@ class EvolutionView(View):
                                                                        f"{unit} at {cv.voltage_V[k]:.4f} V ({cv.bin_mV:g} mV bins; "
                                                                        f"drawn {o:.3g} higher)"))
             left.setTicks([ticks, []])
-            self.set_note([f"The selected cycles' own dQ/dE curves, |dQ/d{sym}| upward, each raised by "
+            self.set_note([f"The selected cycles' own dQ/d{sym} curves, |dQ/d{sym}| upward, each raised by "
                            f"{self.WATERFALL_OFFSET:g} of the largest value drawn; the axis marks each curve's zero."])
         self.note.setProperty("role", "muted"); self.note.style().unpolish(self.note); self.note.style().polish(self.note)
         pi.enableAutoRange()

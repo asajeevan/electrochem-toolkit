@@ -131,8 +131,9 @@ def test_nothing_is_computed_while_the_view_is_hidden(app, rec):
 
 # ------------------------------------------------------------------ branches without a curve (0.9.1)
 
-def _cex_record(tmp_path, changes):
-    """A synthetic LANHE file (tests/cex_synthetic.py) with the given step changes, as the app holds it."""
+def _cex_record(tmp_path, changes, charge="ox"):
+    """A synthetic LANHE file (tests/cex_synthetic.py) with the given step changes, as the app holds it (charge=None:
+    the current direction not yet given, so no cycles)."""
     import sys
     from dataclasses import replace
     from pathlib import Path
@@ -144,7 +145,7 @@ def _cex_record(tmp_path, changes):
     p = tmp_path / "run.cex"
     p.write_bytes(cs.write(steps)[0])
     loaded = workflow.open_file(p)
-    run = workflow.analyse_file(loaded, Settings(charge="ox", terminal_voltage=True))
+    run = workflow.analyse_file(loaded, Settings(charge=charge, terminal_voltage=True))
     return Record(path=p, loaded=loaded, run=run)
 
 
@@ -193,3 +194,47 @@ def test_the_dqde_view_gives_each_missing_curve_its_reason(app, tmp_path):
     finally:
         v.close()
         v.deleteLater()
+
+
+def test_the_waterfall_drops_its_note_when_the_other_direction_has_no_curve(app, tmp_path):
+    """Waterfall of the charges (note shown), then the discharges, all paused: the sentence alone remains."""
+    from electrochem.studio.views import EvolutionView
+    rec = _cex_record(tmp_path, {4: {"pause": (1500.0, 120)}, 7: {"pause": (3000.0, 120)}})
+    v = EvolutionView()
+    v.resize(900, 600)
+    v.show()
+    try:
+        v.show_record(rec, [1, 2], None)
+        v.mode.setCurrentIndex(1)
+        app.processEvents()
+        assert v.empty.isHidden() and not v.note.isHidden() and "dQ/dV curves" in v.note.text()
+        v.direction.setCurrentIndex(1)
+        app.processEvents()
+        assert v.empty.text() == "None of the selected cycles has a discharge dQ/dV curve." and v.note.isHidden()
+    finally:
+        v.close()
+        v.deleteLater()
+
+
+@pytest.mark.parametrize("which", ["DifferentialView", "EvolutionView"])
+def test_a_record_without_cycles_shows_only_the_question(app, tmp_path, which):
+    """A record with cycles, then the same file before the current direction is given: the view says that cycles
+    appear once the direction is known, with no note of the earlier record above it."""
+    from electrochem.studio import views
+    with_cycles = _cex_record(tmp_path, {})
+    without = _cex_record(tmp_path, {}, charge=None)
+    assert with_cycles.run.seg.pairs and not without.run.seg.pairs
+    v = getattr(views, which)()
+    v.resize(900, 600)
+    v.show()
+    try:
+        v.show_record(with_cycles, [1, 2], None)
+        app.processEvents()
+        assert v.empty.isHidden() and not v.note.isHidden()
+        v.show_record(without, [], None)
+        app.processEvents()
+        assert v.empty.text() == views.NO_CYCLES and v.note.isHidden()
+    finally:
+        v.close()
+        v.deleteLater()
+

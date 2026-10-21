@@ -449,8 +449,9 @@ def test_a_pause_is_read_and_the_clock_check_counts_it(tmp_path):
                                      "while the current is off)")
     from electrochem import methods_text
     text = methods_text.paragraph(methods_text.Context(settings=run.settings, run=run, profile_name="lanhe-cex"))
-    assert ("No dQ/dE was calculated for 2 branches paused partway by the instrument (the potential relaxes while the "
-            "current is off). A pause leaves the capacities and efficiencies of a branch as they are.") in text
+    assert ("No dQ/dE was calculated for two branches paused by the instrument inside their curves (the potential "
+            "relaxes while the current is off). A pause changes neither the capacity of a branch nor the efficiency and "
+            "retention of its cycle.") in text
     assert "contained an interval" not in text
 
 
@@ -522,9 +523,9 @@ def test_a_restart_keeps_every_record_and_the_charge_the_counter_left_out(tmp_pa
     assert "stopped after record" in meta["instrument_steps"][4]["notes"]
     from electrochem import methods_text
     text = methods_text.paragraph(methods_text.Context(settings=run.settings, run=run, profile_name="lanhe-cex"))
-    assert ("1 branch contained an interval where the time went back or was invalid: its capacity is given over the "
+    assert ("One branch contained one interval where the time went back or was invalid: its capacity is given over the "
             "integrated intervals, and its cycle has no coulombic efficiency or retention. No dQ/dE was calculated for "
-            "1 branch with such an interval inside its curve.") in text
+            "one branch with such an interval inside its curve.") in text
     assert ("no capacity retention is given, because the reference cycle, 1, is not a complete cycle of this file."
             in text)
     text2 = methods_text.paragraph(methods_text.Context(settings=run2.settings, run=run2, profile_name="lanhe-cex"))
@@ -841,7 +842,7 @@ def test_an_export_without_any_dqde_curve_says_why_in_each_figure(tmp_path):
         assert 'id="no-curve"' in (out / f"{stem}.svg").read_text(), stem
     assert 'id="no-curve"' not in (out / "fig1_potential_capacity.svg").read_text()
     assert (out / "dqde_peaks.csv").exists() and (out / "dqde_pairs.csv").exists()
-    assert "No dQ/dE was calculated for 4 branches paused partway by the instrument" in rec["methods_paragraph"]
+    assert "No dQ/dE was calculated for four branches paused by the instrument inside their curves" in rec["methods_paragraph"]
 
 
 def test_a_restart_in_a_constant_voltage_hold_keeps_the_dqde(tmp_path):
@@ -854,7 +855,7 @@ def test_a_restart_in_a_constant_voltage_hold_keeps_the_dqde(tmp_path):
     assert [f["detail"]["step"] for f in warn] == [3]
     assert warn[0]["message"].endswith("the restart lies in a constant-voltage hold, outside the branch's dQ/dE curve "
                                        "(no constant-current records of the same direction on both sides of it), so the "
-                                       "branch keeps its dQ/dE (M01 section 9.3)")
+                                       "restart does not remove the branch's dQ/dE (M01 section 9.3)")
     run = analysed(p)
     assert [b.unsupported_edges for b in run.seg.branches] == [1, 0, 0, 0]
     assert [b.curve_breaks for b in run.seg.branches] == [0, 0, 0, 0]
@@ -864,9 +865,10 @@ def test_a_restart_in_a_constant_voltage_hold_keeps_the_dqde(tmp_path):
     # the methods paragraph still names the interval, which leaves the cycle without ratios but not the curve
     from electrochem import methods_text
     text = methods_text.paragraph(methods_text.Context(settings=run.settings, run=run, profile_name="lanhe-cex"))
-    assert ("1 branch contained an interval where the time went back or was invalid: its capacity is given over the "
-            "integrated intervals, and its cycle has no coulombic efficiency or retention. The interval lay in a "
-            "constant-voltage stage, outside the dQ/dE curve, and does not affect it.") in text
+    assert ("One branch contained one interval where the time went back or was invalid: its capacity is given over the "
+            "integrated intervals, and its cycle has no coulombic efficiency or retention. The interval lay among "
+            "the constant-voltage rows at the start or end of its branch, which dQ/dE leaves out, so it does not "
+            "affect the dQ/dE.") in text
     assert "No dQ/dE was calculated" not in text
     # a restart in a constant-current step: the warning says the branch has no dQ/dE
     p2, _ = write(tmp_path, with_step(DISCHARGE, restart=(1495.0, 30.0, 600)), name="cc.cex")
@@ -903,10 +905,11 @@ def test_the_paragraph_tells_a_restart_in_a_hold_from_one_inside_the_curve(tmp_p
     assert [b.unsupported_edges for b in run.seg.branches] == [1, 0, 0, 1]
     assert [b.curve_breaks for b in run.seg.branches] == [0, 0, 0, 1]
     text = paragraph_of(run)
-    assert ("2 branches contained an interval where the time went back or was invalid: their capacities are given over "
-            "the integrated intervals, and their cycles have no coulombic efficiency or retention. In 1 of them the "
-            "interval lay in a constant-voltage stage, outside the dQ/dE curve, and does not affect it. No dQ/dE was "
-            "calculated for 1 branch with such an interval inside its curve.") in text
+    assert ("Two branches contained two intervals where the time went back or was invalid: their capacities are given "
+            "over the integrated intervals, and their cycles have no coulombic efficiency or retention. In one of them "
+            "the interval lay among the constant-voltage rows at the start or end of its branch, which dQ/dE leaves out, "
+            "so it does not affect the dQ/dE. No dQ/dE was calculated for one branch with such an interval inside its "
+            "curve.") in text
 
 
 def test_a_pause_and_a_restart_in_one_branch_are_both_told_without_contradiction(tmp_path):
@@ -921,17 +924,18 @@ def test_a_pause_and_a_restart_in_one_branch_are_both_told_without_contradiction
     assert (b1.unsupported_edges, b1.curve_breaks, b1.pauses) == (1, 0, 1)
     assert not run.an.cycles[0].complete and [cv.branch for _, cv in run.dqde_curves([1])] == [2]
     text = paragraph_of(run)
-    assert ("1 branch contained an interval where the time went back or was invalid: its capacity is given over the "
-            "integrated intervals, and its cycle has no coulombic efficiency or retention. The interval lay in a "
-            "constant-voltage stage, outside the dQ/dE curve, and does not affect it. No dQ/dE was calculated for 1 "
-            "branch paused partway by the instrument (the potential relaxes while the current is off). A pause leaves "
-            "the capacities and efficiencies of a branch as they are.") in text
+    assert ("One branch contained one interval where the time went back or was invalid: its capacity is given over the "
+            "integrated intervals, and its cycle has no coulombic efficiency or retention. The interval lay among "
+            "the constant-voltage rows at the start or end of its branch, which dQ/dE leaves out, so it does not affect "
+            "the dQ/dE. No dQ/dE was calculated for one branch paused by the instrument inside its curve (the potential "
+            "relaxes while the current is off). A pause changes neither the capacity of a branch nor the efficiency "
+            "and retention of its cycle.") in text
     assert "keeps its capacities" not in text and "keep their capacities" not in text
 
 
 def test_a_restart_in_a_hold_between_constant_current_parts_is_inside_the_curve(tmp_path):
     """A charge of constant current, a constant-voltage hold and constant current again: a restart in the hold has
-    curve rows on both sides, so the branch has no dQ/dE, and the reader's warning says so from the step plan."""
+    curve rows on both sides, so the branch has no dQ/dE, and the reader's warning says so from the steps it read."""
     steps = cs.two_cycles()
     steps.insert(3, cs.Step("cc_charge", 600.0, counts=8064, v0=4.05, v1=4.15, carry=True))
     steps[2] = replace(steps[2], restart=(900.0, 30.0, 600))
@@ -941,4 +945,35 @@ def test_a_restart_in_a_hold_between_constant_current_parts_is_inside_the_curve(
     run = analysed(p)
     assert run.seg.branches[0].curve_breaks == 1 and 1 not in [cv.branch for _, cv in run.dqde_curves([1, 2])]
     assert "the charge branch 1 has no dQ/dE (an interval where the time goes back or is invalid)" in run.an.cycles[0].note
+
+
+def test_a_current_step_with_no_current_joins_the_branch_as_the_engine_says(tmp_path):
+    """A discharge step whose every record reads zero current, right after the first charge's hold: the engine gives
+    a step of zero net current the charging sign, so it joins the charge branch as constant-current rows and the
+    restart in the hold lies inside the curve. The reader's warning follows the engine, not the step's type."""
+    steps = cs.two_cycles()
+    steps[2] = replace(steps[2], restart=(900.0, 30.0, 600))
+    steps.insert(3, cs.Step("cc_discharge", 0.0, counts=0, v0=4.06))
+    p, _ = write(tmp_path, steps)
+    msg = next(f["message"] for f in read(p)[1]["import_findings"] if f["code"] == "cex_restart")
+    assert msg.endswith(", and the branch has no dQ/dE, the restart lying inside its dQ/dE curve")
+    run = analysed(p)
+    b1 = run.seg.branches[0]
+    assert b1.steps == (2, 3, 4) and b1.curve_breaks == 1
+    assert 1 not in [cv.branch for _, cv in run.dqde_curves(run.all_cycles)]
+
+
+def test_the_paragraph_counts_the_intervals_and_spells_out_small_numbers(tmp_path):
+    """Two restarts in one hold: one branch, two intervals; numbers below ten in words, as in a manuscript, and two
+    causes joined with a comma."""
+    p, _ = write(tmp_path, with_step(2, restart=[(600.0, 20.0, 300), (1500.0, 10.0, 300)]))
+    run = analysed(p)
+    assert run.seg.branches[0].unsupported_edges == 2
+    text = paragraph_of(run)
+    assert "One branch contained two intervals where the time went back or was invalid: its capacity is" in text
+    assert "The intervals lay among the constant-voltage rows at the start or end of its branch, which dQ/dE " \
+           "leaves out, so they do not affect the dQ/dE." in text
+    from electrochem import methods_text
+    assert methods_text._number(3) == "three" and methods_text._number(12) == "12"
+    assert methods_text._number(1, True) == "One" and methods_text._number(12, True) == "In all, 12"
 

@@ -297,10 +297,11 @@ TOPICS: list[Topic] = [
             "curve before it (a cell left without current relaxes, and the current resumes from the relaxed "
             "potential), and sorting by potential would fold the two parts onto each other and show false peaks. "
             "Only a break or pause between the branch's first and last row outside constant-voltage stages counts: "
-            "one inside a constant-voltage hold that ends the branch cannot fold the curve (a break there still "
-            "leaves the branch partial, so its cycle has no efficiency or retention). A zero-duration edge (a "
-            "time printed coarsely, or a programmed discontinuity) loses no time and is not a break, and a branch "
-            "cut off by the end of the file keeps its curve. The cycle's note says which branch has no dQ/dE and why; "
+            "one inside a constant-voltage hold at the start or end of the branch cannot fold the curve (a break "
+            "there still leaves the branch partial, so its cycle has no efficiency or retention). A zero-duration "
+            "edge (a time printed coarsely, or a programmed discontinuity) loses no time and is not a break, and a "
+            "branch cut off by the end of the file keeps its curve. The cycle's note says which branch has no dQ/dE "
+            "and why; "
             "the figures, the map and the peak tables leave such a branch out, and a peak whose partner branch has no "
             "curve says so (M01 section 9.3).</p>"),
         outputs="dqde_curves.csv (cycle, branch, direction, potential, dQ/dE, basis, bin); figure 3; the dQ/dE view",
@@ -632,8 +633,9 @@ def for_file(key: str, ctx: Context) -> list[str]:
 
 # ---------------------------------------------------------------------------- the paragraph
 def _interrupted(seg, branches) -> dict:
-    """{branch index: the curve-break reasons (segment.CURVE_BREAKS) of its intervals, anywhere in the branch}.
-    Branch.curve_breaks counts only those inside the dQ/dE curve; every one leaves the branch partial."""
+    """{branch index: (the curve-break reasons of its intervals, how many such intervals)}, anywhere in the branch
+    (segment.CURVE_BREAKS). Branch.curve_breaks counts only those inside the dQ/dE curve; every one leaves the
+    branch partial."""
     from bisect import bisect_right
     from .segment import CURVE_BREAKS
     reasons = getattr(getattr(seg, "edges", None), "reason", None) or {}
@@ -644,15 +646,29 @@ def _interrupted(seg, branches) -> dict:
             continue
         i = bisect_right(starts, int(k)) - 1
         if i >= 0 and branches[i].start <= int(k) < branches[i].end:
-            out.setdefault(branches[i].index, set()).add(why)
+            kinds, count = out.get(branches[i].index, (set(), 0))
+            out[branches[i].index] = (kinds | {why}, count + 1)
     return out
+
+
+_NUMBER_WORDS = ("zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine")
+
+
+def _number(k: int, start: bool = False) -> str:
+    """A count in running prose: words for one to nine, digits above; capitalised at the start of a sentence,
+    where digits are not used ("In all, 12")."""
+    if k < len(_NUMBER_WORDS):
+        word = _NUMBER_WORDS[k]
+        return word.capitalize() if start else word
+    return f"In all, {k}" if start else str(k)
 
 
 def _interruption_sentences(seg, branches) -> list[str]:
     """What the interruptions and pauses did, in the methods paragraph: an interval of a curve-break reason
     anywhere in a branch leaves it partial (no efficiency or retention for its cycle); one inside its dQ/dE
-    curve (Branch.curve_breaks), or a pause there (Branch.pauses), means no dQ/dE; one outside the curve, in a
-    constant-voltage stage, does not affect the curve. A pause changes neither capacities nor efficiencies."""
+    curve (Branch.curve_breaks), or a pause there (Branch.pauses), means no dQ/dE; one in a constant-voltage
+    stage at the start or end of the branch, which dQ/dE leaves out, does not affect the dQ/dE. A pause changes
+    neither the capacity of a branch nor the efficiency and retention of its cycle."""
     def many(k, one, more):
         return one if k == 1 else more
     out = []
@@ -666,30 +682,32 @@ def _interruption_sentences(seg, branches) -> list[str]:
         words = {"time reset or invalid time": "the time went back or was invalid",
                  "missing or invalid current": "the current was missing",
                  "instrument error flag": "the instrument flagged an error"}
-        found = [words[r] for r in words if any(r in interrupted[b.index] for b in broken)]
-        what = found[0] if len(found) == 1 else ", ".join(found[:-1]) + " or " + found[-1]
-        out.append(f"{n} {many(n, 'branch', 'branches')} contained an interval where {what}: "
+        found = [words[r] for r in words if any(r in interrupted[b.index][0] for b in broken)]
+        what = found[0] if len(found) == 1 else ", ".join(found[:-1]) + ", or " + found[-1]
+        m = sum(interrupted[b.index][1] for b in broken)
+        out.append(f"{_number(n, True)} {many(n, 'branch', 'branches')} contained {_number(m)} "
+                   f"{many(m, 'interval', 'intervals')} where {what}: "
                    f"{many(n, 'its capacity is', 'their capacities are')} given over the integrated intervals, and "
                    f"{many(n, 'its cycle has', 'their cycles have')} no coulombic efficiency or retention.")
     if outside:
-        h = len(outside)
-        where = (f"lay in {many(h, 'a constant-voltage stage', 'constant-voltage stages')}, outside the dQ/dE "
-                 f"{many(h, 'curve, and does not affect it', 'curves, and do not affect them')}.")
-        out.append((f"The {many(h, 'interval', 'intervals')} " if h == n else
-                    f"In {h} of them the {many(h, 'interval', 'intervals')} ") + where)
+        h, k = len(outside), sum(interrupted[b.index][1] for b in outside)
+        where = (f"lay among the constant-voltage rows at the start or end of {many(h, 'its branch', 'their branches')}, "
+                 f"which dQ/dE leaves out, so {many(k, 'it does', 'they do')} not affect the dQ/dE.")
+        out.append((f"The {many(k, 'interval', 'intervals')} " if h == n else
+                    f"In {_number(h)} of them the {many(k, 'interval', 'intervals')} ") + where)
     if in_curve or paused:
         items = []
         if in_curve:
             k = len(in_curve)
-            items.append(f"{k} {many(k, 'branch', 'branches')} with such an interval inside "
+            items.append(f"{_number(k)} {many(k, 'branch', 'branches')} with such an interval inside "
                          f"{many(k, 'its curve', 'their curves')}")
         if paused:
             k = len(paused)
-            items.append(f"{k} {many(k, 'branch', 'branches')} paused partway by the instrument (the potential relaxes "
-                         "while the current is off)")
+            items.append(f"{_number(k)} {many(k, 'branch', 'branches')} paused by the instrument inside "
+                         f"{many(k, 'its curve', 'their curves')} (the potential relaxes while the current is off)")
         out.append("No dQ/dE was calculated for " + " and ".join(items) + ".")
     if paused:
-        out.append("A pause leaves the capacities and efficiencies of a branch as they are.")
+        out.append("A pause changes neither the capacity of a branch nor the efficiency and retention of its cycle.")
     return out
 
 

@@ -21,9 +21,10 @@ Rules (M01 section 5, P02 cases S07 to S19):
   the potential relaxes during it, so such a branch has no dQ/dE either. A
   break or pause counts only where the dQ/dE curve lies on both sides of it:
   the curve leaves out constant-voltage rows, so one inside a constant-voltage
-  hold that ends the branch, or between the constant-current part and that
-  hold, cannot fold it (one with constant-current rows of the branch on both
-  sides counts). Every unsupported edge still leaves the branch partial.
+  hold that starts or ends the branch, or between the constant-current part
+  and that hold, cannot fold it (one with constant-current rows of the branch
+  on both sides counts). Every unsupported edge still leaves the branch
+  partial.
 * A *pair* is one charge branch and the discharge branch that follows it (or
   the reverse order, if the protocol starts with discharge). Unpaired branches
   are reported, never silently dropped (S16).
