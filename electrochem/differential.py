@@ -288,7 +288,9 @@ def cycle_ranges(cycles, analysed) -> str:
     return ", ".join(str(order[a]) if a == b else f"{order[a]}-{order[b]}" for a, b in parts)
 
 
-def evolution_text(t: Track, analysed: list[int]) -> str:
+def evolution_text(t: Track, analysed: list[int], over: list[int] | None = None) -> str:
+    """The track's presence, judged over the analysed cycles of its direction; the cycles it is seen in are
+    written as ranges over `over` (the cycles of the analysis; analysed when not given)."""
     first = min(analysed)
     if len(analysed) < 2:
         return "one cycle analysed"
@@ -296,7 +298,7 @@ def evolution_text(t: Track, analysed: list[int]) -> str:
         return "first cycle only"
     if t.cycles[0] > first:
         return f"appears from cycle {t.cycles[0]}"
-    return f"seen in cycles {cycle_ranges(t.cycles, analysed)}"
+    return f"seen in cycles {cycle_ranges(t.cycles, over if over is not None else analysed)}"
 
 
 # ------------------------------------------------------------------ the report
@@ -333,7 +335,7 @@ class PlateauPeak:
     peaks_reported: int
     capped: bool
     peaks_note: str
-    no_curve_cycles: str = ""        # cycles of this direction whose branch has no dQ/dE curve (the ranges run through them)
+    no_curve_cycles: str = ""        # cycles whose branch of this direction exists but has no dQ/dE curve
 
 
 @dataclass
@@ -417,8 +419,10 @@ def plateau_analysis(curves, window_mV: float = PEAK_PAIR_WINDOW_MV,
     Only branches named charge or discharge take part in pairing and tracking (a file whose charging
     direction is not stated has no cycles, so no curves reach here). withheld: (cycle, direction) of the
     branches that exist but have no curve (Run.dqde_curves leaves them out), so that a peak without a
-    partner says so rather than that the branch is absent. Presence across cycles is judged, for each
-    direction, over the cycles in which that direction has a curve."""
+    partner says so rather than that the branch is absent. Presence across cycles ("first cycle only",
+    "appears from cycle k") is judged, for each direction, over the cycles in which that direction has a
+    curve; the cycles a peak is seen in are written as ranges over every cycle of the analysis, so a cycle
+    without a curve in that direction breaks a range, and no_curve_cycles names those whose branch exists."""
     window_mV = float(window_mV)
     by_branch = {}
     found = {}
@@ -487,8 +491,8 @@ def plateau_analysis(curves, window_mV: float = PEAK_PAIR_WINDOW_MV,
                     separation_mV=sep * 1000.0 if sep is not None else None,
                     midpoint_V=(p.voltage_V + b.voltage_V) / 2.0 if b is not None else None,
                     pairing=status, pairing_note=why, pair_window_mV=window_mV, track=t.track,
-                    cycles_seen=cycle_ranges(t.cycles, analysed[cv.direction]),
-                    evolution=evolution_text(t, analysed[cv.direction]),
+                    cycles_seen=cycle_ranges(t.cycles, known),
+                    evolution=evolution_text(t, analysed[cv.direction], known),
                     peaks_found=n, peaks_reported=len(pk), capped=n > len(pk), peaks_note=note,
                     no_curve_cycles=gaps[cv.direction]))
     notes = []
@@ -503,14 +507,23 @@ def plateau_analysis(curves, window_mV: float = PEAK_PAIR_WINDOW_MV,
                          bins.pop() if len(bins) == 1 else None, notes)
 
 
+def presence_words(p: PlateauPeak) -> str:
+    """The peak's evolution in words. 'first cycle only' means the first analysed cycle with a curve in the peak's
+    direction, which is not cycle 1 when that branch has none: then the words name the cycle."""
+    if p.evolution != "first cycle only":
+        return p.evolution
+    if p.cycle == 1:
+        return "present in the first cycle only"
+    return f"present only in cycle {p.cycle}, the first analysed cycle with a {p.direction} dQ/dE curve"
+
+
 def describe_peak(p: PlateauPeak) -> str:
     """One factual sentence for the inspector or a tooltip."""
     s = f"Cycle {p.cycle} {p.direction} peak at {p.voltage_V:.4f} V: {p.charge:.4g} {p.charge_unit} under the peak " \
         f"({p.share_of_branch_pct:.1f} % of the branch capacity outside constant-voltage stages); {p.pairing_note}"
     if p.separation_mV is not None:
         s += f", separation {p.separation_mV:.0f} mV, apparent mid-point {p.midpoint_V:.4f} V"
-    ev = p.evolution
-    s += "; " + ("present in the first cycle only" if ev == "first cycle only" else ev)
+    s += "; " + presence_words(p)
     if p.no_curve_cycles:
         s += f" (no {p.direction} dQ/dE curve in cycle{'s' if any(x in p.no_curve_cycles for x in ',-') else ''} " \
              f"{p.no_curve_cycles})"

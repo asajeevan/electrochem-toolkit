@@ -1,6 +1,6 @@
 """Deliberate faults in the 0.9.1 changes, each run against the tests in a copy of the repository.
 
-python3 mutate_091.py COPY      (COPY: a copy of electrochem/ and tests/, never the working tree)
+python3 mutate.py COPY      (COPY: a copy of the repository, never the working tree)
 Every mutation must make at least one of the tests fail; the original file is restored after each.
 """
 import subprocess
@@ -15,6 +15,7 @@ TESTS = ["tests/test_readers_cex.py", "tests/test_interrupted_branches.py", "tes
 R = "electrochem/readers/lanhe_cex.py"
 S, D, W, P, V, C = ("electrochem/segment.py", "electrochem/differential.py", "electrochem/workflow.py",
                     "electrochem/plotting.py", "electrochem/studio/views.py", "electrochem/cycling.py")
+MT = "electrochem/methods_text.py"
 LIMIT = "limit = 2.0 * max(float(others.max()), typical.get(step.type, 0.0)) if others.size else np.inf"
 M = [
     ("second layout not read", R, 'LAYOUTS = (b"\\x07\\x00\\x04\\x00", b"\\x05\\x00\\x04\\x00")', 'LAYOUTS = (b"\\x07\\x00\\x04\\x00",)'),
@@ -112,9 +113,12 @@ M = [
     ("cycles without a curve not listed", D, "no_curve_cycles=gaps[cv.direction]))", 'no_curve_cycles=""))'),
     ("first-cycle-only entries without their cycle", D, '{"direction": p.direction, "cycle": p.cycle, "voltage_V"',
      '{"direction": p.direction, "voltage_V"'),
-    ("presence judged over every cycle", D,
-     "cycles_seen=cycle_ranges(t.cycles, analysed[cv.direction]),\n                    evolution=evolution_text(t, analysed[cv.direction]),",
-     "cycles_seen=cycle_ranges(t.cycles, cycles),\n                    evolution=evolution_text(t, cycles),"),
+    ("presence judged over every cycle", D, "evolution=evolution_text(t, analysed[cv.direction], known),",
+     "evolution=evolution_text(t, cycles, known),"),
+    ("seen ranges over the direction's cycles only", D, "cycles_seen=cycle_ranges(t.cycles, known),",
+     "cycles_seen=cycle_ranges(t.cycles, analysed[cv.direction]),"),
+    ("first-cycle-only words without the cycle", D, "    if p.cycle == 1:\n        return \"present in the first cycle only\"",
+     "    if True:\n        return \"present in the first cycle only\""),
     ("withheld branches not passed to the peak tables", W,
      "cached = differential.plateau_analysis(curves, window_mV=self.peak_pair_window_mV, withheld=withheld)",
      "cached = differential.plateau_analysis(curves, window_mV=self.peak_pair_window_mV)"),
@@ -127,10 +131,25 @@ M = [
      'tick_ids.update((id(t.label1), id(t.label2)))\n            if not (ax.get_visible() and axis.get_visible()):'),
     ("3D axes taken as not drawn", P, 'return bool(getattr(ax, "_axis3don", True)) if is_3d(ax) else bool(getattr(ax, "axison", True))',
      'return bool(getattr(ax, "axison", True))'),
-    ("dQ/dE view silent when no branch has a curve", V, "        if withheld and not curves:\n            self.set_empty(NO_DQDE)",
-     "        if False:\n            self.set_empty(NO_DQDE)"),
-    ("dQ/dE view note silent on withheld branches", V, '"discharge left, charge right.", withheld_note(withheld)])',
+    ("dQ/dE view silent when no branch has a curve", V, "        if withheld and not curves:\n", "        if False:\n"),
+    ("dQ/dE view note silent on withheld branches", V, '"discharge left, charge right.", withheld_note(run, withheld, sym)])',
      '"discharge left, charge right."])'),
+    ("stale note above the empty sentence", V,
+     "            self.set_note([])                        # no note of an earlier selection above the sentence\n", ""),
+    ("view note without the reasons", V, 'items = [f"cycle {c} {d} ({no_curve_why(run, c, d)})" for c, d in keys[:shown]]',
+     'items = [f"cycle {c} {d}" for c, d in keys[:shown]]'),
+    ("view sentence without the axis symbol", V, "self.set_empty(NO_DQDE.format(sym=sym))", 'self.set_empty(NO_DQDE.format(sym="E"))'),
+    ("interruption in a hold not in the paragraph", MT,
+     "    interrupted = _interrupted(seg, branches)\n",
+     '    interrupted = {b.index: set(getattr(b, "breaks_why", ())) for b in branches if getattr(b, "curve_breaks", 0)}\n'),
+    ("interval in a hold said to remove the dQ/dE", MT, "        if m == n:\n", "        if True:\n"),
+    ("reference discharge ended at once not said", MT, "        elif ref is not None and ref.capacity_retention_pct is None:",
+     "        elif False:"),
+    ("topic line without the cycle", MT, 'if u.get("cycle", sm["cycle"]) != sm["cycle"] else ""', 'if False else ""'),
+    ("restart in a hold worded as removing the dQ/dE", R, "its dQ/dE when that hold ends it (M01 section 9.3)\" if step.mode == 2 else",
+     "its dQ/dE when that hold ends it (M01 section 9.3)\" if False else"),
+    ("pause note says partway", R, "A charge or discharge branch paused inside its dQ/dE curve (between its \"\n                 \"first and last record outside constant-voltage stages) keeps",
+     "A charge or discharge branch paused partway keeps"),
 ]
 
 

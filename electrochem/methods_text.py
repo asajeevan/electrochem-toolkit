@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from . import __version__, citation
-from .cycling import CAPACITY_UNITS, F, capacity_basis
+from .cycling import CAPACITY_UNITS, ENDED_AT_ONCE, F, capacity_basis
 from .differential import MAX_PEAKS, MIN_PROMINENCE_FRACTION as PROMINENCE_FRACTION, PEAK_PAIR_WINDOW_MV
 
 
@@ -297,7 +297,8 @@ TOPICS: list[Topic] = [
             "curve before it (a cell left without current relaxes, and the current resumes from the relaxed "
             "potential), and sorting by potential would fold the two parts onto each other and show false peaks. "
             "Only a break or pause between the branch's first and last row outside constant-voltage stages counts: "
-            "one inside a constant-voltage hold that ends the branch cannot fold the curve. A zero-duration edge (a "
+            "one inside a constant-voltage hold that ends the branch cannot fold the curve (a break there still "
+            "leaves the branch partial, so its cycle has no efficiency or retention). A zero-duration edge (a "
             "time printed coarsely, or a programmed discontinuity) loses no time and is not a break, and a branch "
             "cut off by the end of the file keeps its curve. The cycle's note says which branch has no dQ/dE and why; "
             "the figures, the map and the peak tables leave such a branch out, and a peak whose partner branch has no "
@@ -350,9 +351,10 @@ TOPICS: list[Topic] = [
             "within the window, has no dQ/dE curve, or is absent. Across cycles, each peak is linked to the "
             "nearest peak of the same direction within the window in the next analysed cycle, one per cycle; the "
             "chain is a <i>track</i>, and its <i>evolution</i> reads 'seen in cycles a-b', 'first cycle only' or "
-            "'appears from cycle k'. The analysed cycles of a direction are those in which it has a dQ/dE curve; "
-            "<i>no_curve_cycles</i> lists the cycles whose branch of that direction has none, which the ranges "
-            "run through.</p>"
+            "'appears from cycle k', judged over the cycles in which that direction has a dQ/dE curve. "
+            "<i>cycles_seen</i> lists the cycles in which the peak was found, a range running only through "
+            "consecutive cycles of the analysis, and <i>no_curve_cycles</i> the cycles whose branch of that "
+            "direction has no curve.</p>"
             "<h4>What a peak is not</h4><p>Peak potentials are descriptors of the measured curve at the applied "
             "rate and temperature; they contain the polarisation of the cell and shift with rate. A plateau split "
             "by a rest or a current change inside a branch gives two peaks; two plateaus closer than about two "
@@ -382,7 +384,8 @@ TOPICS: list[Topic] = [
             "onto it, a shift of less than one bin); each row holds that cycle's dQ/dE on its own measured range and "
             "nothing outside it. The colour scale is perceptually uniform (lightness falling steadily from white "
             "for zero) and both panels of a figure share it and one potential scale, so a charge peak and its "
-            "discharge counterpart line up; grey marks potentials a branch did not reach. The surface uses cycle "
+            "discharge counterpart line up; grey marks potentials a branch did not reach, and cycles whose branch "
+            "has no dQ/dE curve (see the dQ/dE topic). The surface uses cycle "
             "number as depth and draws "
             "every k-th cycle above 120 cycles, saying so. Every cycle is shown unless the export is set to the "
             "selected cycles. The map CSV holds the grid so another program can draw it.</p>"
@@ -592,7 +595,10 @@ def for_file(key: str, ctx: Context) -> list[str]:
                 out.append(f"Cycle {sm['cycle']}: {sm['pairs']} pair{'s' if sm['pairs'] != 1 else ''}"
                            + (f", {len(unp)} unpaired peak{'s' if len(unp) != 1 else ''} ("
                               + ", ".join(f"{u['direction']} {u['voltage_V']:.3f} V" for u in unp) + ")" if unp else "")
-                           + ("; first cycle only: " + ", ".join(f"{u['direction']} {u['voltage_V']:.3f} V" for u in fco)
+                           + ("; first cycle only: " + ", ".join(
+                               f"{u['direction']} {u['voltage_V']:.3f} V"
+                               + (f" (cycle {u['cycle']}, the first with a {u['direction']} dQ/dE curve)"
+                                  if u.get("cycle", sm["cycle"]) != sm["cycle"] else "") for u in fco)
                               if fco else "") + ".")
     elif key == "rate":
         out.append(f"Molar mass {_fmt(s.molar_mass_g_mol, 'g mol⁻¹')}, electrons per formula unit "
@@ -624,6 +630,23 @@ def for_file(key: str, ctx: Context) -> list[str]:
 
 
 # ---------------------------------------------------------------------------- the paragraph
+def _interrupted(seg, branches) -> dict:
+    """{branch index: the curve-break reasons (segment.CURVE_BREAKS) of its intervals, anywhere in the branch}.
+    Branch.curve_breaks counts only those inside the dQ/dE curve; every one leaves the branch partial."""
+    from bisect import bisect_right
+    from .segment import CURVE_BREAKS
+    reasons = getattr(getattr(seg, "edges", None), "reason", None) or {}
+    starts = [b.start for b in branches]
+    out = {}
+    for k, why in reasons.items():
+        if why not in CURVE_BREAKS:
+            continue
+        i = bisect_right(starts, int(k)) - 1
+        if i >= 0 and branches[i].start <= int(k) < branches[i].end:
+            out.setdefault(branches[i].index, set()).add(why)
+    return out
+
+
 def paragraph(ctx: Context) -> str:
     """A methods paragraph for a manuscript, from the settings of the open file, ending with the citation."""
     s, run = ctx.settings, ctx.run
@@ -649,11 +672,17 @@ def paragraph(ctx: Context) -> str:
         elif basis == "areal":
             parts.append(f"Areal capacities refer to the geometric electrode area ({s.area_cm2:g} cm²).")
         an = getattr(run, "an", None)
-        complete = {c.cycle for c in an.cycles if c.complete} if an is not None else set()
-        if an is not None and s.reference_cycle not in complete:
+        ref = next((c for c in an.cycles if c.cycle == s.reference_cycle), None) if an is not None else None
+        no_ret = None                                  # why no cycle has a retention, as the summary says
+        if an is not None and (ref is None or not ref.complete):
+            no_ret = f"the reference cycle, {s.reference_cycle}, is not a complete cycle of this file"
+        elif ref is not None and ref.capacity_retention_pct is None:
+            no_ret = (f"the discharge of the reference cycle, {s.reference_cycle}, ended at once"
+                      if ENDED_AT_ONCE in (ref.note or "") else
+                      f"the reference cycle, {s.reference_cycle}, has no discharge capacity to refer to")
+        if no_ret:
             parts.append(f"Coulombic efficiency is the discharge capacity divided by the charge capacity of the same "
-                         f"cycle; no capacity retention is given, because the reference cycle, {s.reference_cycle}, "
-                         "is not a complete cycle of this file.")
+                         f"cycle; no capacity retention is given, because {no_ret}.")
         else:
             parts.append(f"Coulombic efficiency is the discharge capacity divided by the charge capacity of the same "
                          f"cycle; capacity retention refers to the discharge capacity of cycle {s.reference_cycle}.")
@@ -680,18 +709,28 @@ def paragraph(ctx: Context) -> str:
                  + ". Peak potentials are descriptors of the measured curves at the applied rate.")
     seg = getattr(run, "seg", None)
     branches = getattr(seg, "branches", None) or []
-    broken = [b for b in branches if getattr(b, "curve_breaks", 0)]
+    interrupted = _interrupted(seg, branches)
+    broken = [b for b in branches if b.index in interrupted]
     paused = [b for b in branches if getattr(b, "pauses", 0) and not getattr(b, "curve_breaks", 0)]
     if broken:
         words = {"time reset or invalid time": "the time went back or was invalid",
                  "missing or invalid current": "the current was missing",
                  "instrument error flag": "the instrument flagged an error"}
-        found = [words[r] for r in words if any(r in getattr(b, "breaks_why", ()) for b in broken)]
+        found = [words[r] for r in words if any(r in interrupted[b.index] for b in broken)]
         what = found[0] if len(found) == 1 else ", ".join(found[:-1]) + " or " + found[-1]
-        parts.append(f"{len(broken)} branch{'es' if len(broken) > 1 else ''} contained an interval where {what}; "
-                     f"{'their capacities are' if len(broken) > 1 else 'its capacity is'} given over the integrated "
-                     f"intervals, but {'their cycles have' if len(broken) > 1 else 'its cycle has'} no coulombic "
-                     f"efficiency or retention and {'the branches' if len(broken) > 1 else 'the branch'} no dQ/dE.")
+        n, m = len(broken), sum(1 for b in broken if getattr(b, "curve_breaks", 0))
+        text = (f"{n} branch{'es' if n > 1 else ''} contained an interval where {what}; "
+                f"{'their capacities are' if n > 1 else 'its capacity is'} given over the integrated intervals, but "
+                f"{'their cycles have' if n > 1 else 'its cycle has'} no coulombic efficiency or retention")
+        if m == n:
+            text += f" and {'the branches' if n > 1 else 'the branch'} no dQ/dE."
+        elif m == 0:
+            text += (f"; the interval{'s' if n > 1 else ''} lay in a constant-voltage stage, outside the dQ/dE curve, "
+                     f"which {'they leave' if n > 1 else 'it leaves'} unchanged.")
+        else:
+            text += (f"; {m} of them {'have' if m > 1 else 'has'} no dQ/dE, and in the other{'s' if n - m > 1 else ''} "
+                     "the interval lay in a constant-voltage stage, outside the dQ/dE curve, which it leaves unchanged.")
+        parts.append(text)
     if paused:
         parts.append(f"{len(paused)} branch{'es were' if len(paused) > 1 else ' was'} paused partway by the instrument; "
                      f"{'they keep their' if len(paused) > 1 else 'it keeps its'} capacities and efficiencies, but "

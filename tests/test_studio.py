@@ -609,13 +609,14 @@ def test_a_lanhe_cex_opens_with_its_direction_answered_and_its_checks_listed(win
 
 def test_the_dqde_view_says_why_it_has_no_curve(win, app, tmp_path):
     """A LANHE file whose every branch was paused partway: the dQ/dE view (and its compact copy in the overview)
-    says why it is empty instead of showing an empty scale; with one branch paused, the view's note names it."""
+    says why it is empty instead of showing an empty scale; with one branch paused, the view's note names it and
+    why; going from a selection with a curve to one without leaves no note of the first above the sentence."""
     import sys as _sys
     from dataclasses import replace
     _sys.path.insert(0, str(Path(__file__).parent))
     import cex_synthetic as cs
     from electrochem.studio.views import NO_DQDE, DifferentialView
-    for name, paused in (("all.cex", (1, 4, 6, 7)), ("one.cex", (4,))):
+    for name, paused in (("all.cex", (1, 4, 6, 7)), ("one.cex", (4,)), ("mixed.cex", (4, 6, 7))):
         steps = cs.two_cycles()
         for k in paused:
             steps[k] = replace(steps[k], pause=(steps[k].duration / 2, 120))
@@ -628,10 +629,16 @@ def test_the_dqde_view_says_why_it_has_no_curve(win, app, tmp_path):
             [int(k in paused) for k in (1, 4, 6, 7)]
         view = next(v for v in win.views if isinstance(v, DifferentialView))
         view.show_record(win.rec, [1, 2], None)
+        empty = NO_DQDE.format(sym="V")                   # the cell voltage: the axis reads dQ/dV
         if name == "all.cex":
-            assert not view.empty.isHidden() and view.empty.text() == NO_DQDE
+            assert not view.empty.isHidden() and view.empty.text() == empty
             compact = [v for v in win.findChildren(DifferentialView) if v.compact]
-            assert compact and all(v.empty.text() == NO_DQDE for v in compact)
-        else:
+            assert compact and all(v.empty.text() == empty for v in compact)
+        elif name == "one.cex":
             assert view.empty.isHidden()
-            assert "No dQ/dE curve for cycle 1 discharge (the cycle notes say why)." in view.note.text()
+            assert "No dQ/dV curve for cycle 1 discharge (paused partway)." in view.note.text()
+        else:
+            view.show_record(win.rec, [1], None)
+            assert view.empty.isHidden() and "cycle 1 discharge (paused partway)" in view.note.text()
+            view.set_selection([2], None)
+            assert not view.empty.isHidden() and view.empty.text() == empty and view.note.isHidden()

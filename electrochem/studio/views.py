@@ -101,18 +101,30 @@ def average_titles(s) -> tuple:
 
 NO_CYCLES = ("Cycles appear once you say which current direction charges the cell. "
              "Until then the Timeline and Data views show every recorded row.")
-NO_DQDE = ("None of the shown cycles has a dQ/dE curve: every branch is interrupted or paused partway, or has fewer "
-           "than four points outside constant-voltage stages, or spans less than two potential bins. The cycle "
+NO_DQDE = ("None of the shown cycles has a dQ/d{sym} curve: every branch is interrupted or paused partway, or has "
+           "fewer than four points outside constant-voltage stages, or spans less than two potential bins. The cycle "
            "notes name the interrupted and paused branches.")
 
 
-def withheld_note(withheld, shown=6) -> str:
-    """The branches of the shown cycles that have no dQ/dE curve (Run.dqde_and_withheld), for a view's note."""
+def no_curve_why(run, cycle, direction) -> str:
+    """Why that branch has no dQ/dE curve, in a few words: the conditions of differential.curve."""
+    pair = next((p for p in run.seg.pairs if p.index == cycle), None)
+    br = (pair.charge if direction == "charge" else pair.discharge) if pair is not None else None
+    if br is not None and getattr(br, "curve_breaks", 0):
+        return "interrupted"
+    if br is not None and getattr(br, "pauses", 0):
+        return "paused partway"
+    return "too few points or too narrow a range outside constant-voltage stages"
+
+
+def withheld_note(run, withheld, sym="E", shown=6) -> str:
+    """The branches of the shown cycles that have no dQ/dE curve (Run.dqde_and_withheld) and why, for a note."""
     if not withheld:
         return ""
-    items = [f"cycle {c} {d}" for c, d in sorted(withheld, key=lambda x: (x[0], x[1] != "charge"))]
-    more = f" and {len(items) - shown} more" if len(items) > shown else ""
-    return f"No dQ/dE curve for {', '.join(items[:shown])}{more} (the cycle notes say why)."
+    keys = sorted(withheld, key=lambda x: (x[0], x[1] != "charge"))
+    items = [f"cycle {c} {d} ({no_curve_why(run, c, d)})" for c, d in keys[:shown]]
+    more = f" and {len(keys) - shown} more" if len(keys) > shown else ""
+    return f"No dQ/d{sym} curve for {', '.join(items)}{more}."
 
 
 def fmt(v, d=4):
@@ -451,7 +463,8 @@ class DifferentialView(View):
         order = self.drawn()
         curves, withheld = run.dqde_and_withheld(order)
         if withheld and not curves:
-            self.set_empty(NO_DQDE)
+            self.set_note([])                        # no note of an earlier selection above the sentence
+            self.set_empty(NO_DQDE.format(sym=sym))
             return
         for c, cv in curves:
             focus = c == self.focus
@@ -464,7 +477,7 @@ class DifferentialView(View):
                                                        f"at {cv.voltage_V[k]:.4f} V ({cv.bin_mV:g} mV bins)"))
         self.set_note([] if self.compact else
                       [f"Capacity interpolated on a {run.dqde_mv:g} mV grid; constant-voltage stages excluded; "
-                       "discharge left, charge right.", withheld_note(withheld)])
+                       "discharge left, charge right.", withheld_note(run, withheld, sym)])
         self.note.setProperty("role", "muted"); self.note.style().unpolish(self.note); self.note.style().polish(self.note)
         pi.enableAutoRange()
 
@@ -930,10 +943,10 @@ class EvolutionView(View):
             if self.focus is not None and g.cycles[0] <= self.focus <= g.cycles[-1]:
                 pi.addItem(pg.InfiniteLine(self.focus, angle=0, pen=pg.mkPen(t.selection, width=1, style=Qt.DashLine)))
             self.set_note([f"|dQ/d{sym}| of every cycle on one grid of {g.bin_mV:g} mV nodes (each curve resampled by "
-                           "less than one bin); grey where the branch was not measured, or where a cycle has no "
-                           "dQ/dE curve (an interruption or pause inside the branch: see its cycle note). Peak "
-                           "tables use each "
-                           "branch's own grid. The dashed line marks the focused cycle."])
+                           "less than one bin); grey where the branch was not measured or has no dQ/d" + sym +
+                           " curve (interrupted or paused inside it, as its cycle note says, or too few points "
+                           "outside constant-voltage stages). Peak tables use each branch's own grid. The dashed "
+                           "line marks the focused cycle."])
         else:
             self._show_cbar(False)
             curves = {c: cv for c, cv in self.curves_for(run) if cv.direction == direction}

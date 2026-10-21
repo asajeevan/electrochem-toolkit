@@ -804,10 +804,16 @@ def test_a_pause_in_a_constant_voltage_hold_keeps_the_dqde(tmp_path):
     p, _ = write(tmp_path, steps)
     tab, meta = read(p)
     assert [x["step"] for x in meta["import_report"]["cex"]["pauses"]] == [3]
+    note = next(f["message"] for f in meta["import_findings"] if f["code"] == "cex_pauses")
+    assert "A charge or discharge branch paused inside its dQ/dE curve (between its first and last record outside " \
+           "constant-voltage stages) keeps its capacities and efficiency but has no dQ/dE" in note
     run = analysed(p)
     assert [b.pauses for b in run.seg.branches] == [0, 0, 0, 0]
     assert [cv.branch for _, cv in run.dqde_curves([1, 2])] == [1, 2, 3, 4]
     assert run.an.cycles[0].complete and run.an.cycles[0].coulombic_efficiency_pct is not None
+    from electrochem import methods_text
+    text = methods_text.paragraph(methods_text.Context(settings=run.settings, run=run, profile_name="lanhe-cex"))
+    assert "paused" not in text and "capacity retention refers to the discharge capacity of cycle 1." in text
 
 
 def test_an_export_without_any_dqde_curve_says_why_in_each_figure(tmp_path):
@@ -841,10 +847,36 @@ def test_a_restart_in_a_constant_voltage_hold_keeps_the_dqde(tmp_path):
     constant-current rows before the hold, is not folded and is kept."""
     p, tr = write(tmp_path, with_step(2, restart=(900.0, 30.0, 600)))
     _, meta = read(p)
-    assert [f["detail"]["step"] for f in meta["import_findings"] if f["code"] == "cex_restart"] == [3]
+    warn = [f for f in meta["import_findings"] if f["code"] == "cex_restart"]
+    assert [f["detail"]["step"] for f in warn] == [3]
+    assert warn[0]["message"].endswith("the restart lies in a constant-voltage hold, which has no dQ/dE rows, so the "
+                                       "branch keeps its dQ/dE when that hold ends it (M01 section 9.3)")
     run = analysed(p)
     assert [b.unsupported_edges for b in run.seg.branches] == [1, 0, 0, 0]
     assert [b.curve_breaks for b in run.seg.branches] == [0, 0, 0, 0]
     assert [cv.branch for _, cv in run.dqde_curves([1, 2])] == [1, 2, 3, 4]
     c1 = run.an.cycles[0]
     assert not c1.complete and c1.coulombic_efficiency_pct is None and "no dQ/dE" not in c1.note
+    # the methods paragraph still names the interval, which leaves the cycle without ratios but not the curve
+    from electrochem import methods_text
+    text = methods_text.paragraph(methods_text.Context(settings=run.settings, run=run, profile_name="lanhe-cex"))
+    assert ("1 branch contained an interval where the time went back or was invalid; its capacity is given over the "
+            "integrated intervals, but its cycle has no coulombic efficiency or retention; the interval lay in a "
+            "constant-voltage stage, outside the dQ/dE curve, which it leaves unchanged.") in text
+    # a restart in a constant-current step: the warning says the branch has no dQ/dE
+    p2, _ = write(tmp_path, with_step(DISCHARGE, restart=(1495.0, 30.0, 600)), name="cc.cex")
+    msg = next(f["message"] for f in read(p2)[1]["import_findings"] if f["code"] == "cex_restart")
+    assert msg.endswith(", and the branch has no dQ/dE, the restart lying inside its dQ/dE curve")
+
+
+def test_the_methods_paragraph_names_a_reference_discharge_that_ended_at_once(tmp_path):
+    """The reference cycle is complete but its discharge ended at once (a step of one interval): no cycle has a
+    retention, and the paragraph says why instead of naming cycle 1 as the retention's reference."""
+    from electrochem import methods_text
+    p, _ = write(tmp_path, with_step(DISCHARGE, duration=1.0))
+    run = analysed(p)
+    assert run.an.cycles[0].complete and all(c.capacity_retention_pct is None for c in run.an.cycles)
+    text = methods_text.paragraph(methods_text.Context(settings=run.settings, run=run, profile_name="lanhe-cex"))
+    assert ("no capacity retention is given, because the discharge of the reference cycle, 1, ended at once."
+            in text)
+    assert "capacity retention refers to" not in text

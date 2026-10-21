@@ -160,6 +160,10 @@ class _Step:
         return STEP_TYPES[self.type][2]
 
     @property
+    def mode(self):
+        return STEP_TYPES[self.type][1]            # 1 constant current, 2 constant voltage, 3 rest
+
+    @property
     def records(self):
         return self.last - self.first + 1
 
@@ -681,8 +685,9 @@ def read(path: str | Path, progress=None) -> tuple[RawTable, dict]:
         fnd.note("cex_pauses", f"{len(pauses)} pause(s), {sum(p['clock_s'] for p in pauses)} s in all on the tester's "
                  "clock (" + ", ".join(f"step {p['step']}: {p['clock_s']} s" for p in pauses[:12])
                  + ("..." if len(pauses) > 12 else "") + "): the record time does not count a pause, and inside a step "
-                 "the records continue after each. A charge or discharge branch paused partway keeps its capacities "
-                 "and efficiency but has no dQ/dE, because the potential relaxes while the current is off",
+                 "the records continue after each. A charge or discharge branch paused inside its dQ/dE curve (between its "
+                 "first and last record outside constant-voltage stages) keeps its capacities and efficiency but has no "
+                 "dQ/dE, because the potential relaxes while the current is off",
                  pauses=pauses[:100])
     for r in restarts:
         if "rollback_s" not in r:
@@ -697,7 +702,10 @@ def read(path: str | Path, progress=None) -> tuple[RawTable, dict]:
                     f"tester's counter left out by going back ({r['counter_drop_Ah'] * 1e6:.3g} µAh). The interval "
                     "across the restart is not integrated, so the branch it belongs to counts as partial (M01): its "
                     "cycle has no efficiency or retention (and no cycle has a retention when that cycle is the "
-                    "reference cycle), and the branch has no dQ/dE")
+                    "reference cycle)"
+                    + ("; the restart lies in a constant-voltage hold, which has no dQ/dE rows, so the branch keeps "
+                       "its dQ/dE when that hold ends it (M01 section 9.3)" if step.mode == 2 else
+                       ", and the branch has no dQ/dE, the restart lying inside its dQ/dE curve"))
         else:
             what = (f"The {r['rollback_records']} record(s) of those seconds are kept; the step is a rest, so no "
                     "charge is involved, and its duration in record time does not count the time the tester was "

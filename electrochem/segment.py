@@ -21,7 +21,9 @@ Rules (M01 section 5, P02 cases S07 to S19):
   the potential relaxes during it, so such a branch has no dQ/dE either. A
   break or pause counts only where the dQ/dE curve lies on both sides of it:
   the curve leaves out constant-voltage rows, so one inside a constant-voltage
-  hold, or between the constant-current part and the hold, cannot fold it.
+  hold that ends the branch, or between the constant-current part and that
+  hold, cannot fold it (one in a hold with constant-current rows after it
+  counts). Every unsupported edge still leaves the branch partial.
 * A *pair* is one charge branch and the discharge branch that follows it (or
   the reverse order, if the protocol starts with discharge). Unpaired branches
   are reported, never silently dropped (S16).
@@ -73,8 +75,9 @@ class Branch:
     native_cycle: int | None
     native_half_cycle: int | None
     notes: list[str] = field(default_factory=list)
-    curve_breaks: int = 0            # unsupported edges of a CURVE_BREAKS reason: no dQ/dE for the branch
-    pauses: int = 0                  # marked pauses inside the branch (Table.paused): no dQ/dE for it either
+    curve_breaks: int = 0            # unsupported edges of a CURVE_BREAKS reason between the first and last row
+                                     # outside constant-voltage stages: no dQ/dE for the branch
+    pauses: int = 0                  # marked pauses (Table.paused) between those rows: no dQ/dE for it either
     breaks_why: tuple[str, ...] = ()  # the reasons of its curve breaks, each once
 
     @property

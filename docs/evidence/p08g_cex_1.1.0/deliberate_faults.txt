@@ -1,74 +1,85 @@
 Deliberate faults in lanhe-cex 1.1.0 and the 0.9.1 engine, figure and app changes, run on 21 October 2026 with
 mutate.py (Linux, Python 3.13, offscreen Qt) against tests/test_readers_cex.py, test_interrupted_branches.py,
 test_degenerate_pairs.py, test_segment_speed.py, test_methods_text.py, test_plateaus.py, test_figures.py and
-test_studio.py::test_the_dqde_view_says_why_it_has_no_curve, after both reviews' fixes. 'killed': at least one
-test failed with the fault in place (the run stops at the first failure).
+test_studio.py::test_the_dqde_view_says_why_it_has_no_curve, after the fixes of all three reviews. 'killed': at
+least one test failed with the fault in place (the run stops at the first failure).
 
-unmutated: 158 passed in 63.99s (0:01:03)
-killed   second layout not read: 1 failed, 17 passed in 2.21s
-killed   records between pause and resume accepted: 1 failed, 46 passed in 2.74s
-killed   orphan resume accepted: 1 failed, 44 passed in 2.61s
-killed   resume detail anywhere: 1 failed, 45 passed in 2.47s
-killed   no gap check at an inert event: 1 failed, 49 passed in 2.60s
+unmutated: 160 passed in 67.33s (0:01:07)
+killed   second layout not read: 1 failed, 17 passed in 2.41s
+killed   records between pause and resume accepted: 1 failed, 46 passed in 3.35s
+killed   orphan resume accepted: 1 failed, 44 passed in 2.58s
+killed   resume detail anywhere: 1 failed, 45 passed in 2.53s
+killed   no gap check at an inert event: 1 failed, 49 passed in 2.71s
 killed   the step type's usual interval ignored: 1 failed, 55 passed in 2.80s
 killed   the usual interval of any step type: 1 failed, 50 passed in 2.64s
-killed   counter fall accepted at an event: 1 failed, 51 passed in 2.44s
-killed   records not checked across a pause: 1 failed, 54 passed in 2.62s
-killed   pauses at the ends dropped: 1 failed, 56 passed in 2.47s
-killed   stops at the ends taken as restarts: 1 failed, 56 passed in 2.68s
-killed   restart going back 0 s accepted: 1 failed, 53 passed in 2.71s
-killed   any rollback length: 1 failed, 38 passed in 2.46s
-killed   records going forward taken as a restart: 1 failed, 42 passed in 2.55s
-killed   restored counter not checked: 1 failed, 39 passed in 2.50s
-killed   restored energy counter not checked: 1 failed, 40 passed in 2.50s
-SURVIVED restart across steps accepted: 158 passed in 61.72s (0:01:01)
-killed   second restart searched from the step start: 1 failed, 36 passed in 2.42s
-killed   never-resumed pause accepted: 1 failed, 47 passed in 2.42s
-killed   restored record's increment kept: 1 failed, 33 passed in 2.33s
+killed   counter fall accepted at an event: 1 failed, 51 passed in 2.68s
+killed   records not checked across a pause: 1 failed, 54 passed in 2.57s
+killed   pauses at the ends dropped: 1 failed, 56 passed in 2.50s
+killed   stops at the ends taken as restarts: 1 failed, 56 passed in 2.77s
+killed   restart going back 0 s accepted: 1 failed, 53 passed in 2.57s
+killed   any rollback length: 1 failed, 38 passed in 2.53s
+killed   records going forward taken as a restart: 1 failed, 42 passed in 2.38s
+killed   restored counter not checked: 1 failed, 39 passed in 2.49s
+killed   restored energy counter not checked: 1 failed, 40 passed in 2.42s
+SURVIVED restart across steps accepted: 160 passed in 66.27s (0:01:06)
+killed   second restart searched from the step start: 1 failed, 36 passed in 2.36s
+killed   never-resumed pause accepted: 1 failed, 47 passed in 2.51s
+killed   restored record's increment kept: 1 failed, 33 passed in 2.32s
 killed   counter decrease allowed anywhere: 1 failed, 23 passed in 2.24s
-killed   unexplained time decrease accepted: 1 failed, 22 passed in 2.09s
-killed   pause time not added back: 1 failed, 30 passed in 2.20s
-killed   break counted before its step start: 1 failed, 30 passed in 2.14s
-killed   one disagreeing interval refuses: 1 failed, 31 passed in 2.33s
-killed   no resolution allowance: 1 failed, 52 passed in 2.48s
-killed   disagreement not reported: 1 failed, 31 passed in 2.18s
-killed   clock suggestion not by direction: 1 failed, 60 passed in 2.84s
-killed   file ending paused not said: 1 failed, 59 passed in 2.68s
-killed   file ending in a stop called a pause: 1 failed, 59 passed in 2.58s
+killed   unexplained time decrease accepted: 1 failed, 22 passed in 2.11s
+killed   pause time not added back: 1 failed, 30 passed in 2.23s
+killed   break counted before its step start: 1 failed, 30 passed in 2.39s
+killed   one disagreeing interval refuses: 1 failed, 31 passed in 2.39s
+killed   no resolution allowance: 1 failed, 52 passed in 2.53s
+killed   disagreement not reported: 1 failed, 31 passed in 2.21s
+killed   clock suggestion not by direction: 1 failed, 60 passed in 2.63s
+killed   file ending paused not said: 1 failed, 59 passed in 2.64s
+killed   file ending in a stop called a pause: 1 failed, 59 passed in 2.69s
 killed   restart in a rest worded as a branch: 1 failed, 37 passed in 2.34s
-killed   restart not warned: 1 failed, 33 passed in 2.46s
-killed   generic time warning kept: 1 failed, 33 passed in 2.37s
-killed   scale check includes restart steps: 1 failed, 58 passed in 2.53s
-killed   scale note silent about restarts: 1 failed, 58 passed in 2.67s
-killed   other events not told apart by place: 1 failed, 57 passed in 2.56s
-killed   paused rows not passed on: 1 failed, 30 passed in 2.35s
-killed   pauses not counted in branches: 1 failed, 30 passed in 2.33s
-killed   pauses counted over the wrong rows: 1 failed, 61 passed in 2.73s
-killed   pauses counted in constant-voltage stages: 1 failed, 63 passed in 2.71s
-killed   dQ/dE of an interrupted branch kept: 1 failed, 33 passed in 2.38s
-killed   dQ/dE of a paused branch kept: 1 failed, 30 passed in 2.38s
-killed   dQ/dE withheld at the end of data too: 1 failed, 65 passed in 6.70s
-killed   dQ/dE withheld at zero-duration edges: 1 failed, 69 passed in 6.22s
-killed   time going back not a curve break: 1 failed, 33 passed in 2.29s
-killed   curve breaks counted over the wrong edges: 1 failed, 92 passed in 12.59s
-killed   curve breaks counted in constant-voltage stages: 1 failed, 65 passed in 6.91s
-killed   note without the dQ/dE reason: 1 failed, 30 passed in 2.31s
-killed   cycle note: plural wrong: 1 failed, 33 passed in 2.33s
-killed   cycle note: generic: 1 failed, 33 passed in 2.41s
-killed   summary names only the last: 1 failed, 33 passed in 2.22s
-killed   summary hides how many: 1 failed, 72 passed in 6.32s
-killed   missing reference not said: 1 failed, 33 passed in 2.52s
-killed   methods paragraph silent on pauses: 1 failed, 30 passed in 2.25s
-killed   cycle note: reasons in the code's words: 1 failed, 33 passed in 2.28s
-killed   withheld curve reported as an absent branch: 1 failed, 120 passed in 23.27s
-killed   cycles without a curve not listed: 1 failed, 120 passed in 23.91s
-killed   first-cycle-only entries without their cycle: 1 failed, 112 passed in 20.91s
-killed   presence judged over every cycle: 1 failed, 120 passed in 23.73s
-killed   withheld branches not passed to the peak tables: 1 failed, 120 passed in 23.93s
-killed   3D figure without a curve drawn in 3D: 1 failed, 64 passed in 6.35s
-killed   empty dQ/dE figure keeps its scale: 1 failed, 64 passed in 7.31s
-killed   checker counts tick labels it does not draw: 1 failed, 64 passed in 6.67s
-killed   3D axes taken as not drawn: 1 failed, 147 passed in 46.66s
-killed   dQ/dE view silent when no branch has a curve: 1 failed, 157 passed in 59.27s
-killed   dQ/dE view note silent on withheld branches: 1 failed, 157 passed in 61.32s (0:01:01)
-65 of 66 mutations killed; survived: ['restart across steps accepted']
+killed   restart not warned: 1 failed, 33 passed in 2.33s
+killed   generic time warning kept: 1 failed, 33 passed in 2.29s
+killed   scale check includes restart steps: 1 failed, 58 passed in 2.64s
+killed   scale note silent about restarts: 1 failed, 58 passed in 2.58s
+killed   other events not told apart by place: 1 failed, 57 passed in 2.51s
+killed   paused rows not passed on: 1 failed, 30 passed in 2.22s
+killed   pauses not counted in branches: 1 failed, 30 passed in 2.36s
+killed   pauses counted over the wrong rows: 1 failed, 61 passed in 2.77s
+killed   pauses counted in constant-voltage stages: 1 failed, 63 passed in 2.64s
+killed   dQ/dE of an interrupted branch kept: 1 failed, 33 passed in 2.37s
+killed   dQ/dE of a paused branch kept: 1 failed, 30 passed in 2.28s
+killed   dQ/dE withheld at the end of data too: 1 failed, 65 passed in 6.16s
+killed   dQ/dE withheld at zero-duration edges: 1 failed, 70 passed in 6.72s
+killed   time going back not a curve break: 1 failed, 33 passed in 2.39s
+killed   curve breaks counted over the wrong edges: 1 failed, 93 passed in 13.40s
+killed   curve breaks counted in constant-voltage stages: 1 failed, 65 passed in 6.56s
+killed   note without the dQ/dE reason: 1 failed, 30 passed in 2.14s
+killed   cycle note: plural wrong: 1 failed, 33 passed in 2.34s
+killed   cycle note: generic: 1 failed, 33 passed in 2.21s
+killed   summary names only the last: 1 failed, 33 passed in 2.42s
+killed   summary hides how many: 1 failed, 73 passed in 6.71s
+killed   missing reference not said: 1 failed, 33 passed in 2.35s
+killed   methods paragraph silent on pauses: 1 failed, 30 passed in 2.33s
+killed   cycle note: reasons in the code's words: 1 failed, 33 passed in 2.45s
+killed   withheld curve reported as an absent branch: 1 failed, 121 passed in 24.08s
+killed   cycles without a curve not listed: 1 failed, 121 passed in 23.91s
+killed   first-cycle-only entries without their cycle: 1 failed, 113 passed in 21.64s
+killed   presence judged over every cycle: 1 failed, 122 passed in 26.72s
+killed   seen ranges over the direction's cycles only: 1 failed, 121 passed in 24.38s
+killed   first-cycle-only words without the cycle: 1 failed, 123 passed in 26.61s
+killed   withheld branches not passed to the peak tables: 1 failed, 121 passed in 24.26s
+killed   3D figure without a curve drawn in 3D: 1 failed, 64 passed in 6.47s
+killed   empty dQ/dE figure keeps its scale: 1 failed, 64 passed in 7.33s
+killed   checker counts tick labels it does not draw: 1 failed, 64 passed in 7.07s
+killed   3D axes taken as not drawn: 1 failed, 149 passed in 49.63s
+killed   dQ/dE view silent when no branch has a curve: 1 failed, 159 passed in 60.36s (0:01:00)
+killed   dQ/dE view note silent on withheld branches: 1 failed, 159 passed in 62.99s (0:01:02)
+killed   stale note above the empty sentence: 1 failed, 159 passed in 65.28s (0:01:05)
+killed   view note without the reasons: 1 failed, 159 passed in 63.47s (0:01:03)
+killed   view sentence without the axis symbol: 1 failed, 159 passed in 60.69s (0:01:00)
+killed   interruption in a hold not in the paragraph: 1 failed, 65 passed in 7.00s
+killed   interval in a hold said to remove the dQ/dE: 1 failed, 65 passed in 6.80s
+killed   reference discharge ended at once not said: 1 failed, 66 passed in 6.75s
+killed   topic line without the cycle: 1 failed, 123 passed in 26.39s
+killed   restart in a hold worded as removing the dQ/dE: 1 failed, 65 passed in 6.81s
+killed   pause note says partway: 1 failed, 63 passed in 2.54s
+76 of 77 mutations killed; survived: ['restart across steps accepted']

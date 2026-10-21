@@ -91,9 +91,10 @@ EVERY TIME
      relaxes while the current is off). When the tester stopped during a
      charge or discharge and resumed from a state saved shortly before the
      stop, every record and the charge its counter left out are kept; that
-     branch has no dQ/dE and its cycle no efficiency or retention, and when
-     it is the reference cycle no cycle has a retention until you choose
-     another reference cycle. The cycle notes say which branch and why; the
+     cycle has no efficiency or retention, and when it is the reference cycle
+     no cycle has a retention until you choose another reference cycle. The
+     branch has no dQ/dE unless the restart falls in a constant-voltage hold
+     that ends it. The cycle notes say which branch and why; the
      dQ/dE figures, views and peak tables leave such a branch out. A .cex it
      cannot vouch for (a layout, step type, status event or unit kind not
      yet seen, events out of the order seen, a restart unlike the ones seen,
@@ -191,7 +192,9 @@ WHAT IS IN THE RESULTS FOLDER
                                   under each peak and its share, the partner peak in the opposite
                                   branch (pairing within 200 mV, separation, mid-point) or "unpaired",
                                   and the cycles in which the peak is seen ("first cycle only",
-                                  "appears from cycle k")
+                                  "appears from cycle k", judged over the cycles with a dQ/dE
+                                  curve in its direction; no_curve_cycles lists the cycles whose
+                                  branch has none)
   dqde_pairs.csv                  one row per charge/discharge peak pair and cycle
   dqde_map.csv                    dQ/dE of every cycle on one potential grid (the evolution map)
   metadata.json                   what the file declares (an EC-Lab header, with its step

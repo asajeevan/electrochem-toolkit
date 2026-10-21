@@ -406,7 +406,8 @@ def methods(s: Settings, dqde_mv: float, dqde_units: str, peak_pair_window_mV: f
                         "curve (pairing_note says which), a statement about the curves, not a mechanism",
         "dqde_presence": f"peaks of one direction linked cycle to cycle to the nearest peak of the previous occurrence within {w} mV, greedy by smallest shift; "
                          "'seen in cycles a-b', 'first cycle only' (in the first analysed cycle and in no later one) and 'appears from cycle k' describe the linked peaks over the analysed cycles "
-                         "of that direction, the cycles in which it has a dQ/dE curve",
+                         "of that direction, the cycles in which it has a dQ/dE curve; cycles_seen lists the cycles the peak was found in as ranges over the cycles of "
+                         "the analysis, and no_curve_cycles the cycles whose branch of that direction has no curve",
         "dqde_map": ("each branch's dQ/dE linearly resampled onto one grid of nodes at multiples of the bin width (a shift of less than one bin), one row per cycle; "
                      f"{'every cycle' if evolution_cycles == 'all' else 'the selected cycles'}; figure 6 shows |dQ/dE| on a sequential map (magma_r), grey where a branch was not measured or a cycle has no dQ/dE curve; "
                      "figure 7 shows the same grid as 3D surfaces; dqde_map.csv keeps the signed values in real units; peak tables do not use this grid"),

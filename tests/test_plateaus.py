@@ -329,9 +329,8 @@ def _analysed(p):
 
 def test_a_peak_whose_partner_branch_has_no_curve_says_so(tmp_path):
     """Cycle 2's discharge is interrupted, so it has no curve: the charge peaks of cycle 2 are unpaired because
-    that branch has no dQ/dE curve, not because the cycle has no discharge, and the discharge peaks of the other
-    cycles are followed over the cycles whose discharge has a curve (1, 3, 4, 5; ranges run through consecutive
-    analysed cycles)."""
+    that branch has no dQ/dE curve, not because the cycle has no discharge; the discharge peaks of the other
+    cycles are seen in cycles 1 and 3 to 5, a range broken at cycle 2, which no_curve_cycles names."""
     run = _analysed(_interrupted(tmp_path / "cell.mpt", 2, "discharge"))
     assert [b.curve_breaks for b in run.seg.branches] == [0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
     assert run.dqde_and_withheld(run.all_cycles)[1] == {(2, "discharge")}
@@ -342,8 +341,8 @@ def test_a_peak_whose_partner_branch_has_no_curve_says_so(tmp_path):
     assert not rows_of(rep, 2, "discharge") and not [q for q in rep.pairs if q.cycle == 2]
     for e0, _ in pc.REVERSIBLE:
         r = near(rows_of(rep, 3, "discharge"), e0 - pc.HYST / 2)
-        assert r.pairing == "paired" and r.evolution == "seen in cycles 1-5" and r.cycles_seen == "1-5"
-        assert r.no_curve_cycles == "2"                  # the range runs through cycle 2, and this says why
+        assert r.pairing == "paired" and r.evolution == "seen in cycles 1, 3-5" and r.cycles_seen == "1, 3-5"
+        assert r.no_curve_cycles == "2"                  # why the range breaks at cycle 2
         assert near(rows_of(rep, 3, "charge"), e0 + pc.HYST / 2).no_curve_cycles == ""
     late = near(rows_of(rep, 3, "discharge"), pc.LATE[0] - pc.HYST / 2)
     assert late.evolution == "appears from cycle 3"
@@ -365,3 +364,31 @@ def test_presence_is_judged_over_the_cycles_with_a_curve(tmp_path):
         assert d.evolution == "seen in cycles 1-5"
     assert not [r for r in rep.peaks if abs(r.voltage_V - pc.IRREVERSIBLE[0]) < 0.02]
     assert rep.summary(1)["first_cycle_only_peaks"] == []
+
+
+def _gauss(cycle, direction, centres, lo=2.8, hi=3.9, step=0.01, width=0.02):
+    v = lo + step * np.arange(int(round((hi - lo) / step)) + 1)
+    y = sum(np.exp(-0.5 * ((v - c) / width) ** 2) for c in centres)
+    return cycle, DqdvCurve(cycle, 1, direction, v, y if direction == "charge" else -y, "mAh/V", step * 1000)
+
+
+def test_a_first_cycle_only_peak_after_a_branch_without_a_curve_names_its_cycle():
+    """Cycle 1's charge has no curve; a charge peak found in cycle 2 and no later cycle is 'first cycle only'
+    over the cycles with a charge curve: the words, the summary and the methods window name cycle 2."""
+    curves = [_gauss(1, "discharge", [3.0]), _gauss(2, "charge", [3.3, 3.6]), _gauss(2, "discharge", [3.0]),
+              _gauss(3, "charge", [3.3]), _gauss(3, "discharge", [3.0])]
+    rep = differential.plateau_analysis(curves, withheld={(1, "charge")})
+    p = next(r for r in rep.peaks if r.direction == "charge" and abs(r.voltage_V - 3.6) < 0.011)
+    assert p.evolution == "first cycle only" and p.no_curve_cycles == "1"
+    assert differential.presence_words(p) == "present only in cycle 2, the first analysed cycle with a charge dQ/dE curve"
+    assert differential.describe_peak(p).endswith("present only in cycle 2, the first analysed cycle with a charge "
+                                                  "dQ/dE curve (no charge dQ/dE curve in cycle 1).")
+    entry = rep.summary(1)["first_cycle_only_peaks"]
+    assert [(u["direction"], u["cycle"], round(u["voltage_V"], 1)) for u in entry] == [("charge", 2, 3.6)]
+    d1 = next(r for r in rep.peaks if r.cycle == 1)
+    assert d1.pairing_note == "the charge branch of this cycle has no dQ/dE curve" and d1.evolution == "seen in cycles 1-3"
+    from types import SimpleNamespace
+    from electrochem import methods_text
+    ctx = methods_text.Context(settings=Settings(charge="ox", reference="Li/Li+"), run=SimpleNamespace(plateaus=lambda: rep))
+    line = next(x for x in methods_text.for_file("peaks", ctx) if x.startswith("Cycle 1:"))
+    assert line.endswith("first cycle only: charge 3.600 V (cycle 2, the first with a charge dQ/dE curve).")

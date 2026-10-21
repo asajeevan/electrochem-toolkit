@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (QButtonGroup, QFrame, QGridLayout, QHBoxLayout, Q
                                QScrollArea, QVBoxLayout, QWidget)
 
 from ..cycling import capacity_basis, cycle_capacity
+from ..differential import presence_words
 from ..workflow import EC_LAB_DEFAULT_MASS_MG
 from . import theme
 from .model import Record, degenerate_start, first_branch_direction, parse_number, questions, state_of
@@ -567,7 +568,7 @@ class Inspector(QScrollArea):
                        f"{p.no_curve_cycles})" if p.no_curve_cycles else "")
                 lay.addWidget(_label(f"Unpaired {p.direction} peak at {p.voltage_V:.3f} V, {p.charge:.3g} {unit} under it: "
                                      f"{p.pairing_note}; "
-                                     + ("present in the first cycle only" if p.evolution == "first cycle only" else p.evolution)
+                                     + presence_words(p)
                                      + gap + ".", "provisional" if p.evolution == "first cycle only" else "value"))
         later = [p for p in peaks if p.evolution.startswith("appears from")]
         if later:

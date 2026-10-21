@@ -487,7 +487,7 @@ def dqde(tab, seg, s, cycles, ax=None, width=None, bin_mV=10.0, palette="blues",
     lab = f"d$\\mathit{{Q}}$/d$\\mathit{{{sym}}}$ ({unit})"
     if not curves:                   # the axis titles and the reason; no scale, arrows or legend to read
         box(ax, *((lab, potential_label(tab, s)) if orientation == "vertical" else (potential_label(tab, s), lab)))
-        _no_curve(ax)
+        _no_curve(ax, sym)
         return fig
     n = len(sel)
     ncol = _ncol(n, ax, f"Cycle {max(c for c, _ in sel)}" if sel else "Cycle 1")
@@ -701,7 +701,7 @@ def fig6_dqde_map(curves, s, tab=None, units="au", journal="nature", width=None)
         cb.outline.set_linewidth(0.6)
     if not grids:
         box(axes[0], xlab, "Cycle number")
-        _no_curve(axes[0])
+        _no_curve(axes[0], sym)
     letters = {ax: chr(ord("a") + k) for k, ax in enumerate(axes)} if len(axes) > 1 else None
     return finalize(fig, letters)
 
@@ -710,18 +710,18 @@ def _ordinal(k: int) -> str:
     return f"{k}{'th' if 10 <= k % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(k % 10, 'th')}"
 
 
-NO_CURVE = ("No dQ/dE curve in these cycles: every branch is interrupted or paused partway, or has fewer than "
+NO_CURVE = ("No dQ/d{sym} curve in these cycles: every branch is interrupted or paused partway, or has fewer than "
             "four points outside constant-voltage stages, or spans less than two potential bins (the cycle notes "
             "name the interrupted and paused branches)")
 
 
-def _no_curve(ax, frame=True):
-    """The reason (NO_CURVE) in place of an empty panel, wrapped to the panel's width. With a frame the panel
-    keeps its outline and axis titles but no ticks, as there is no scale to read; without one, nothing but the
-    reason is drawn."""
+def _no_curve(ax, sym="E", frame=True):
+    """The reason (NO_CURVE, with the symbol of the panel's axis titles) in place of an empty panel, wrapped to
+    the panel's width. With a frame the panel keeps its outline and axis titles but no ticks, as there is no
+    scale to read; without one, nothing but the reason is drawn."""
     import textwrap
     width_pt = ax.get_position().width * ax.figure.get_size_inches()[0] * 72
-    text = textwrap.fill(NO_CURVE, max(24, int(0.85 * width_pt / (0.5 * _J.small_pt))))
+    text = textwrap.fill(NO_CURVE.format(sym=sym), max(24, int(0.85 * width_pt / (0.5 * _J.small_pt))))
     if frame:
         ax.set_xticks([]); ax.set_yticks([])
         ax.minorticks_off()
@@ -746,7 +746,7 @@ def fig7_dqde_surface(curves, s, tab=None, units="au", journal="nature", width=N
     w = width or col_width("double", journal)
     if not grids:                    # the reason alone: no 3D box, colour bar or letters around nothing
         fig, ax = _new(None, w, 0.28)
-        _no_curve(ax, frame=False)
+        _no_curve(ax, potential_symbol(s), frame=False)
         return finalize(fig)
     n = len(grids)
     fig = plt.figure(figsize=(w, w * 0.28), layout="constrained")
